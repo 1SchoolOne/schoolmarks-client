@@ -8,11 +8,13 @@ REQUIRED_NODE_VERSION = 20.17.0
 BLUE := $(shell echo "\033[34m")
 GREEN := $(shell echo "\033[32m")
 YELLOW := $(shell echo "\033[33m")
+RED := $(shell echo "\033[31m")
 RESET := $(shell echo "\033[0m")
 
 # Helper function to compare versions
-define semver_check
-$(shell printf '%s\n%s\n' "$(1)" "$(2)" | sort -V | head -n 1)
+# Returns: -1 if v1 < v2, 0 if v1 == v2, 1 if v1 > v2
+define version_compare
+$(shell printf '%s\n%s\n' "$(1)" "$(2)" | sort -V | head -n 1 | grep -q "^$(1)$$" && echo "0" || (printf '%s\n%s\n' "$(1)" "$(2)" | sort -V | head -n 1 | grep -q "^$(2)$$" && echo "-1" || echo "1"))
 endef
 
 .PHONY: all
@@ -29,12 +31,17 @@ check-deps:
 	@which node > /dev/null || (echo "NodeJS is required but not installed. Please install NodeJS first." && exit 1)
 	@which yarn > /dev/null || (echo "Yarn is required but not installed. Please install Yarn first: npm install -g yarn" && exit 1)
 	@# Check Node.js version
-	@CURRENT_NODE_VERSION=$$(node -v | cut -c2-); \
-	if [ "$(call semver_check,$${CURRENT_NODE_VERSION},$(REQUIRED_NODE_VERSION))" = "$(REQUIRED_NODE_VERSION)" ]; then \
-		echo "$(GREEN)✓ Your Node.js version $${CURRENT_NODE_VERSION} meets minimum requirement ($(REQUIRED_NODE_VERSION))$(RESET)"; \
+	@CURRENT_NODE_VERSION=$$(node -v | sed 's/^v//'); \
+	SORTED_VERSIONS=$$(printf '%s\n%s\n' "$$CURRENT_NODE_VERSION" "$(REQUIRED_NODE_VERSION)" | sort -V); \
+	if [ "$$CURRENT_NODE_VERSION" = "$(REQUIRED_NODE_VERSION)" ]; then \
+		echo "$(GREEN)✓ Using Node.js version $$CURRENT_NODE_VERSION$(RESET)"; \
+	elif echo "$$SORTED_VERSIONS" | head -n1 | grep -q "^$(REQUIRED_NODE_VERSION)$$"; then \
+		echo "$(YELLOW)⚠ Warning: Your Node.js version $$CURRENT_NODE_VERSION is higher than required version $(REQUIRED_NODE_VERSION)$(RESET)"; \
+		echo "$(YELLOW)  This might work but is not the tested version.$(RESET)"; \
 	else \
-		echo "$(YELLOW)⚠ Warning: Your Node.js version $${CURRENT_NODE_VERSION} is lower than required version $(REQUIRED_NODE_VERSION)$(RESET)"; \
-		echo "$(YELLOW)  You might encounter issues. Consider upgrading Node.js.$(RESET)"; \
+		echo "$(RED)✗ Error: Your Node.js version $$CURRENT_NODE_VERSION is lower than required version $(REQUIRED_NODE_VERSION)$(RESET)"; \
+		echo "$(RED)  Please upgrade Node.js to continue.$(RESET)"; \
+		exit 1; \
 	fi
 
 .PHONY: install-deps
