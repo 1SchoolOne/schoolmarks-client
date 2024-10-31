@@ -113,6 +113,10 @@ make clean-deps
 make install-deps
 ```
 
+## Troubleshooting
+
+If you're having trouble pushing commits from within the dev container, please refer to the [VS Code documentation](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials#_using-ssh-keys) on sharing Git credentials.
+
 ## Contributing
 
 1. Fork the repository
