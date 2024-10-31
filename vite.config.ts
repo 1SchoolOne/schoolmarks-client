@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import react from '@vitejs/plugin-react-swc'
 import path from 'path'
 import { defineConfig } from 'vite'
@@ -17,5 +18,9 @@ export default defineConfig({
 			'@routes': path.resolve(__dirname, './src/routes'),
 			'@contexts': path.resolve(__dirname, './src/contexts'),
 		},
+	},
+	test: {
+		dir: 'src',
+		globals: true,
 	},
 })
