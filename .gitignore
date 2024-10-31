@@ -1,3 +1,4 @@
+# Misc
 node_modules
 *.lock
 .DS_Store
@@ -6,5 +7,10 @@ node_modules
 .idea/**/*
 !.idea/prettier.xml
 
-# Dev containers
-.devcontainer/**/devcontainer.env
+# Yarn
+.yarn/*
+!.yarn/releases
+
+# Environment variables
+.env*
+!.env.example
