@@ -1,8 +1,9 @@
 import { Exemple } from "../../domain/entities/exemple";
+import { ExempleRepository } from "../../domain/repositories/exemple.repository";
 
-export class ExempleApiRepository {
+export class ExempleApiRepository  implements ExempleRepository {
 
-  async getExemple(): Promise<Exemple> {
-    return this.httpClient.get<Exemple>('/exemple');
+  async getAll(): Promise<Exemple> {
+    return axios.get<Exemple>('/exemple');
   }
 }
