@@ -1,6 +1,5 @@
 # Misc
 node_modules
-*.lock
 .DS_Store
 
 # IntelliJ
