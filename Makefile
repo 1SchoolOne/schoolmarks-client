@@ -59,7 +59,7 @@ install-hooks:
 		if [ -f "$$hook" ]; then \
 			chmod +x "$$hook"; \
 			hook_name=$$(basename "$$hook"); \
-			ln -sf "../../$$hook" "$(HOOK_DIR)/$$hook_name"; \
+			ln -sf "../../$$hook" "$(HOOKS_DIR)/$$hook_name"; \
 			echo "$(GREEN)✓ Installed hook: $$hook_name$(RESET)"; \
 		fi \
 	done
@@ -84,15 +84,44 @@ clean-deps:
 	@rm -f $(YARN_LOCK)
 	@echo "$(GREEN)✓ Dependencies cleaned$(RESET)"
 
+.PHONY: lint
+lint:
+	@echo "$(BLUE)Checking code lint...$(RESET)"
+	@yarn lint && echo "$(GREEN)Done!$(RESET)"
+
+.PHONY: fix-lint
+fix-lint:
+	@echo "$(BLUE)Fixing code lint errors...$(RESET)"
+	@yarn lint:fix
+
+.PHONY: format
+format:
+	@yarn format && echo "$(GREEN)Done!$(RESET)"
+
+.PHONY: fix-format
+fix-format:
+	@echo "$(BLUE)Fixing code formatting errors...$(RESET)"
+	@yarn format:fix
+
+.PHONY: test
+test:
+	@echo "$(BLUE)Running unit tests...$(RESET)"
+	@yarn test
+
 # Show help
 .PHONY: help
 help:
-	@echo "Available targets:"
-	@echo "  setup         - Complete setup (install dependencies and hooks)"
-	@echo "  install-hooks - Install git hooks only"
-	@echo "  install-deps  - Install node dependencies only"
-	@echo "  update-deps   - Update all dependencies"
-	@echo "  clean        - Remove all installed dependencies and hooks"
-	@echo "  clean-hooks  - Remove installed git hooks"
-	@echo "  clean-deps   - Remove installed dependencies"
-	@echo "  help         - Show this help message"
+	@echo "Available commands:"
+	@echo "  $(BLUE)setup$(RESET)         - Complete setup (install dependencies and hooks)"
+	@echo "  $(BLUE)install-hooks$(RESET) - Install git hooks only"
+	@echo "  $(BLUE)install-deps$(RESET)  - Install node dependencies only"
+	@echo "  $(BLUE)update-deps$(RESET)   - Update all dependencies"
+	@echo "  $(BLUE)clean$(RESET)         - Remove all installed dependencies and hooks"
+	@echo "  $(BLUE)clean-hooks$(RESET)   - Remove installed git hooks"
+	@echo "  $(BLUE)clean-deps$(RESET)    - Remove installed dependencies"
+	@echo "  $(BLUE)lint$(RESET)          - Check code linting"
+	@echo "  $(BLUE)fix-lint$(RESET)      - Fix code linting errors"
+	@echo "  $(BLUE)format$(RESET)        - Check code formatting"
+	@echo "  $(BLUE)fix-format$(RESET)    - Fix code formatting errors"
+	@echo "  $(BLUE)test$(RESET)          - Run unit tests"
+	@echo "  $(BLUE)help$(RESET)          - Show this help message"
