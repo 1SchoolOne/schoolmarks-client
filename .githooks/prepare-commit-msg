@@ -9,7 +9,7 @@ fi
 
 # If we're in the middle of an interactive rebase, GIT_SEQUENCE_EDITOR will be set.
 # We'll skip the hook in this case as well.
-if [ -n "$GIT_SEQUENCE_EDITOR" ]; then
+if [[ "$GIT_REFLOG_ACTION" == "rebase"* ]]; then
   echo "Skipping prepare-commit-msg hook due to rebase."
   exit 0
 fi
