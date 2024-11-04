@@ -54,7 +54,6 @@ jobs:
 
       - name: Check Linting
         run: yarn run lint:report
-        continue-on-error: true
 
       - name: Upload Report Artifact
         uses: actions/upload-artifact@v4
