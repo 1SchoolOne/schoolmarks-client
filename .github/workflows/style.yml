@@ -35,7 +35,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Check Formatting
-        run: yarn lint
+        run: yarn format
 
   lint:
     name: Lint (ESLint)
@@ -56,6 +56,7 @@ jobs:
         run: yarn run lint:report
 
       - name: Upload Report Artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: eslint_report
