@@ -25,7 +25,7 @@
 			"@utils/*": ["./src/utils/*"],
 			"@types": ["./src/types/index.ts"],
 			"@assets/*": ["./src/assets/*"],
-			"@routes": ["./src/routes/index.ts"],
+			"@routes/*": ["./src/routes/*"],
 			"@contexts": ["./src/contexts/index.ts"]
 		}
 	},
