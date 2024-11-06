@@ -19,6 +19,14 @@ export default defineConfig({
 			'@contexts': path.resolve(__dirname, './src/contexts'),
 		},
 	},
+	build: { outDir: 'build' },
+	css: {
+		preprocessorOptions: {
+			less: {
+				javascriptEnabled: true,
+			},
+		},
+	},
 	test: {
 		dir: 'src',
 		globals: true,
