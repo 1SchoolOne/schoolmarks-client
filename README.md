@@ -12,19 +12,18 @@ A React application built with Vite for managing school marks and academic perfo
 ### IDE Recommendations
 
 > [!NOTE]
-> For the best development experience:
+> For the best development experience, it is highly recommended to use VS Code and the dev container for a pre-configured environment.
 >
-> - Install ESLint and Prettier extensions for your IDE
-> - Using VS Code? Highly recommended to use the dev container for a pre-configured environment
+> If you use want to use another IDE, install ESLint and Prettier extensions and configure ESLint to run on save.
 
 ## Getting Started
 
-### 1. Clone the Repository
+### 1. Create the dev container
 
-```bash
-git clone git@github.com:1SchoolOne/schoolmarks-client.git
-cd schoolmakrs-client
-```
+- Install VS Code "_**Dev Containers**_" extension
+- Open the command palette `CMD + Shift + P` or `CTRL + Shift + P`
+- Select "_**Dev Containers: Clone Repository in Container Volume**_"
+- Log into your GitHub account and select the _**schoolmarks-client**_ repository
 
 ### 2. Setup Project
 
@@ -48,6 +47,10 @@ This command will:
 | `make install-hooks` | Install git hooks only                                  |
 | `make install-deps`  | Install node dependencies only                          |
 | `make clean`         | Remove all installed dependencies and hooks             |
+| `make lint`          | Check for code linting errors                           |
+| `make fix-lint`      | Fix code linting errors                                 |
+| `make format`        | Check for code formatting errors                        |
+| `make fix-format`    | Fix code formatting errors                              |
 | `make help`          | Show available make commands                            |
 
 ### Development
@@ -64,36 +67,18 @@ yarn dev
 yarn build
 ```
 
-#### Linting
-
-```bash
-yarn lint:check # Check for linting errors
-```
-
-```bash
-yarn lint:fix # Check for linting errors and fix them when possible
-```
-
-#### Formatting
-
-```bash
-yarn format:check # Check for formatting errors
-```
-
-```bash
-yarn format:fix # Check for formatting errors and fix them when possible
-```
-
 ### Commit Guidelines
 
 This project uses Commitizen for standardized commit messages. After setup, simply use `git commit` and follow the prompts.
 
 ## Project Structure
 
-- `src/`: Main source code
 - `public/`: Static assets
 - `.githooks/`: Custom git hooks
-- `node_modules/`: Dependency directory (git-ignored)
+- `src/`: Main source code
+  - `components`: UI components that does not contain any business logic
+  - `routes`: App routes, this is where the business logic is handled
+  - `types`: Model interfaces and common types that can be shared across the app
 
 ## Troubleshooting
 
@@ -116,11 +101,3 @@ make install-deps
 ## Troubleshooting
 
 If you're having trouble pushing commits from within the dev container, please refer to the [VS Code documentation](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials#_using-ssh-keys) on sharing Git credentials.
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feat/AmazingFeature`)
-3. Commit your changes (`git commit`)
-4. Push to the branch (`git push origin feat/AmazingFeature`)
-5. Open a Pull Request
