@@ -16,3 +16,7 @@ node_modules
 
 # Tool reports
 eslint_report.json
+
+# Build
+build
+*.tsbuildinfo
