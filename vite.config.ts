@@ -17,6 +17,7 @@ export default defineConfig({
 			'@assets': path.resolve(__dirname, './src/assets'),
 			'@routes': path.resolve(__dirname, './src/routes'),
 			'@contexts': path.resolve(__dirname, './src/contexts'),
+			'@api': path.resolve(__dirname, './src/api'),
 		},
 	},
 	build: { outDir: 'build' },
