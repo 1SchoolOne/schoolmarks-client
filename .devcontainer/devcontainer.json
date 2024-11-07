@@ -20,7 +20,8 @@
 				"YoavBls.pretty-ts-errors",
 				"redhat.vscode-yaml",
 				"dbaeumer.vscode-eslint",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"jgclark.vscode-todo-highlight"
 			],
 			"settings": {
 				"editor.formatOnSave": true,
