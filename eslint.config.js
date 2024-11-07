@@ -1,5 +1,4 @@
 import eslint from '@eslint/js'
-import jsdoc from 'eslint-plugin-jsdoc'
 import eslintPluginPrettier from 'eslint-plugin-prettier/recommended'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
@@ -8,12 +7,7 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config({
 	files: ['src/**/*.{ts,tsx}'],
-	extends: [
-		eslint.configs.recommended,
-		...tseslint.configs.recommended,
-		jsdoc.configs['flat/stylistic-typescript'],
-		eslintPluginPrettier,
-	],
+	extends: [eslint.configs.recommended, ...tseslint.configs.recommended, eslintPluginPrettier],
 	languageOptions: {
 		ecmaVersion: 2020,
 		globals: globals.browser,
