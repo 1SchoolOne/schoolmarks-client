@@ -1,15 +1,31 @@
 import { ThemeProvider } from '@1schoolone/ui'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { App as AppProvider } from 'antd'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+
+import { IdentityProvider } from '@contexts'
 
 import { App } from './App.tsx'
 
 import './index.css'
 
+/**
+ * Les requêtes mises en cache sont valides pendant 2 minutes. Après ce délai
+ * elles sont ré-exécuté au besoin.
+ */
+const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 2 * 60 * 1000 } } })
+
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<ThemeProvider>
-			<App />
+			<AppProvider rootClassName="app-container">
+				<QueryClientProvider client={queryClient}>
+					<IdentityProvider>
+						<App />
+					</IdentityProvider>
+				</QueryClientProvider>
+			</AppProvider>
 		</ThemeProvider>
 	</StrictMode>,
 )
