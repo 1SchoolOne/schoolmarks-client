@@ -30,8 +30,11 @@
 			"@assets/*": ["src/assets/*"],
 			"@routes/*": ["src/routes/*"],
 			"@contexts": ["src/contexts/index.ts"],
-			"@api/*": ["src/api/*"]
-		}
+			"@api/*": ["src/api/*"],
+			"@helpers/*": ["src/helpers/*"]
+		},
+
+		"types": ["vitest/globals"]
 	},
 	"include": ["src"]
 }

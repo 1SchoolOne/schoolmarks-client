@@ -18,6 +18,7 @@ export default defineConfig({
 			'@routes': path.resolve(__dirname, './src/routes'),
 			'@contexts': path.resolve(__dirname, './src/contexts'),
 			'@api': path.resolve(__dirname, './src/api'),
+			'@helpers': path.resolve(__dirname, './src/helpers'),
 		},
 	},
 	build: { outDir: 'build' },

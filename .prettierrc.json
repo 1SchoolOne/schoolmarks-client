@@ -9,7 +9,9 @@
 	"printWidth": 100,
 	"plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-jsdoc"],
 	"importOrder": [
+		"^@helpers/(.*)$",
 		"^@routes/(.*)$",
+		"^@api/(.*)$",
 		"^@components",
 		"^@contexts",
 		"^@utils/(.*)$",
@@ -23,5 +25,6 @@
 	"importOrderSeparation": true,
 	"importOrderSortSpecifiers": true,
 	"tsdoc": true,
-	"jsdocPrintWidth": 80
+	"jsdocPrintWidth": 80,
+	"jsdocCapitalizeDescription": false
 }
