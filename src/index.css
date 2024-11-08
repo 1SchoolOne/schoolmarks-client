@@ -24,3 +24,7 @@ body {
 #root {
 	height: inherit;
 }
+
+.app-container {
+	height: inherit;
+}
