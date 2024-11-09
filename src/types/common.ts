@@ -6,8 +6,9 @@ interface IndexRoute extends Omit<IndexRouteObject, 'handle'> {
 	handle?: Handle
 }
 
-interface NonIndexRoute extends Omit<NonIndexRouteObject, 'handle'> {
+interface NonIndexRoute extends Omit<NonIndexRouteObject, 'handle' | 'children'> {
 	handle?: Handle
+	children?: Route[]
 }
 
 export interface Handle {
