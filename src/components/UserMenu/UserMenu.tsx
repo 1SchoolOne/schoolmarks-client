@@ -1,17 +1,26 @@
 import { Avatar, Dropdown, MenuProps, Space, Typography } from 'antd'
 import { ChevronDownIcon, LogOutIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+
+import { IdentityContext } from '@contexts'
 
 import './UserMenu-styles.less'
 
 export function UserMenu() {
 	const [isOpen, setIsOpen] = useState<boolean>(false)
+	const { setAccessToken, setRefreshToken } = useContext(IdentityContext)
+
+	const logout = () => {
+		setAccessToken(null)
+		setRefreshToken(null)
+	}
 
 	const items: MenuProps['items'] = [
 		{
 			key: 'usermenu-logout',
 			icon: <LogOutIcon size={16} />,
 			label: 'Déconnexion',
+			onClick: logout,
 		},
 	]
 

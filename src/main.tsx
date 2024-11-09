@@ -13,8 +13,12 @@ import './index.css'
 /**
  * Les requêtes mises en cache sont valides pendant 2 minutes. Après ce délai
  * elles sont ré-exécuté au besoin.
+ *
+ * En mode dev, les requêtes ne sont pas mise en cache.
  */
-const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 2 * 60 * 1000 } } })
+const queryClient = new QueryClient({
+	defaultOptions: { queries: { staleTime: import.meta.env.DEV ? 0 : 2 * 60 * 1000 } },
+})
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
