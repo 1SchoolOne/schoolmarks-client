@@ -16,6 +16,7 @@ node_modules
 
 # Tool reports
 eslint_report.json
+.vitest-report
 
 # Build
 build

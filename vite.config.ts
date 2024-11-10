@@ -32,5 +32,9 @@ export default defineConfig({
 	test: {
 		dir: 'src',
 		globals: true,
+		reporters: process.env.CI ? ['basic', 'html', 'github-actions'] : ['basic'],
+		outputFile: {
+			html: '.vitest-report/index.html',
+		},
 	},
 })
