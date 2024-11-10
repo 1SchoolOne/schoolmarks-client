@@ -53,7 +53,7 @@ jobs:
           echo GITHUB_PAT=${{ env.GITHUB_PAT }} >> .env
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build
         run: yarn build
@@ -77,7 +77,7 @@ jobs:
           echo GITHUB_PAT=${{ env.GITHUB_PAT }} >> .env
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Vitest
         run: yarn test
