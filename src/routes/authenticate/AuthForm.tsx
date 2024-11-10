@@ -80,7 +80,7 @@ export function Component() {
 	}, [notification, searchParams, setSearchParams])
 
 	return (
-		<AuthLayout>
+		<AuthLayout heroBackgroundSrc="/brand-mesh-gradient.webp">
 			<AuthForm />
 		</AuthLayout>
 	)

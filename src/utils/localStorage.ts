@@ -6,4 +6,4 @@ interface LocalStorage {
 	sidebar: { isCollapsed: boolean }
 }
 
-export const localStorage = getLocalStorage<LocalStorage>()
+export const localStorage = getLocalStorage<LocalStorage>().namespace('sch-marks')

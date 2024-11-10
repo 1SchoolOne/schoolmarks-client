@@ -5,9 +5,9 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@1schoolone/ui@npm:0.2.3":
-  version: 0.2.3
-  resolution: "@1schoolone/ui@npm:0.2.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%401schoolone%2Fui%2F0.2.3%2Fea4b31d02d6e3a19280604c2c7de3875068012c2"
+"@1schoolone/ui@npm:0.4.1":
+  version: 0.4.1
+  resolution: "@1schoolone/ui@npm:0.4.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%401schoolone%2Fui%2F0.4.1%2Fb59f642420a07459bf76eee956b6e1b13287b26b"
   peerDependencies:
     "@tanstack/react-query": ">=5.59.0"
     antd: ">=5.21.1"
@@ -16,7 +16,7 @@ __metadata:
     react: ">=18.3.1"
     react-dom: ">=18.3.1"
     store2: ">=2.14.3"
-  checksum: 10c0/3e48ca41c97513c5a38a74558d11c1d8e378c3aee450063a01bca7a7e27e64da7721647f321a80a7dc6cd8c296fcaf46c384f0aa4da2b84d52f7d1fe41d3147c
+  checksum: 10c0/54fc475a6f5ac47febb8f6c5a61ca32e430cc6e025a6a125d8558c2de49eca60e30b6c3616cf5100706e05eb70a91954dba77f827bb7054502e979e3ce2e67b0
   languageName: node
   linkType: hard
 
@@ -5275,7 +5275,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "schoolmarks-client@workspace:."
   dependencies:
-    "@1schoolone/ui": "npm:0.2.3"
+    "@1schoolone/ui": "npm:0.4.1"
     "@eslint/js": "npm:9.13.0"
     "@tanstack/react-query": "npm:5.59.0"
     "@trivago/prettier-plugin-sort-imports": "npm:4.3.0"
