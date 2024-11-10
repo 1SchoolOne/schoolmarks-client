@@ -1,16 +1,16 @@
 import { useContext } from 'react'
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom'
 
+import { attendanceRoute } from '@routes/attendance'
+import { authenticateRoute } from '@routes/authenticate'
+import { calendarRoute } from '@routes/calendar'
+import { gradesRoute } from '@routes/grades'
+
 import { MainLayout, ProtectedRoute } from '@components'
 
 import { IdentityContext } from '@contexts'
 
 import { Route } from '@types'
-
-import { attendanceRoute } from './attendance/attendance'
-import { authenticateRoute } from './authenticate/authenticate'
-import { calendarRoute } from './calendar/calendar'
-import { gradesRoute } from './grades/grades'
 
 /**
  * Regroupe toutes les routes de l'application et conditionne l'accès à
