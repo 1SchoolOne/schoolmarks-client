@@ -362,6 +362,7 @@ export interface components {
 	schemas: {
 		User: {
 			readonly id?: number
+			readonly role?: string
 			/** Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
 			username: string
 			first_name?: string
@@ -375,12 +376,13 @@ export interface components {
 		UserRole: {
 			/** Format: uuid */
 			readonly id?: string
-			user_id: number
+			readonly user_id?: string
 			role: string
 		}
 		Class: {
 			/** Format: uuid */
 			readonly id?: string
+			readonly students?: string
 			name: string
 			code: string
 			year_of_graduation?: number | null
@@ -394,7 +396,23 @@ export interface components {
 			readonly id?: string
 			name: string
 			code: string
-			professor_id?: number | null
+			readonly professor?: {
+				readonly id?: number
+				readonly role?: string
+				/**
+				 * Required. 150 characters or fewer. Letters, digits and
+				 *
+				 * @/./+/-/_ only.
+				 */
+				username: string
+				first_name?: string
+				last_name?: string
+				/** Format: email */
+				email?: string
+				/** Format: date */
+				birthday?: string | null
+				phone_number?: string | null
+			}
 			/** Format: date-time */
 			readonly created_at?: string
 			/** Format: date-time */
@@ -403,32 +421,59 @@ export interface components {
 		CourseEnrollment: {
 			/** Format: uuid */
 			readonly id?: string
-			course_id: string
-			class_group_id: string
+			readonly course_id?: string
+			readonly class_group_id?: string
 			/** Format: date-time */
 			readonly enrolled_at?: string
 		}
 		ClassStudent: {
 			/** Format: uuid */
 			readonly id?: string
-			class_group_id: string
-			student_id: number
+			class_group: string
+			student: number
 		}
-		ClassSession: {
+		ClassSessionDetail: {
 			/** Format: uuid */
 			readonly id?: string
-			course_id: string
+			readonly course?: {
+				/** Format: uuid */
+				readonly id?: string
+				name: string
+				code: string
+				readonly professor?: {
+					readonly id?: number
+					readonly role?: string
+					/**
+					 * Required. 150 characters or fewer. Letters, digits and
+					 *
+					 * @/./+/-/_ only.
+					 */
+					username: string
+					first_name?: string
+					last_name?: string
+					/** Format: email */
+					email?: string
+					/** Format: date */
+					birthday?: string | null
+					phone_number?: string | null
+				}
+				/** Format: date-time */
+				readonly created_at?: string
+				/** Format: date-time */
+				readonly updated_at?: string
+			}
 			/** Format: date */
 			date: string
 			start_time: string
 			end_time: string
 			room: string
 			status: string
+			readonly checkin_session?: string
 		}
 		CheckinSession: {
 			/** Format: uuid */
 			readonly id?: string
-			class_session_id: string
+			class_session: string
 			qr_token: string
 			/** Format: date-time */
 			started_at: string
@@ -440,8 +485,24 @@ export interface components {
 		AttendanceRecord: {
 			/** Format: uuid */
 			readonly id?: string
-			checkin_session_id: string
-			student_id: number
+			checkin_session: string
+			readonly student?: {
+				readonly id?: number
+				readonly role?: string
+				/**
+				 * Required. 150 characters or fewer. Letters, digits and
+				 *
+				 * @/./+/-/_ only.
+				 */
+				username: string
+				first_name?: string
+				last_name?: string
+				/** Format: email */
+				email?: string
+				/** Format: date */
+				birthday?: string | null
+				phone_number?: string | null
+			}
 			/** Format: date-time */
 			checked_in_at: string
 			status: string
@@ -449,10 +510,10 @@ export interface components {
 		AttendanceDetail: {
 			/** Format: uuid */
 			readonly id?: string
-			attendance_record_id: string
-			student_id: number
-			class_session_id: string
-			course_id: string
+			attendance_record: string
+			student: number
+			class_session: string
+			course: string
 			status: string
 			/** Format: date-time */
 			checked_in_at: string
@@ -463,9 +524,9 @@ export interface components {
 		Grade: {
 			/** Format: uuid */
 			readonly id?: string
-			professor_id: number
-			class_session_id: string
-			student_id: number
+			readonly professor_id?: string
+			readonly class_session_id?: string
+			readonly student_id?: string
 			/** Format: decimal */
 			grade_value: string
 			comment?: string | null
@@ -473,6 +534,17 @@ export interface components {
 			readonly created_at?: string
 			/** Format: date-time */
 			readonly updated_at?: string
+		}
+		ClassSession: {
+			/** Format: uuid */
+			readonly id?: string
+			course: string
+			/** Format: date */
+			date: string
+			start_time: string
+			end_time: string
+			room: string
+			status: string
 		}
 	}
 	responses: never
@@ -1349,7 +1421,7 @@ export interface operations {
 					[name: string]: unknown
 				}
 				content: {
-					'application/json': components['schemas']['ClassSession'][]
+					'application/json': components['schemas']['ClassSessionDetail'][]
 				}
 			}
 		}
@@ -1396,7 +1468,7 @@ export interface operations {
 					[name: string]: unknown
 				}
 				content: {
-					'application/json': components['schemas']['ClassSession']
+					'application/json': components['schemas']['ClassSessionDetail']
 				}
 			}
 		}
@@ -1461,9 +1533,9 @@ export interface operations {
 		}
 		requestBody?: {
 			content: {
-				'application/json': components['schemas']['ClassSession']
-				'application/x-www-form-urlencoded': components['schemas']['ClassSession']
-				'multipart/form-data': components['schemas']['ClassSession']
+				'application/json': components['schemas']['ClassSessionDetail']
+				'application/x-www-form-urlencoded': components['schemas']['ClassSessionDetail']
+				'multipart/form-data': components['schemas']['ClassSessionDetail']
 			}
 		}
 		responses: {
@@ -1472,7 +1544,7 @@ export interface operations {
 					[name: string]: unknown
 				}
 				content: {
-					'application/json': components['schemas']['ClassSession']
+					'application/json': components['schemas']['ClassSessionDetail']
 				}
 			}
 		}
