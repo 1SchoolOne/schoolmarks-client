@@ -14,8 +14,8 @@ import './index.css'
  *
  * En mode dev, les requêtes ne sont pas mise en cache.
  */
-const queryClient = new QueryClient({
-	defaultOptions: { queries: { staleTime: import.meta.env.DEV ? 0 : 2 * 60 * 1000 } },
+export const queryClient = new QueryClient({
+	defaultOptions: { queries: { staleTime: import.meta.env.DEV ? 0 : 2 * 60 * 1000, retry: false } },
 })
 
 createRoot(document.getElementById('root')!).render(
