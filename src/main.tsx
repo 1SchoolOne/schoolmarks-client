@@ -4,8 +4,6 @@ import { App as AppProvider } from 'antd'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import { IdentityProvider } from '@contexts'
-
 import { App } from './App.tsx'
 
 import './index.css'
@@ -25,9 +23,7 @@ createRoot(document.getElementById('root')!).render(
 		<ThemeProvider>
 			<AppProvider rootClassName="app-container">
 				<QueryClientProvider client={queryClient}>
-					<IdentityProvider>
-						<App />
-					</IdentityProvider>
+					<App />
 				</QueryClientProvider>
 			</AppProvider>
 		</ThemeProvider>

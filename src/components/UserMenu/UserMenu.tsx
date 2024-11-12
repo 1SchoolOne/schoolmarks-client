@@ -8,26 +8,21 @@ import './UserMenu-styles.less'
 
 export function UserMenu() {
 	const [isOpen, setIsOpen] = useState<boolean>(false)
-	const { setAccessToken, setRefreshToken } = useContext(IdentityContext)
-
-	const logout = () => {
-		setAccessToken(null)
-		setRefreshToken(null)
-	}
+	const { user, logout } = useContext(IdentityContext)
 
 	const items: MenuProps['items'] = [
 		{
 			key: 'usermenu-logout',
 			icon: <LogOutIcon size={16} />,
 			label: 'Déconnexion',
-			onClick: logout,
+			onClick: () => logout(),
 		},
 	]
 
 	return (
 		<Space direction="horizontal" className={`user-menu${isOpen ? ' user-menu__active' : ''}`}>
 			<Avatar>RP</Avatar>
-			<Typography.Text strong>Robin PENEA</Typography.Text>
+			<Typography.Text strong>{user?.['display']}</Typography.Text>
 			<Dropdown
 				menu={{ items }}
 				className="user-menu__dropdown"

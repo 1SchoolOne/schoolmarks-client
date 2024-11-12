@@ -2,7 +2,13 @@
 	&__hero-panel {
 		box-shadow: 0 0 100px rgba(0, 22, 40, 1) inset;
 
-		&__bg {
+		&__content {
+			position: relative;
+			z-index: 2;
+		}
+
+		img&__bg {
+			z-index: 1;
 			filter: blur(7px);
 		}
 	}
