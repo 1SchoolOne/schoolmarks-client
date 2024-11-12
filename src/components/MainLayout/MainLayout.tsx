@@ -1,12 +1,12 @@
-import { MainLayout as Main } from '@1schoolone/ui'
+import { MainLayout as Main, PropsWithChildren } from '@1schoolone/ui'
 import { CalendarDays, Clock, ScrollText } from 'lucide-react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import { Link, UserMenu } from '@components'
 
 import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs'
 
-export function MainLayout() {
+export function MainLayout({ children }: PropsWithChildren) {
 	const location = useLocation()
 
 	return (
@@ -22,23 +22,23 @@ export function MainLayout() {
 				items: [
 					{
 						key: 'attendance',
-						label: <Link to="/attendance">Assiduité</Link>,
+						label: <Link to="/app/attendance">Assiduité</Link>,
 						icon: <Clock size={16} />,
 					},
 					{
 						key: 'grades',
-						label: <Link to="/grades">Notes</Link>,
+						label: <Link to="/app/grades">Notes</Link>,
 						icon: <ScrollText size={16} />,
 					},
 					{
 						key: 'calendar',
-						label: <Link to="/calendar">Calendrier</Link>,
+						label: <Link to="/app/calendar">Calendrier</Link>,
 						icon: <CalendarDays size={16} />,
 					},
 				],
 			}}
 		>
-			<Outlet />
+			{children}
 		</Main>
 	)
 }

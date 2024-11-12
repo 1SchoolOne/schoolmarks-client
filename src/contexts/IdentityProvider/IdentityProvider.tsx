@@ -1,51 +1,153 @@
 import { PropsWithChildren } from '@1schoolone/ui'
+import { UseMutateFunction, useMutation, useQuery } from '@tanstack/react-query'
+import { AnyObject } from 'antd/es/_util/type'
+import { AxiosResponse, isAxiosError } from 'axios'
 import { createContext, useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-import { axiosInstance } from '@api/axiosInstance'
+import {
+	Credentials,
+	SessionResponse,
+	getSession,
+	login as loginFn,
+	logout as logoutFn,
+} from '@api/auth'
 
-import { localStorage } from '@utils/localStorage'
+import { LoadingScreen } from '@components'
 
-interface IdentityContextState {
-	accessToken: string | null
-	refreshToken: string | null
+interface IdentityContext {
+	user: AnyObject | undefined
+	status: AuthStatus
+	login: UseMutateFunction<SessionResponse, Error, Credentials, unknown>
+	logout: UseMutateFunction<AxiosResponse<any, any>, Error, void, unknown>
+	isAuthenticating: boolean
+	loginError: string | undefined
 }
-
-interface IdentityContextSetters {
-	setAccessToken: (token: string | null) => void
-	setRefreshToken: (token: string | null) => void
-}
-
-type Context = IdentityContextState & IdentityContextSetters
-
-export const IdentityContext = createContext<Context>(null!)
 
 /**
- * Met à disposition les tokens d'accès et de rafraîchissement à travers
- * l'application. Gère la mise à jour des tokens dans le localStorage.
+ * Il y a 4 statut possible :
+ *
+ * - `authenticated` = l'utilisateur est authentifié
+ * - `unreachable` = impossible de contacter l'api
+ * - `null` = l'utilisateur n'est pas authentifié
+ * - `undefined` = status inconnu
+ */
+type AuthStatus = 'authenticated' | 'unreachable' | null | undefined
+
+export const IdentityContext = createContext<IdentityContext>(null!)
+
+/**
+ * Gère l'authentification (login, logout et session polling*). Met à
+ * disposition les données utilisateurs lorsque ce dernier est connecté.
+ *
+ * *Vérifie la validité de la session toutes les 10 secondes.
  */
 export function IdentityProvider({ children }: PropsWithChildren) {
-	const [accessToken, setAccessToken] = useState(localStorage.get('accessToken'))
-	const [refreshToken, setRefreshToken] = useState(localStorage.get('refreshToken'))
+	const [user, setUser] = useState<AnyObject | undefined>(undefined)
+	const [status, setStatus] = useState<AuthStatus>(undefined)
+	const [loginError, setLoginError] = useState<string>()
+	const navigate = useNavigate()
+	const location = useLocation()
+
+	const pathname = location.pathname.split('/').filter((i) => i)[0]
+
+	const { data: authStatus } = useQuery<SessionResponse | null>({
+		queryKey: ['auth-status'],
+		queryFn: async () =>
+			new Promise((resolve, _reject) => setTimeout(() => resolve(getSession()), 2000)),
+		placeholderData: null,
+		refetchInterval: 10_000,
+	})
+
+	const { mutate: login, isPending: isLoginPending } = useMutation({
+		mutationFn: loginFn,
+		onSuccess: ({ data }) => {
+			setStatus('authenticated')
+			setUser(data.user)
+			navigate('/app/attendance', { replace: true })
+		},
+		onError: (error) => {
+			if (
+				isAxiosError<{
+					status: number
+					errors: { message: string; code: string; param: string }[]
+				}>(error)
+			) {
+				const isEmailValid =
+					error.response?.data.errors.find((e) => e.code === 'invalid') === undefined
+				const isCrendentialInvalid =
+					error.response?.data.errors.find((e) => e.code === 'email_password_mismatch') !==
+					undefined
+
+				setLoginError(
+					!isEmailValid
+						? 'Veuillez utiliser un email valide'
+						: isCrendentialInvalid
+							? 'Utilisateur ou mot de passe incorrect'
+							: 'Une erreur est survenue lors de la connexion',
+				)
+
+				return
+			}
+
+			setLoginError(String(error))
+		},
+	})
+
+	const { mutate: logout } = useMutation({
+		mutationFn: logoutFn,
+		onSuccess: () => {
+			setStatus(null)
+			setUser(undefined)
+		},
+	})
 
 	useEffect(() => {
-		if (accessToken && refreshToken) {
-			axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
-			localStorage.setAll({ accessToken, refreshToken })
-		} else {
-			delete axiosInstance.defaults.headers.common['Authorization']
-			localStorage.setAll({ accessToken: null, refreshToken: null })
+		if (authStatus === null) {
+			return
 		}
-	}, [accessToken, refreshToken])
 
-	const contextValue: Context = useMemo(
+		if (authStatus === undefined) {
+			setStatus('unreachable')
+		} else if (authStatus.meta.is_authenticated) {
+			setUser(authStatus.data.user)
+			setStatus('authenticated')
+		} else {
+			setUser(undefined)
+			setStatus(null)
+		}
+	}, [authStatus])
+
+	/**
+	 * Si l'utilisateur n'est pas sur l'app (i.e. routes /app/*) mais qu'il est
+	 * authentifié, on le redirige vers l'app. Sinon, on le redirige vers la page
+	 * de login.
+	 */
+	useEffect(() => {
+		const isOnTheApp = pathname === 'app'
+
+		if (!isOnTheApp && status === 'authenticated') {
+			navigate('/app', { replace: true })
+		} else if (status === null) {
+			navigate('/authenticate', { replace: true })
+		}
+	}, [pathname, status, navigate])
+
+	const contextValue: IdentityContext = useMemo(
 		() => ({
-			accessToken,
-			refreshToken,
-			setAccessToken,
-			setRefreshToken,
+			user,
+			status,
+			login,
+			logout,
+			isAuthenticating: isLoginPending,
+			loginError,
 		}),
-		[accessToken, refreshToken, setAccessToken, setRefreshToken],
+		[user, status, login, logout, isLoginPending, loginError],
 	)
 
-	return <IdentityContext.Provider value={contextValue}>{children}</IdentityContext.Provider>
+	return (
+		<IdentityContext.Provider value={contextValue}>
+			{status === undefined ? <LoadingScreen /> : children}
+		</IdentityContext.Provider>
+	)
 }
