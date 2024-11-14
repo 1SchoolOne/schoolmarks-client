@@ -12,6 +12,7 @@ import {
 	login as loginFn,
 	logout as logoutFn,
 } from '@api/auth'
+import { axiosInstance } from '@api/axiosInstance'
 
 import { LoadingScreen } from '@components'
 
@@ -51,12 +52,21 @@ export function IdentityProvider({ children }: PropsWithChildren) {
 
 	const pathname = location.pathname.split('/').filter((i) => i)[0]
 
+	useQuery({
+		queryKey: ['csrf-token'],
+		queryFn: () => axiosInstance.get('/get-csrf-token/'),
+		refetchOnWindowFocus: false,
+	})
+
 	const { data: authStatus } = useQuery<SessionResponse | null>({
 		queryKey: ['auth-status'],
-		queryFn: async () =>
-			new Promise((resolve, _reject) => setTimeout(() => resolve(getSession()), 2000)),
+		queryFn: getSession,
 		placeholderData: null,
-		refetchInterval: 10_000,
+		refetchInterval: () => {
+			if (pathname === 'authenticate') return false
+
+			return 10_000
+		},
 	})
 
 	const { mutate: login, isPending: isLoginPending } = useMutation({

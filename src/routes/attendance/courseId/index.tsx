@@ -1,26 +1,27 @@
-import { Params } from 'react-router-dom'
+import { QueryClient } from '@tanstack/react-query'
 
 import { getCourse } from '@api/courses'
 
 import { Route } from '@types'
 
-import { queryClient } from '../../../main'
 import { AttendanceWithModal } from './AttendanceWithModal'
 
-export interface Course {
-	id: number
-	name: string
+export function getCourseRoute(queryClient: QueryClient): Route {
+	return {
+		path: 'course/:courseId',
+		element: <AttendanceWithModal />,
+		loader: ({ params }) => classSessionloader({ queryClient, courseId: params.courseId }),
+	}
 }
 
-export const courseRoute: Route = {
-	path: 'course/:courseId',
-	element: <AttendanceWithModal />,
-	loader,
-}
+export async function classSessionloader(params: {
+	queryClient: QueryClient
+	courseId: string | undefined
+}) {
+	const { queryClient, courseId } = params
 
-export async function loader({ params }: { params: Params }) {
 	return queryClient.fetchQuery({
-		queryKey: ['courses', params.courseId],
-		queryFn: () => getCourse(String(params.courseId)),
+		queryKey: ['courses', courseId],
+		queryFn: () => getCourse(String(courseId)),
 	})
 }

@@ -4,10 +4,10 @@ import { useLoaderData, useNavigate } from 'react-router-dom'
 
 import { getCourses } from '@api/courses'
 
-import { loader } from '.'
+import { attendanceLoader } from '.'
 
 export function Attendance() {
-	const initialCourses = useLoaderData() as Awaited<ReturnType<typeof loader>>
+	const initialCourses = useLoaderData() as Awaited<ReturnType<typeof attendanceLoader>>
 	const navigate = useNavigate()
 
 	const { data: courses } = useQuery({

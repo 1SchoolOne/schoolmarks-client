@@ -4,11 +4,11 @@ import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
 import { getCourse } from '@api/courses'
 
-import { loader } from '.'
+import { classSessionloader } from '.'
 import { Attendance } from '../Attendance'
 
 export function AttendanceWithModal() {
-	const initialCourse = useLoaderData() as Awaited<ReturnType<typeof loader>>
+	const initialCourse = useLoaderData() as Awaited<ReturnType<typeof classSessionloader>>
 	const navigate = useNavigate()
 	const params = useParams()
 

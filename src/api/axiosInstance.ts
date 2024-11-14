@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+const API_HOST = import.meta.env.VITE_API_HOST
+
 const axiosInstance = axios.create({
-	baseURL: import.meta.env.VITE_API_HOST ?? 'http://127.0.0.1:8000',
+	baseURL: API_HOST ?? 'http://127.0.0.1:8000',
 	withCredentials: true,
 })
 
