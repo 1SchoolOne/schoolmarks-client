@@ -16,6 +16,8 @@ import { axiosInstance } from '@api/axiosInstance'
 
 import { LoadingScreen } from '@components'
 
+import { getCookie } from './IdentityProvider-utils'
+
 interface IdentityContext {
 	user: AnyObject | undefined
 	status: AuthStatus
@@ -54,7 +56,14 @@ export function IdentityProvider({ children }: PropsWithChildren) {
 
 	useQuery({
 		queryKey: ['csrf-token'],
-		queryFn: () => axiosInstance.get('/get-csrf-token/'),
+		queryFn: async () => {
+			await axiosInstance.get('/get-csrf-token/')
+			const token = getCookie('csrftoken')
+
+			axiosInstance.defaults.headers.common['X-CSRFToken'] = token
+
+			return token
+		},
 		refetchOnWindowFocus: false,
 	})
 

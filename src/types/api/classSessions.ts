@@ -2,6 +2,7 @@ import { components, paths } from '../api-schema'
 
 /* - - - Model - - - */
 export type ClassSession = components['schemas']['ClassSession']
+export type ClassSessionDetail = components['schemas']['ClassSessionDetail']
 
 /* - - - GET - - - */
 

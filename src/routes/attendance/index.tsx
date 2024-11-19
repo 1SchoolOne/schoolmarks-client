@@ -1,12 +1,12 @@
 import { QueryClient } from '@tanstack/react-query'
 import { Outlet } from 'react-router-dom'
 
-import { getCourses } from '@api/courses'
+import { getClassSession, getClassSessions } from '@api/classSessions'
 
 import { Route } from '@types'
 
 import { Attendance } from './Attendance'
-import { getCourseRoute } from './courseId'
+import { AttendanceWithModal } from './classSessionId/AttendanceWithModal'
 
 export function getAttendanceRoute(queryClient: QueryClient): Route {
 	return {
@@ -18,16 +18,37 @@ export function getAttendanceRoute(queryClient: QueryClient): Route {
 				path: 'attendance',
 			},
 		},
+		loader: () => attendanceLoader(queryClient),
 		children: [
-			{ index: true, element: <Attendance />, loader: () => attendanceLoader(queryClient) },
-			getCourseRoute(queryClient),
+			{
+				index: true,
+				element: <Attendance />,
+			},
+			{
+				path: 'class-session/:classSessionId',
+				element: <AttendanceWithModal />,
+				loader: ({ params }) =>
+					classSessionloader({ queryClient, classSessionId: params.classSessionId }),
+			},
 		],
 	}
 }
 
 export async function attendanceLoader(queryClient: QueryClient) {
 	return queryClient.fetchQuery({
-		queryKey: ['courses'],
-		queryFn: getCourses,
+		queryKey: ['classSessions'],
+		queryFn: getClassSessions,
+	})
+}
+
+export async function classSessionloader(params: {
+	queryClient: QueryClient
+	classSessionId: string | undefined
+}) {
+	const { queryClient, classSessionId } = params
+
+	return queryClient.fetchQuery({
+		queryKey: ['classSession', classSessionId],
+		queryFn: () => getClassSession(String(classSessionId)),
 	})
 }

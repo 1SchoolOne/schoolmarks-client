@@ -394,7 +394,7 @@ export interface components {
 			readonly id?: string
 			name: string
 			code: string
-			professor_id?: number | null
+			professor?: number | null
 			/** Format: date-time */
 			readonly created_at?: string
 			/** Format: date-time */
@@ -414,21 +414,32 @@ export interface components {
 			class_group_id: string
 			student_id: number
 		}
-		ClassSession: {
+		ClassSessionDetail: {
 			/** Format: uuid */
 			readonly id?: string
-			course_id: string
+			readonly course?: {
+				/** Format: uuid */
+				readonly id?: string
+				name: string
+				code: string
+				professor?: number | null
+				/** Format: date-time */
+				readonly created_at?: string
+				/** Format: date-time */
+				readonly updated_at?: string
+			}
 			/** Format: date */
 			date: string
 			start_time: string
 			end_time: string
 			room: string
 			status: string
+			readonly checkin_session?: string
 		}
 		CheckinSession: {
 			/** Format: uuid */
 			readonly id?: string
-			class_session_id: string
+			class_session: string
 			qr_token: string
 			/** Format: date-time */
 			started_at: string
@@ -473,6 +484,17 @@ export interface components {
 			readonly created_at?: string
 			/** Format: date-time */
 			readonly updated_at?: string
+		}
+		ClassSession: {
+			/** Format: uuid */
+			readonly id?: string
+			course: string
+			/** Format: date */
+			date: string
+			start_time: string
+			end_time: string
+			room: string
+			status: string
 		}
 	}
 	responses: never
@@ -1349,7 +1371,7 @@ export interface operations {
 					[name: string]: unknown
 				}
 				content: {
-					'application/json': components['schemas']['ClassSession'][]
+					'application/json': components['schemas']['ClassSessionDetail'][]
 				}
 			}
 		}
@@ -1396,7 +1418,7 @@ export interface operations {
 					[name: string]: unknown
 				}
 				content: {
-					'application/json': components['schemas']['ClassSession']
+					'application/json': components['schemas']['ClassSessionDetail']
 				}
 			}
 		}
@@ -1461,9 +1483,9 @@ export interface operations {
 		}
 		requestBody?: {
 			content: {
-				'application/json': components['schemas']['ClassSession']
-				'application/x-www-form-urlencoded': components['schemas']['ClassSession']
-				'multipart/form-data': components['schemas']['ClassSession']
+				'application/json': components['schemas']['ClassSessionDetail']
+				'application/x-www-form-urlencoded': components['schemas']['ClassSessionDetail']
+				'multipart/form-data': components['schemas']['ClassSessionDetail']
 			}
 		}
 		responses: {
@@ -1472,7 +1494,7 @@ export interface operations {
 					[name: string]: unknown
 				}
 				content: {
-					'application/json': components['schemas']['ClassSession']
+					'application/json': components['schemas']['ClassSessionDetail']
 				}
 			}
 		}
