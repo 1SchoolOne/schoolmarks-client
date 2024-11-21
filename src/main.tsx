@@ -14,7 +14,7 @@ dayjs.locale('fr')
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<ThemeProvider>
-			<AppProvider rootClassName="app-container">
+			<AppProvider rootClassName="app-container" notification={{ placement: 'bottomRight' }}>
 				<App />
 			</AppProvider>
 		</ThemeProvider>

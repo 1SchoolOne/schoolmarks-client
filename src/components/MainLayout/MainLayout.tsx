@@ -1,4 +1,5 @@
 import { MainLayout as Main, PropsWithChildren } from '@1schoolone/ui'
+import { Flex } from 'antd'
 import { CalendarDays, Clock, ScrollText } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 
@@ -6,16 +7,18 @@ import { Link, UserMenu } from '@components'
 
 import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs'
 
+import './MainLayout-styles.less'
+
 export function MainLayout({ children }: PropsWithChildren) {
 	const location = useLocation()
 
 	return (
 		<Main
 			header={
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+				<Flex justify="space-between" align="center">
 					<Breadcrumbs />
 					<UserMenu />
-				</div>
+				</Flex>
 			}
 			sidebarMenuProps={{
 				selectedKeys: location.pathname.split('/').filter((i) => i),
