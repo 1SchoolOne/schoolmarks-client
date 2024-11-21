@@ -22,7 +22,7 @@ interface IdentityContext {
 	user: AnyObject | undefined
 	status: AuthStatus
 	login: UseMutateFunction<SessionResponse, Error, Credentials, unknown>
-	logout: UseMutateFunction<AxiosResponse<any, any>, Error, void, unknown>
+	logout: UseMutateFunction<AxiosResponse, Error, void, unknown>
 	isAuthenticating: boolean
 	loginError: string | undefined
 }
@@ -37,7 +37,7 @@ interface IdentityContext {
  */
 type AuthStatus = 'authenticated' | 'unreachable' | null | undefined
 
-export const IdentityContext = createContext<IdentityContext>(null!)
+export const IdentityContext = createContext<IdentityContext>({} as IdentityContext)
 
 /**
  * Gère l'authentification (login, logout et session polling*). Met à
@@ -81,6 +81,7 @@ export function IdentityProvider({ children }: PropsWithChildren) {
 	const { mutate: login, isPending: isLoginPending } = useMutation({
 		mutationFn: loginFn,
 		onSuccess: ({ data }) => {
+			setLoginError(undefined)
 			setStatus('authenticated')
 			setUser(data.user)
 			navigate('/app/attendance', { replace: true })
