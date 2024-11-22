@@ -1,10 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Navigate, Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { Navigate, Outlet, RouterProvider, createBrowserRouter, redirect } from 'react-router-dom'
 
 import { getAttendanceRoute } from '@routes/attendance'
 import { authenticateRoute } from '@routes/authenticate'
 import { calendarRoute } from '@routes/calendar'
 import { gradesRoute } from '@routes/grades'
+import { registerAttendanceRoute } from '@routes/register-attendance'
+
+import { getSession } from '@api/auth'
 
 import { MainLayout, ProtectedRoute } from '@components'
 
@@ -32,8 +35,21 @@ const routes = createBrowserRouter([
 				</IdentityProvider>
 			</QueryClientProvider>
 		),
+		loader: async ({ request }) => {
+			const session = await queryClient.fetchQuery({
+				queryKey: ['auth-status'],
+				queryFn: getSession,
+			})
+
+			if (!session.meta.is_authenticated && !request.url.endsWith('authenticate')) {
+				return redirect('/authenticate')
+			}
+
+			return session
+		},
 		children: [
 			authenticateRoute,
+			registerAttendanceRoute,
 			{
 				path: 'app',
 				element: (

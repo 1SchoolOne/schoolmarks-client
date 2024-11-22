@@ -1,25 +1,26 @@
 import { PropsWithChildren } from '@1schoolone/ui'
 import { UseMutateFunction, useMutation, useQuery } from '@tanstack/react-query'
-import { AnyObject } from 'antd/es/_util/type'
 import { AxiosResponse, isAxiosError } from 'axios'
 import { createContext, useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLoaderData, useLocation, useNavigate } from 'react-router-dom'
 
 import {
 	Credentials,
 	SessionResponse,
+	SessionUserData,
+	csrfTokenQueryOptions,
 	getSession,
+	getSessionQueryOptions,
 	login as loginFn,
 	logout as logoutFn,
 } from '@api/auth'
-import { axiosInstance } from '@api/axiosInstance'
 
 import { LoadingScreen } from '@components'
 
-import { getCookie } from './IdentityProvider-utils'
+import { getCookie } from '@utils/getCookie'
 
 interface IdentityContext {
-	user: AnyObject | undefined
+	user: SessionUserData | undefined
 	status: AuthStatus
 	login: UseMutateFunction<SessionResponse, Error, Credentials, unknown>
 	logout: UseMutateFunction<AxiosResponse, Error, void, unknown>
@@ -46,31 +47,24 @@ export const IdentityContext = createContext<IdentityContext>({} as IdentityCont
  * *Vérifie la validité de la session toutes les 10 secondes.
  */
 export function IdentityProvider({ children }: PropsWithChildren) {
-	const [user, setUser] = useState<AnyObject | undefined>(undefined)
+	const [user, setUser] = useState<SessionUserData | undefined>(undefined)
 	const [status, setStatus] = useState<AuthStatus>(undefined)
 	const [loginError, setLoginError] = useState<string>()
 	const navigate = useNavigate()
 	const location = useLocation()
+	const initialAuthStatus = useLoaderData() as Awaited<ReturnType<typeof getSession>>
 
 	const pathname = location.pathname.split('/').filter((i) => i)[0]
+	const csrfToken = getCookie('csrftoken')
 
 	useQuery({
-		queryKey: ['csrf-token'],
-		queryFn: async () => {
-			await axiosInstance.get('/get-csrf-token/')
-			const token = getCookie('csrftoken')
-
-			axiosInstance.defaults.headers.common['X-CSRFToken'] = token
-
-			return token
-		},
-		refetchOnWindowFocus: false,
+		...csrfTokenQueryOptions,
+		enabled: csrfToken.length === 0,
 	})
 
-	const { data: authStatus } = useQuery<SessionResponse | null>({
-		queryKey: ['auth-status'],
-		queryFn: getSession,
-		placeholderData: null,
+	const { data: authStatus } = useQuery({
+		...getSessionQueryOptions,
+		initialData: initialAuthStatus,
 		refetchInterval: () => {
 			if (pathname === 'authenticate') return false
 
@@ -81,10 +75,12 @@ export function IdentityProvider({ children }: PropsWithChildren) {
 	const { mutate: login, isPending: isLoginPending } = useMutation({
 		mutationFn: loginFn,
 		onSuccess: ({ data }) => {
-			setLoginError(undefined)
-			setStatus('authenticated')
-			setUser(data.user)
-			navigate('/app/attendance', { replace: true })
+			if ('user' in data) {
+				setLoginError(undefined)
+				setStatus('authenticated')
+				setUser(data.user)
+				navigate('/app/attendance', { replace: true })
+			}
 		},
 		onError: (error) => {
 			if (
@@ -145,8 +141,9 @@ export function IdentityProvider({ children }: PropsWithChildren) {
 	 */
 	useEffect(() => {
 		const isOnTheApp = pathname === 'app'
+		const isRegisteringAttendance = pathname === 'register-attendance'
 
-		if (!isOnTheApp && status === 'authenticated') {
+		if (!isOnTheApp && !isRegisteringAttendance && status === 'authenticated') {
 			navigate('/app', { replace: true })
 		} else if (status === null) {
 			navigate('/authenticate', { replace: true })

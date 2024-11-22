@@ -1,12 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-	Avatar,
 	Button,
 	Col,
 	Descriptions,
 	Divider,
+	Flex,
 	Form,
-	List,
 	Modal,
 	QRCode,
 	Row,
@@ -20,14 +19,16 @@ import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
 import { axiosInstance } from '@api/axiosInstance'
 import { createCheckinSession } from '@api/checkinSessions'
-import { getClassSession } from '@api/classSessions'
+import { getClassSessionQueryOptions } from '@api/classSessions'
 
 import { IdentityContext } from '@contexts'
 
+import { hasPermission } from '@utils/permissions'
+
 import { classSessionloader } from '..'
-import { GetAttendanceRecordsResponse } from '../../../types/api/attendanceRecords'
 import { GetUserByIdResponse } from '../../../types/api/users'
 import { Attendance } from '../Attendance'
+import { StudentList } from './StudentList'
 
 import './AttendanceWithModal-styles.less'
 
@@ -36,37 +37,46 @@ interface CheckinSessionFormValues {
 	closedAt: string
 }
 
-// TODO: hide QR code if the checkin session is closed
 export function AttendanceWithModal() {
 	const initialData = useLoaderData() as Awaited<ReturnType<typeof classSessionloader>>
 	const { user } = useContext(IdentityContext)
 	const navigate = useNavigate()
 	const params = useParams()
 	const queryClient = useQueryClient()
+	const canCreateCheckinSessions = hasPermission(user, 'create', 'checkin_sessions')
+	const canReadCheckinSessions = hasPermission(user, 'read', 'checkin_sessions')
 
 	const { mutate: submitCheckinSession } = useMutation({
-		mutationFn: (values: CheckinSessionFormValues) =>
-			createCheckinSession({
+		mutationFn: (values: CheckinSessionFormValues) => {
+			if (!canCreateCheckinSessions) {
+				throw Error("Impossible de lancer l'appel")
+			}
+
+			return createCheckinSession({
 				class_session: String(classSession.id),
 				started_at: values.startedAt,
 				closed_at: values.closedAt,
-				created_by: user?.id,
+				created_by: user!.id,
 				qr_token: crypto.randomUUID(),
 				status: 'active',
-			}),
+			})
+		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['classSession', params.classSessionId] })
+			queryClient.invalidateQueries({ queryKey: ['classSessions'] })
 		},
+		onError: console.error,
 	})
 
+	const classSessionQueryOptions = getClassSessionQueryOptions(params.classSessionId)
+
 	const { data: classSession } = useQuery({
-		queryKey: ['classSession', params.classSessionId],
-		queryFn: () => getClassSession(String(params.classSessionId)),
+		...classSessionQueryOptions,
 		initialData,
 		enabled: typeof params.classSessionId === 'string',
 	})
 
-	const { data: studentList } = useQuery({
+	const { data: studentList, isPending: isStudentListLoading } = useQuery({
 		queryKey: ['checkinStudents', classSession.checkin_session?.id],
 		queryFn: async () => {
 			const { data } = await axiosInstance.get<
@@ -77,10 +87,11 @@ export function AttendanceWithModal() {
 					checked_in_at: string
 					status: string
 				}>
-			>(`/attendance_records?=checkin_session_id=${classSession.checkin_session?.id}/`)
+			>(`/attendance_records/?checkin_session_id=${classSession.checkin_session?.id}`)
 
 			return data
 		},
+		refetchInterval: 2_000,
 		enabled: !!classSession.checkin_session,
 	})
 
@@ -94,17 +105,19 @@ export function AttendanceWithModal() {
 				title={`${sessionDate.charAt(0).toUpperCase() + sessionDate.slice(1)} - ${classSession.course?.name} (${classSession.course?.code})`}
 				onCancel={() => navigate(-1)}
 				footer={null}
-				width={750}
+				width={canReadCheckinSessions ? 750 : 500}
 				open
 				centered
 			>
 				<Row>
-					<Col span={11}>
+					<Col span={canReadCheckinSessions ? 11 : 24}>
 						<QRCode
 							status={classSession.checkin_session ? 'active' : 'loading'}
 							statusRender={({ status }) => {
 								if (status === 'loading') {
-									return <>Lancez l'appel pour générer un QR code</>
+									return canCreateCheckinSessions
+										? "Lancez l'appel pour générer un QR code"
+										: "Le QR code sera généré après le lancement de l'appel"
 								}
 							}}
 							type="svg"
@@ -128,54 +141,51 @@ export function AttendanceWithModal() {
 								/>
 							</Space>
 						) : (
-							<Form<CheckinSessionFormValues> layout="vertical" onFinish={submitCheckinSession}>
-								<Row gutter={[16, 16]}>
-									<Col span={12}>
-										<Form.Item label="En retard à partir de :" name="startedAt">
-											<TimePicker placeholder="HH:mm" format="HH:mm" minuteStep={5} />
-										</Form.Item>
-									</Col>
-									<Col span={12}>
-										<Form.Item label="Ferme à :" name="closedAt">
-											<TimePicker placeholder="HH:mm" format="HH:mm" minuteStep={5} />
-										</Form.Item>
-									</Col>
-									<Col span={24}>
-										<Button type="primary" htmlType="submit" block>
-											Lancer l'appel
-										</Button>
-									</Col>
-								</Row>
-							</Form>
+							canCreateCheckinSessions && (
+								<Form<CheckinSessionFormValues> layout="vertical" onFinish={submitCheckinSession}>
+									<Row gutter={[16, 16]}>
+										<Col span={12}>
+											<Form.Item label="En retard à partir de :" name="startedAt">
+												<TimePicker placeholder="HH:mm" format="HH:mm" minuteStep={5} />
+											</Form.Item>
+										</Col>
+										<Col span={12}>
+											<Form.Item label="Ferme à :" name="closedAt">
+												<TimePicker placeholder="HH:mm" format="HH:mm" minuteStep={5} />
+											</Form.Item>
+										</Col>
+										<Col span={24}>
+											<Button type="primary" htmlType="submit" block>
+												Lancer l'appel
+											</Button>
+										</Col>
+									</Row>
+								</Form>
+							)
 						)}
 					</Col>
-					<Col span={2}>
-						<Divider type="vertical" style={{ height: '100%' }} />
-					</Col>
-					<Col span={11}>
-						<List
-							itemLayout="horizontal"
-							dataSource={studentList}
-							renderItem={(item) => {
-								const checkedInAt = dayjs(item.checked_in_at)
-								const isAbsent = checkedInAt > dayjs(classSession.checkin_session?.closed_at)
-								const isLate = checkedInAt > dayjs(classSession.checkin_session?.started_at)
-
-								return (
-									<List.Item>
-										<List.Item.Meta
-											title={item.student.username}
-											description={
-												<Typography.Text
-													type={isAbsent ? 'danger' : isLate ? 'warning' : undefined}
-												>{`Arrivé(e) à ${checkedInAt.format('HH:mm')}`}</Typography.Text>
-											}
-										/>
-									</List.Item>
-								)
-							}}
-						/>
-					</Col>
+					{canReadCheckinSessions && (
+						<>
+							<Col span={2}>
+								<Divider type="vertical" style={{ height: '100%' }} />
+							</Col>
+							<Col span={11}>
+								{classSession.checkin_session ? (
+									<StudentList
+										students={studentList ?? []}
+										checkinSession={classSession.checkin_session}
+										isLoading={isStudentListLoading}
+									/>
+								) : (
+									<Flex className="no-checkin-session-message" justify="center" align="center">
+										<Typography.Text type="secondary">
+											La liste s'actualisera une fois l'appel lancé
+										</Typography.Text>
+									</Flex>
+								)}
+							</Col>
+						</>
+					)}
 				</Row>
 			</Modal>
 		</>

@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query'
 import { Outlet } from 'react-router-dom'
 
-import { getClassSession, getClassSessions } from '@api/classSessions'
+import { classSessionsQueryOptions, getClassSessionQueryOptions } from '@api/classSessions'
 
 import { Route } from '@types'
 
@@ -35,10 +35,7 @@ export function getAttendanceRoute(queryClient: QueryClient): Route {
 }
 
 export async function attendanceLoader(queryClient: QueryClient) {
-	return queryClient.fetchQuery({
-		queryKey: ['classSessions'],
-		queryFn: getClassSessions,
-	})
+	return queryClient.fetchQuery(classSessionsQueryOptions)
 }
 
 export async function classSessionloader(params: {
@@ -47,8 +44,7 @@ export async function classSessionloader(params: {
 }) {
 	const { queryClient, classSessionId } = params
 
-	return queryClient.fetchQuery({
-		queryKey: ['classSession', classSessionId],
-		queryFn: () => getClassSession(String(classSessionId)),
-	})
+	const classSessionQueryOptions = getClassSessionQueryOptions(classSessionId)
+
+	return queryClient.fetchQuery(classSessionQueryOptions)
 }

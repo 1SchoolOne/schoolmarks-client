@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { Badge, Card, Col, Descriptions, Row, Space, Tag } from 'antd'
+import { Card, Col, Descriptions, Row, Space, Tag } from 'antd'
 import dayjs from 'dayjs'
+import { CircleDotIcon, CircleOffIcon } from 'lucide-react'
 import { useLoaderData, useNavigate } from 'react-router-dom'
 
-import { getClassSessions } from '@api/classSessions'
+import { classSessionsQueryOptions } from '@api/classSessions'
 
 import { LoadingScreen } from '@components'
 
@@ -14,8 +15,7 @@ export function Attendance() {
 	const navigate = useNavigate()
 
 	const { data: classSessions, isPending } = useQuery({
-		queryKey: ['classSessions'],
-		queryFn: getClassSessions,
+		...classSessionsQueryOptions,
 		initialData,
 	})
 
@@ -43,7 +43,15 @@ export function Attendance() {
 								<Space align="center" style={{ justifyContent: 'space-between' }}>
 									<div>{session.course?.name}</div>
 									{checkinLabel && (
-										<Tag color={checkinClosed ? 'red' : 'green'}>{checkinLabel}</Tag>
+										<Tag
+											style={{ display: 'flex', alignItems: 'center', gap: 'var(--ant-margin-xs)' }}
+											icon={
+												checkinClosed ? <CircleOffIcon size={12} /> : <CircleDotIcon size={12} />
+											}
+											color={checkinClosed ? 'red' : 'green'}
+										>
+											{checkinLabel}
+										</Tag>
 									)}
 								</Space>
 							}
