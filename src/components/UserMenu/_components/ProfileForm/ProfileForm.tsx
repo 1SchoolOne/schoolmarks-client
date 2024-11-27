@@ -1,11 +1,13 @@
 import { useMutation } from '@tanstack/react-query'
-import { App, Col, Form, Input, Modal, Row } from 'antd'
+import { App, Col, Form, Input, Modal, ModalProps, Row, Skeleton } from 'antd'
 import { CheckIcon } from 'lucide-react'
 import { useContext } from 'react'
 
 import { axiosInstance } from '@api/axiosInstance'
 
 import { IdentityContext } from '@contexts'
+
+import './ProfileForm-styles.less'
 
 interface ProfileFormModalProps {
 	isOpen: boolean
@@ -64,19 +66,43 @@ export function ProfileFormModal(params: ProfileFormModalProps) {
 		},
 	})
 
+	const commonModalProps: ModalProps = {
+		className: 'profile-form-modal',
+		title: 'Votre profil',
+		open: isOpen,
+		okText: 'Confirmer',
+		okButtonProps: { icon: <CheckIcon size={16} /> },
+		onCancel: closeModal,
+	}
+
+	if (!user) {
+		return (
+			<Modal {...commonModalProps}>
+				<Form layout="vertical">
+					<Row gutter={[16, 16]}>
+						<Col span={12}>
+							<Form.Item label="Prénom">
+								<Skeleton.Input active />
+							</Form.Item>
+						</Col>
+						<Col span={12}>
+							<Form.Item label="Nom">
+								<Skeleton.Input active />
+							</Form.Item>
+						</Col>
+						<Col span={24}>
+							<Form.Item label="Nom d'utilisateur">
+								<Skeleton.Input active />
+							</Form.Item>
+						</Col>
+					</Row>
+				</Form>
+			</Modal>
+		)
+	}
+
 	return (
-		<Modal
-			title="Votre profil"
-			open={isOpen}
-			onOk={formInstance.submit}
-			onCancel={closeModal}
-			okText="Confirmer"
-			okButtonProps={{
-				icon: <CheckIcon size={16} />,
-			}}
-			confirmLoading={isPending}
-			centered
-		>
+		<Modal {...commonModalProps} onCancel={closeModal} confirmLoading={isPending}>
 			<Form<ProfileFormValues>
 				form={formInstance}
 				layout="vertical"
@@ -92,7 +118,7 @@ export function ProfileFormModal(params: ProfileFormModalProps) {
 					submit(payload)
 				}}
 			>
-				<Row gutter={16}>
+				<Row gutter={[16, 16]}>
 					<Col span={12}>
 						<Form.Item label="Prénom" name="firstName">
 							<Input />

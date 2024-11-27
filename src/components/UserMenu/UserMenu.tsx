@@ -43,6 +43,7 @@ export function UserMenu() {
 					setIsUserMenuOpen(open)
 				}}
 				trigger={['click']}
+				placement="bottom"
 			>
 				<div
 					className={classnames('user-menu__trigger', {
