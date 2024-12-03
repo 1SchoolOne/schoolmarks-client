@@ -5,7 +5,7 @@ import { getAttendanceRoute } from '@routes/attendance'
 import { authenticateRoute } from '@routes/authenticate'
 import { calendarRoute } from '@routes/calendar'
 import { gradesRoute } from '@routes/grades'
-import { registerAttendanceRoute } from '@routes/register-attendance'
+import { getRegisterAttendanceRoute } from '@routes/register-attendance'
 
 import { getSession } from '@api/auth'
 
@@ -26,6 +26,7 @@ const queryClient = new QueryClient({
 })
 
 const routes = createBrowserRouter([
+	{ path: '*', element: <Navigate to="/app/attendance" replace /> },
 	{
 		path: '/',
 		element: (
@@ -49,7 +50,7 @@ const routes = createBrowserRouter([
 		},
 		children: [
 			authenticateRoute,
-			registerAttendanceRoute,
+			getRegisterAttendanceRoute(queryClient),
 			{
 				path: 'app',
 				element: (

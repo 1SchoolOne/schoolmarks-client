@@ -6,23 +6,27 @@ import { useNavigate, useRouteError } from 'react-router-dom'
 export function RegisterError() {
 	const navigate = useNavigate()
 	const routeError = useRouteError()
-	let error = routeError
+	let error = 'Une erreur est survenue'
 
-	if (isAxiosError(routeError) && routeError.response?.data.message) {
-		error = routeError.response?.data.message
+	if (isAxiosError(routeError)) {
+		if (routeError.status === 404) {
+			error = "Cette session d'appel n'existe pas"
+		} else if (routeError.status === 500) {
+			error = 'Une erreur est survenue lors de la récupération des données'
+		} else {
+			error = routeError.response?.data.message
+		}
 	}
 
 	return (
 		<Result
 			status="error"
-			title="Erreur lors de l'enregistrement de présence"
+			title={error}
 			extra={[
 				<Button type="link" icon={<ArrowLeftIcon size={16} />} onClick={() => navigate('/app')}>
-					Retour à l'application
+					Revenir sur SchoolMarks
 				</Button>,
 			]}
-		>
-			{String(error)}
-		</Result>
+		/>
 	)
 }

@@ -5,8 +5,22 @@ import { axiosInstance } from './axiosInstance'
 
 export const CLASS_SESSIONS_API_URL = '/class_sessions/'
 
-export async function getClassSessions() {
-	const { data } = await axiosInstance.get<GetClassSessionsResponse>(CLASS_SESSIONS_API_URL)
+type QueryParamsKeys =
+	| 'start_date'
+	| 'end_date'
+	| 'course_id'
+	| 'course_code'
+	| 'checkin_session_id'
+
+export async function getClassSessions(queryParams?: Record<QueryParamsKeys, string>) {
+	let url = CLASS_SESSIONS_API_URL
+
+	if (queryParams) {
+		const params = new URLSearchParams(queryParams)
+		url += `?${params.toString()}`
+	}
+
+	const { data } = await axiosInstance.get<GetClassSessionsResponse>(url)
 	return data
 }
 
@@ -15,11 +29,6 @@ export async function getClassSession(classSessionId: string) {
 		`${CLASS_SESSIONS_API_URL}${classSessionId}/`,
 	)
 	return data
-}
-
-export const classSessionsQueryOptions: UseQueryOptions<GetClassSessionsResponse> = {
-	queryKey: ['classSessions'],
-	queryFn: getClassSessions,
 }
 
 export function getClassSessionQueryOptions(

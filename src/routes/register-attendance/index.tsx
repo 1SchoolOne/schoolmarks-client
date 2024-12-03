@@ -1,30 +1,60 @@
+import { QueryClient } from '@tanstack/react-query'
+import { redirect } from 'react-router-dom'
+
+import { getAttendanceRecords } from '@api/attendanceRecords'
+import { getSession } from '@api/auth'
 import { axiosInstance } from '@api/axiosInstance'
+import { CLASS_SESSIONS_API_URL } from '@api/classSessions'
 
 import { Route } from '@types'
 
-import { PostAttendanceRecordResponse } from '../../types/api/attendanceRecords'
+import { ClassSessionDetail } from '../../types/api/classSessions'
 import { RegisterAttendance } from './RegisterAttendance'
 import { RegisterError } from './RegisterError'
 
-export const registerAttendanceRoute: Route = {
-	path: 'register-attendance/:checkinSessionId',
-	element: <RegisterAttendance />,
-	errorElement: <RegisterError />,
-	loader: ({ params }) => registerAttendanceLoader(params.checkinSessionId),
+export function getRegisterAttendanceRoute(queryClient: QueryClient): Route {
+	return {
+		path: 'register-attendance/:checkinSessionId',
+		element: <RegisterAttendance />,
+		errorElement: <RegisterError />,
+		loader: async ({ params }) => {
+			const session = await queryClient.fetchQuery({
+				queryKey: ['auth-status'],
+				queryFn: getSession,
+			})
+
+			if (session.data.user?.role !== 'student') {
+				return redirect('/app')
+			}
+
+			return registerAttendanceLoader(queryClient, params.checkinSessionId)
+		},
+	}
 }
 
-export async function registerAttendanceLoader(checkinSessionId: string | undefined) {
-	const uuidRegex = new RegExp(
-		/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
-	)
+export async function registerAttendanceLoader(
+	queryClient: QueryClient,
+	checkinSessionId: string | undefined,
+) {
+	const [classSession, attendance] = await Promise.all([
+		queryClient.fetchQuery({
+			queryKey: ['classSession', { checkinSessionId: checkinSessionId }],
+			queryFn: async () => {
+				const { data } = await axiosInstance.get<ClassSessionDetail>(
+					`${CLASS_SESSIONS_API_URL}?checkin_session_id=${checkinSessionId}`,
+				)
+				return data
+			},
+		}),
+		queryClient.fetchQuery({
+			queryKey: ['attendanceRecords', checkinSessionId],
+			queryFn: async () => {
+				const records = await getAttendanceRecords()
 
-	if (!uuidRegex.test(String(checkinSessionId))) {
-		throw Error('checkinSessionId is not a valid UUID')
-	}
+				return records.filter((a) => a.checkin_session === checkinSessionId)[0]
+			},
+		}),
+	])
 
-	const { data } = await axiosInstance.post<PostAttendanceRecordResponse>(`/attendance_records/`, {
-		checkin_session_id: checkinSessionId,
-	})
-
-	return data
+	return { classSession, attendance }
 }

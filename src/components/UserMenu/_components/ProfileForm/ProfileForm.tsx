@@ -73,6 +73,7 @@ export function ProfileFormModal(params: ProfileFormModalProps) {
 		okText: 'Confirmer',
 		okButtonProps: { icon: <CheckIcon size={16} /> },
 		onCancel: closeModal,
+		destroyOnClose: true,
 	}
 
 	if (!user) {
@@ -102,7 +103,12 @@ export function ProfileFormModal(params: ProfileFormModalProps) {
 	}
 
 	return (
-		<Modal {...commonModalProps} onCancel={closeModal} confirmLoading={isPending}>
+		<Modal
+			{...commonModalProps}
+			onCancel={closeModal}
+			confirmLoading={isPending}
+			onOk={formInstance.submit}
+		>
 			<Form<ProfileFormValues>
 				form={formInstance}
 				layout="vertical"
@@ -131,7 +137,7 @@ export function ProfileFormModal(params: ProfileFormModalProps) {
 					</Col>
 					<Col span={24}>
 						<Form.Item label="Nom d'utilisateur" name="username">
-							<Input />
+							<Input disabled />
 						</Form.Item>
 					</Col>
 				</Row>

@@ -1,24 +1,56 @@
-import { Flex, Result } from 'antd'
-import { useLoaderData } from 'react-router-dom'
+import { useMutation } from '@tanstack/react-query'
+import { Card, Flex, Grid } from 'antd'
+import { useContext } from 'react'
+import { useParams } from 'react-router-dom'
 
-import { registerAttendanceLoader } from '.'
+import { axiosInstance } from '@api/axiosInstance'
+
+import { IdentityContext } from '@contexts'
+
+import { isUUID } from '@utils/isUUID'
+
+import { PostAttendanceRecordResponse } from '../../types/api/attendanceRecords'
+import { AttendanceForm } from './AttendanceForm'
 
 export function RegisterAttendance() {
-	const loaderData = useLoaderData() as Awaited<ReturnType<typeof registerAttendanceLoader>>
+	const params = useParams()
+	const isValidSessionId = isUUID(String(params.checkinSessionId))
+	const screens = Grid.useBreakpoint()
+	const { user } = useContext(IdentityContext)
+	console.log(user)
 
-	console.log(loaderData)
+	const { mutate } = useMutation({
+		mutationFn: (otp: string) => {
+			if (!isValidSessionId) {
+				throw Error("La session d'appel n'est pas valide")
+			}
 
-	if (!loaderData) {
-		return <Result status="error">Une erreur est survenue.</Result>
+			return axiosInstance.post<PostAttendanceRecordResponse>(`/attendance_records/`, {
+				checkin_session_id: params.checkinSessionId,
+				totp_code: otp,
+			})
+		},
+	})
+
+	if (!screens.lg) {
+		// TODO: remove inline styling
+		return (
+			<Flex
+				style={{ height: 'inherit', backgroundColor: 'var(--ant-color-bg-base)' }}
+				justify="center"
+				align="center"
+			>
+				<AttendanceForm onSubmit={({ otp }) => mutate(otp)} />
+			</Flex>
+		)
 	}
 
+	// TODO: remove inline styling
 	return (
 		<Flex style={{ height: 'inherit' }} justify="center" align="center">
-			<Result
-				status="success"
-				title="Ta présence a été enregistrée."
-				subTitle="Tu as été noté en retard."
-			/>
+			<Card>
+				<AttendanceForm onSubmit={({ otp }) => mutate(otp)} />
+			</Card>
 		</Flex>
 	)
 }

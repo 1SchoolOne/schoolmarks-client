@@ -2,20 +2,25 @@ import { useQuery } from '@tanstack/react-query'
 import { Card, Col, Descriptions, Row, Space, Tag } from 'antd'
 import dayjs from 'dayjs'
 import { CircleDotIcon, CircleOffIcon } from 'lucide-react'
+import { useContext } from 'react'
 import { useLoaderData, useNavigate } from 'react-router-dom'
 
-import { classSessionsQueryOptions } from '@api/classSessions'
+import { getClassSessions } from '@api/classSessions'
 
 import { LoadingScreen } from '@components'
+
+import { IdentityContext } from '@contexts'
 
 import { attendanceLoader } from '.'
 
 export function Attendance() {
 	const initialData = useLoaderData() as Awaited<ReturnType<typeof attendanceLoader>>
 	const navigate = useNavigate()
+	const { user } = useContext(IdentityContext)
 
 	const { data: classSessions, isPending } = useQuery({
-		...classSessionsQueryOptions,
+		queryKey: ['classSessions'],
+		queryFn: () => getClassSessions(),
 		initialData,
 	})
 
@@ -36,6 +41,7 @@ export function Attendance() {
 						: 'Appel en cours'
 					: null
 
+				// TODO: remove inline styling
 				return (
 					<Col key={session.id} span={8}>
 						<Card
@@ -56,8 +62,12 @@ export function Attendance() {
 								</Space>
 							}
 							bordered={false}
-							hoverable
-							onClick={() => navigate(`class-session/${session.id}`)}
+							hoverable={user?.role !== 'student'}
+							onClick={() => {
+								if (user?.role !== 'student') {
+									navigate(`class-session/${session.id}`)
+								}
+							}}
 						>
 							<Descriptions
 								layout="vertical"
