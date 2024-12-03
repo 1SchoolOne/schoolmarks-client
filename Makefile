@@ -108,6 +108,18 @@ test:
 	@echo "$(BLUE)Running unit tests...$(RESET)"
 	@yarn test
 
+.PHONY: build-image
+build-image:
+	@docker buildx build --platform linux/amd64,linux/arm64 -t schoolmarks-client .
+
+.PHONY: tag-image
+tag-image:
+	@docker tag schoolmarks-client registry.ilhanyapici.com/schoolmarks/client:$(tag)
+
+.PHONY: push-image
+push-image:
+	@docker push registry.ilhanyapici.com/schoolmarks/client:$(tag)
+
 # Show help
 .PHONY: help
 help:
@@ -124,4 +136,7 @@ help:
 	@echo "  $(BLUE)format$(RESET)        - Check code formatting"
 	@echo "  $(BLUE)fix-format$(RESET)    - Fix code formatting errors"
 	@echo "  $(BLUE)test$(RESET)          - Run unit tests"
+	@echo "  $(BLUE)build-image$(RESET)   - Build Docker image"
+	@echo "  $(BLUE)tag-image$(RESET)     - Tag the local image with the right labels"
+	@echo "  $(BLUE)push-image$(RESET)    - Push the image to the private registry"
 	@echo "  $(BLUE)help$(RESET)          - Show this help message"
