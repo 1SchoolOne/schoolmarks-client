@@ -30,8 +30,7 @@ jobs:
 
       - name: Create .env file
         run: |
-          touch .env
-          echo GITHUB_PAT=${{ env.GITHUB_PAT }} >> .env
+          echo GITHUB_PAT=${{ env.GITHUB_PAT }} >> .env.yarn
 
       - name: NPM Audit
         run: yarn npm audit
@@ -49,8 +48,7 @@ jobs:
 
       - name: Create .env file
         run: |
-          touch .env
-          echo GITHUB_PAT=${{ env.GITHUB_PAT }} >> .env
+          echo GITHUB_PAT=${{ env.GITHUB_PAT }} >> .env.yarn
 
       - name: Install Dependencies
         run: yarn install --immutable
@@ -73,8 +71,7 @@ jobs:
 
       - name: Create .env file
         run: |
-          touch .env
-          echo GITHUB_PAT=${{ env.GITHUB_PAT }} >> .env
+          echo GITHUB_PAT=${{ env.GITHUB_PAT }} >> .env.yarn
 
       - name: Install Dependencies
         run: yarn install --immutable

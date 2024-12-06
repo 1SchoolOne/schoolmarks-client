@@ -67,6 +67,14 @@ yarn dev
 yarn build
 ```
 
+### Environment Variables
+
+- `.env.yarn`: Required. Contains variables for dependencies installation and registries.
+- `.env.development`: Required. Contains default non-sensitive development values.
+- `.env.production`: Contains default non-sensitive production values.
+
+> [!IMPORTANT] > `.env.production` contains standardized production values and should not be modified.
+
 ### Commit Guidelines
 
 This project uses Commitizen for standardized commit messages. After setup, simply use `git commit` and follow the prompts.

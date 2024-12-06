@@ -13,7 +13,8 @@ openapi-schema.yml
 
 # Environment variables
 .env*
-!.env.example
+!.env.development
+!.env.production
 
 # Tool reports
 eslint_report.json
