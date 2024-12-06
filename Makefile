@@ -110,7 +110,7 @@ test:
 
 .PHONY: build-image
 build-image:
-	@docker buildx build --platform linux/amd64,linux/arm64 -t schoolmarks-client .
+	@docker buildx build --secret id=env_file,src=.env.yarn --platform linux/amd64,linux/arm64 -t schoolmarks-client . -f docker/Dockerfile
 
 .PHONY: tag-image
 tag-image:

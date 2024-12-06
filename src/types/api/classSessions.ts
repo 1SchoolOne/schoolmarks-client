@@ -1,14 +1,17 @@
 import { components, paths } from '../api-schema'
+import { CheckinSession } from './checkinSessions'
 
 /* - - - Model - - - */
 export type ClassSession = components['schemas']['ClassSession']
+export type ClassSessionDetail = Omit<
+	components['schemas']['ClassSessionDetail'],
+	'checkin_session'
+> & { checkin_session: CheckinSession | null }
 
 /* - - - GET - - - */
 
-export type GetClassSessionsResponse =
-	paths['/class_sessions/']['get']['responses']['200']['content']['application/json']
-export type GetClassSessionByIdResponse =
-	paths['/class_sessions/{id}/']['get']['responses']['200']['content']['application/json']
+export type GetClassSessionsResponse = ClassSessionDetail[]
+export type GetClassSessionByIdResponse = ClassSessionDetail
 
 /* - - - POST - - - */
 

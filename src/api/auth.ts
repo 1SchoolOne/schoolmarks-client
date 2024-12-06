@@ -1,4 +1,7 @@
+import { UseQueryOptions } from '@tanstack/react-query'
 import { AnyObject } from 'antd/es/_util/type'
+
+import { getCookie } from '@utils/getCookie'
 
 import { axiosInstance } from './axiosInstance'
 
@@ -7,17 +10,21 @@ export interface Credentials {
 	password: string
 }
 
+export interface SessionUserData {
+	id: number
+	display: string
+	has_usable_password: boolean
+	email: string
+	username: string
+	role: string
+}
+
 interface SessionAuthenticatedResponse {
 	status: number
 	data: {
-		user: {
-			id: number
-			display: string
-			has_usable_password: boolean
-			email: string
-			username: string
-		}
+		user: SessionUserData
 		method: AnyObject[]
+		flows?: never
 	}
 	meta: {
 		is_authenticated: true
@@ -26,7 +33,11 @@ interface SessionAuthenticatedResponse {
 
 interface SessionNotAuthenticatedResponse {
 	status: 401
-	data: AnyObject
+	data: {
+		flows: { id: string }[]
+		user?: never
+		method?: never
+	}
 	meta: {
 		is_authenticated: false
 	}
@@ -65,4 +76,23 @@ export async function getSession() {
 		validateStatus: (status) => (status >= 200 && status < 300) || status === 401,
 	})
 	return data
+}
+
+export const getSessionQueryOptions: UseQueryOptions<SessionResponse | null> = {
+	queryKey: ['auth-status'],
+	queryFn: getSession,
+	initialData: null,
+}
+
+export const csrfTokenQueryOptions: UseQueryOptions<string> = {
+	queryKey: ['csrf-token'],
+	queryFn: async () => {
+		await axiosInstance.get('/get-csrf-token/')
+		const token = getCookie('csrftoken')
+
+		axiosInstance.defaults.headers.common['X-CSRFToken'] = token
+
+		return token
+	},
+	refetchOnWindowFocus: false,
 }
