@@ -1,11 +1,19 @@
 services:
-  schoolmarks-client:
+  app:
     build:
       context: .
-    container_name: schoolmarks-client
+      dockerfile: docker/Dockerfile
+      secrets:
+        - env_file
     restart: always
     ports:
-      - '8080:8080'
+      - '8080:80'
     environment:
-      - GITHUB_PAT=${GITHUB_PAT}
       - VITE_API_HOST=${VITE_API_HOST}
+      - VITE_CLIENT_HOST=${VITE_CLIENT_HOST}
+    env_file:
+      - .env.production
+
+secrets:
+  env_file:
+    file: ./.env.yarn
