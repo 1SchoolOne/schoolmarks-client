@@ -73,7 +73,8 @@ yarn build
 - `.env.development`: Required. Contains default non-sensitive development values.
 - `.env.production`: Contains default non-sensitive production values.
 
-> [!IMPORTANT] > `.env.production` contains standardized production values and should not be modified.
+> [!IMPORTANT]
+> `.env.production` contains standardized production values and should not be modified.
 
 ### Commit Guidelines
 
