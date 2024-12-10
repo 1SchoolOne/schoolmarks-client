@@ -1,0 +1,44 @@
+.calendar__body__grid-lines {
+	position: absolute;
+	// -8px = permet d'aligné les lignes correctement,
+	//        basé sur les marges entre les conteneurs
+	//        des lignes.
+	// 66px = hauteur totale du header du calendrier.
+	top: calc(-8px + 66px);
+	// 24 colonnes sont disponibles sur la grille.
+	// Les 2 premières sont occupées par les labels d'heures.
+	// Comme on veut que les lignes partent du Lundi jusqu'au Vendredi,
+	// on décale la position du conteneur des lignes.
+	// D'où le calcul suivant : 2 / 24 * 100 = 8.333
+	left: calc(8.333% + 8px);
+	// Ici même principe mais on prend référence les
+	// colonnes en partant de la droite du calendrier.
+	// Le vendredi occupe les colonnes 19 à 22 (4 colonnes).
+	// Il reste donc 2 colonnes à droite du calendrier, on repositionne
+	// de la même manière. On utilise 8.4% plutôt que 8.333% car c'est
+	// mieux aligné avec cette valeur de ce côté.
+	right: calc(8.4% + 8px);
+	bottom: 0;
+	pointer-events: none;
+	display: grid;
+	grid-template-rows: repeat(22, 50px);
+	z-index: -1;
+
+	& > div:not(:first-child) {
+		padding-top: 8px;
+
+		.grid-line {
+			width: 100%;
+			border-width: 0.5px;
+			border-color: var(--ant-color-bg-text-hover);
+
+			&--solid {
+				border-style: solid;
+			}
+
+			&--dashed {
+				border-style: dashed;
+			}
+		}
+	}
+}

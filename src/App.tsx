@@ -9,7 +9,7 @@ import { getRegisterAttendanceRoute } from '@routes/register-attendance'
 
 import { getSession } from '@api/auth'
 
-import { MainLayout, ProtectedRoute } from '@components'
+import { GenericError, MainLayout, ProtectedRoute } from '@components'
 
 import { IdentityProvider } from '@contexts'
 
@@ -36,6 +36,7 @@ const routes = createBrowserRouter([
 				</IdentityProvider>
 			</QueryClientProvider>
 		),
+		errorElement: <GenericError />,
 		loader: async ({ request }) => {
 			const session = await queryClient.fetchQuery({
 				queryKey: ['auth-status'],

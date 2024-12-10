@@ -1,6 +1,6 @@
-import { MainLayout as Main, PropsWithChildren } from '@1schoolone/ui'
-import { Flex } from 'antd'
-import { CalendarDays, Clock, ScrollText } from 'lucide-react'
+import { MainLayout as Main, PropsWithChildren, useTheme } from '@1schoolone/ui'
+import { Flex, Segmented } from 'antd'
+import { CalendarDays, Clock, MoonStarIcon, ScrollText, SunIcon } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 
 import { Link, UserMenu } from '@components'
@@ -11,12 +11,21 @@ import './MainLayout-styles.less'
 
 export function MainLayout({ children }: PropsWithChildren) {
 	const location = useLocation()
+	const { toggleTheme, theme } = useTheme()
 
 	return (
 		<Main
 			header={
 				<Flex justify="space-between" align="center">
 					<Breadcrumbs />
+					<Segmented
+						value={theme}
+						onChange={toggleTheme}
+						options={[
+							{ icon: <SunIcon size={16} />, value: 'light' },
+							{ icon: <MoonStarIcon size={16} />, value: 'dark' },
+						]}
+					/>
 					<UserMenu />
 				</Flex>
 			}
