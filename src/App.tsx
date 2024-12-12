@@ -13,7 +13,7 @@ import { MainLayout, ProtectedRoute } from '@components'
 
 import { IdentityProvider } from '@contexts'
 
-import '@1schoolone/ui/dist/index.css'
+import '@1schoolone/ui/dist/ui.css'
 
 /**
  * Les requêtes mises en cache sont valides pendant 2 minutes. Après ce délai
