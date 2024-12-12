@@ -1,11 +1,8 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, Flex, Grid } from 'antd'
-import { useContext } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { axiosInstance } from '@api/axiosInstance'
-
-import { IdentityContext } from '@contexts'
 
 import { isUUID } from '@utils/isUUID'
 
@@ -16,8 +13,7 @@ export function RegisterAttendance() {
 	const params = useParams()
 	const isValidSessionId = isUUID(String(params.checkinSessionId))
 	const screens = Grid.useBreakpoint()
-	const { user } = useContext(IdentityContext)
-	console.log(user)
+	const queryClient = useQueryClient()
 
 	const { mutate } = useMutation({
 		mutationFn: (otp: string) => {
@@ -29,6 +25,12 @@ export function RegisterAttendance() {
 				checkin_session_id: params.checkinSessionId,
 				totp_code: otp,
 			})
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['classSession', { checkinSessionId: params.checkinSessionId }],
+			})
+			queryClient.refetchQueries({ queryKey: ['attendanceRecords', params.checkinSessionId] })
 		},
 	})
 
