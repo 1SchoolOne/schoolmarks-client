@@ -135,7 +135,7 @@ export function AttendanceForm({ onSubmit }: { onSubmit: (values: AttendanceForm
 				</Flex>
 			</Flex>
 
-			{!isSessionClosed ? (
+			{!attendance ? (
 				<Form<AttendanceFormValues>
 					form={formInstance}
 					layout="vertical"
