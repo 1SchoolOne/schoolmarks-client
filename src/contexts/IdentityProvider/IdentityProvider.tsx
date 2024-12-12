@@ -8,7 +8,6 @@ import {
 	Credentials,
 	SessionResponse,
 	SessionUserData,
-	csrfTokenQueryOptions,
 	getSession,
 	getSessionQueryOptions,
 	login as loginFn,
@@ -16,8 +15,6 @@ import {
 } from '@api/auth'
 
 import { LoadingScreen } from '@components'
-
-import { getCookie } from '@utils/getCookie'
 
 interface IdentityContext {
 	user: SessionUserData | undefined
@@ -55,12 +52,6 @@ export function IdentityProvider({ children }: PropsWithChildren) {
 	const initialAuthStatus = useLoaderData() as Awaited<ReturnType<typeof getSession>>
 
 	const pathname = location.pathname.split('/').filter((i) => i)[0]
-	const csrfToken = getCookie('csrftoken')
-
-	useQuery({
-		...csrfTokenQueryOptions,
-		enabled: csrfToken.length === 0,
-	})
 
 	const { data: authStatus } = useQuery({
 		...getSessionQueryOptions,

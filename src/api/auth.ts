@@ -1,8 +1,6 @@
 import { UseQueryOptions } from '@tanstack/react-query'
 import { AnyObject } from 'antd/es/_util/type'
 
-import { getCookie } from '@utils/getCookie'
-
 import { axiosInstance } from './axiosInstance'
 
 export interface Credentials {
@@ -82,17 +80,4 @@ export const getSessionQueryOptions: UseQueryOptions<SessionResponse | null> = {
 	queryKey: ['auth-status'],
 	queryFn: getSession,
 	initialData: null,
-}
-
-export const csrfTokenQueryOptions: UseQueryOptions<string> = {
-	queryKey: ['csrf-token'],
-	queryFn: async () => {
-		await axiosInstance.get('/get-csrf-token/')
-		const token = getCookie('csrftoken')
-
-		axiosInstance.defaults.headers.common['X-CSRFToken'] = token
-
-		return token
-	},
-	refetchOnWindowFocus: false,
 }
