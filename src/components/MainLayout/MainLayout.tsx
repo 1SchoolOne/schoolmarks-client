@@ -1,4 +1,4 @@
-import { MainLayout as Main, PropsWithChildren } from '@1schoolone/ui'
+import { MainLayout as Main, PropsWithChildren, ThemeSelect } from '@1schoolone/ui'
 import { Flex } from 'antd'
 import { CalendarDays, Clock, ScrollText } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
@@ -17,6 +17,7 @@ export function MainLayout({ children }: PropsWithChildren) {
 			header={
 				<Flex justify="space-between" align="center">
 					<Breadcrumbs />
+					<ThemeSelect placement="bottomRight" />
 					<UserMenu />
 				</Flex>
 			}
