@@ -51,7 +51,7 @@ export async function registerAttendanceLoader(
 			queryFn: async () => {
 				const records = await getAttendanceRecords()
 
-				return records.filter((a) => a.checkin_session === checkinSessionId)[0]
+				return records.filter((a) => a.checkin_session === checkinSessionId)[0] ?? null
 			},
 		}),
 	])

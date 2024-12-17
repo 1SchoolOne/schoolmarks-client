@@ -21,8 +21,6 @@ import { CLASS_SESSIONS_API_URL } from '@api/classSessions'
 import { registerAttendanceLoader } from '.'
 import { ClassSessionDetail } from '../../types/api/classSessions'
 
-import './AttendanceForm-styles.less'
-
 function formatTimeFrame(startTime: string | undefined, endTime: string | undefined) {
 	if (!startTime && !endTime) {
 		return (
@@ -75,7 +73,7 @@ export function AttendanceForm({ onSubmit }: { onSubmit: (values: AttendanceForm
 		queryFn: async () => {
 			const records = await getAttendanceRecords()
 
-			return records.filter((a) => a.checkin_session === params.checkinSessionId)[0]
+			return records.filter((a) => a.checkin_session === params.checkinSessionId)[0] ?? null
 		},
 		initialData: initialAttendance,
 	})

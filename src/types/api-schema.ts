@@ -260,6 +260,22 @@ export interface paths {
 		patch: operations['partialUpdateCheckinSession']
 		trace?: never
 	}
+	'/checkin_sessions/{id}/totp/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['totpCheckinSession']
+		put?: never
+		post?: never
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
 	'/attendance_records/': {
 		parameters: {
 			query?: never
@@ -474,19 +490,20 @@ export interface components {
 			/** Format: uuid */
 			readonly id?: string
 			class_session: string
-			qr_token: string
 			/** Format: date-time */
 			started_at: string
 			/** Format: date-time */
 			closed_at?: string | null
 			created_by: number
 			status: string
+			secret?: string | null
 		}
 		AttendanceRecord: {
 			/** Format: uuid */
 			readonly id?: string
 			checkin_session: string
-			readonly student?: {
+			student: number
+			readonly student_detail?: {
 				readonly id?: number
 				readonly role?: string
 				/**
@@ -1680,6 +1697,28 @@ export interface operations {
 				'multipart/form-data': components['schemas']['CheckinSession']
 			}
 		}
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['CheckinSession']
+				}
+			}
+		}
+	}
+	totpCheckinSession: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this checkin session. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: never
 		responses: {
 			200: {
 				headers: {

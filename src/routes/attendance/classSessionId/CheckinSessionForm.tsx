@@ -44,7 +44,6 @@ export function CheckinSessionForm() {
 				started_at: values.startedAt,
 				closed_at: values.closedAt,
 				created_by: user!.id,
-				qr_token: crypto.randomUUID(),
 				status: 'active',
 			})
 		},
@@ -79,18 +78,24 @@ export function CheckinSessionForm() {
 	if (canCreateCheckinSessions) {
 		return (
 			<Form<CheckinSessionFormValues>
-				layout="vertical"
 				onFinish={submitCheckinSession}
 				preserve={false}
+				validateMessages={{
+					required: 'Champ requis',
+				}}
 			>
-				<Row gutter={[16, 16]}>
-					<Col span={12}>
-						<Form.Item label="En retard à partir de :" name="startedAt">
+				<Row>
+					<Col span={24}>
+						<Form.Item
+							label="En retard à partir de :"
+							name="startedAt"
+							rules={[{ required: true }]}
+						>
 							<TimePicker placeholder="HH:mm" format="HH:mm" minuteStep={5} />
 						</Form.Item>
 					</Col>
-					<Col span={12}>
-						<Form.Item label="Ferme à :" name="closedAt">
+					<Col span={24}>
+						<Form.Item label="Absent à partir de :" name="closedAt" rules={[{ required: true }]}>
 							<TimePicker placeholder="HH:mm" format="HH:mm" minuteStep={5} />
 						</Form.Item>
 					</Col>

@@ -9,6 +9,8 @@ import { isUUID } from '@utils/isUUID'
 import { PostAttendanceRecordResponse } from '../../types/api/attendanceRecords'
 import { AttendanceForm } from './AttendanceForm'
 
+import './RegisterAttendance-styles.less'
+
 export function RegisterAttendance() {
 	const params = useParams()
 	const isValidSessionId = isUUID(String(params.checkinSessionId))
@@ -35,21 +37,15 @@ export function RegisterAttendance() {
 	})
 
 	if (!screens.lg) {
-		// TODO: remove inline styling
 		return (
-			<Flex
-				style={{ height: 'inherit', backgroundColor: 'var(--ant-color-bg-base)' }}
-				justify="center"
-				align="center"
-			>
+			<Flex className="register-attendance" justify="center" align="center">
 				<AttendanceForm onSubmit={({ otp }) => mutate(otp)} />
 			</Flex>
 		)
 	}
 
-	// TODO: remove inline styling
 	return (
-		<Flex style={{ height: 'inherit' }} justify="center" align="center">
+		<Flex className="register-attendance" justify="center" align="center">
 			<Card>
 				<AttendanceForm onSubmit={({ otp }) => mutate(otp)} />
 			</Card>
