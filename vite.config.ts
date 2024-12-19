@@ -38,7 +38,10 @@ export default defineConfig({
 	},
 	test: {
 		dir: 'src',
+		environment: 'jsdom',
 		globals: true,
+		include: ['**/*.{test,spec}.ts(|x)'],
+		setupFiles: ['tests/setup.ts'],
 		reporters: process.env.CI ? ['basic', 'html', 'github-actions'] : ['basic'],
 		outputFile: {
 			html: '.vitest-report/index.html',

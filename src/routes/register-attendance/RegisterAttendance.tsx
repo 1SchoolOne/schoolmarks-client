@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, Flex, Grid } from 'antd'
+import axios from 'axios'
 import { useParams } from 'react-router-dom'
 
-import { axiosInstance } from '@api/axiosInstance'
+import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
 
 import { isUUID } from '@utils/isUUID'
 
@@ -23,10 +24,14 @@ export function RegisterAttendance() {
 				throw Error("La session d'appel n'est pas valide")
 			}
 
-			return axiosInstance.post<PostAttendanceRecordResponse>(`/attendance_records/`, {
-				checkin_session_id: params.checkinSessionId,
-				totp_code: otp,
-			})
+			return axios.post<PostAttendanceRecordResponse>(
+				`/attendance_records/`,
+				{
+					checkin_session_id: params.checkinSessionId,
+					totp_code: otp,
+				},
+				AXIOS_DEFAULT_CONFIG,
+			)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({

@@ -1,9 +1,10 @@
 import { QueryClient } from '@tanstack/react-query'
+import axios from 'axios'
 import { redirect } from 'react-router-dom'
 
 import { getAttendanceRecords } from '@api/attendanceRecords'
 import { getSession } from '@api/auth'
-import { axiosInstance } from '@api/axiosInstance'
+import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
 import { CLASS_SESSIONS_API_URL } from '@api/classSessions'
 
 import { Route } from '@types'
@@ -40,8 +41,9 @@ export async function registerAttendanceLoader(
 		queryClient.fetchQuery({
 			queryKey: ['classSession', { checkinSessionId: checkinSessionId }],
 			queryFn: async () => {
-				const { data } = await axiosInstance.get<ClassSessionDetail>(
+				const { data } = await axios.get<ClassSessionDetail>(
 					`${CLASS_SESSIONS_API_URL}?checkin_session_id=${checkinSessionId}`,
+					AXIOS_DEFAULT_CONFIG,
 				)
 				return data
 			},

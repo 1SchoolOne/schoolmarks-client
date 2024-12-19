@@ -1,7 +1,8 @@
 import { UseQueryOptions } from '@tanstack/react-query'
+import axios from 'axios'
 
 import { GetClassSessionByIdResponse, GetClassSessionsResponse } from '../types/api/classSessions'
-import { axiosInstance } from './axiosInstance'
+import { AXIOS_DEFAULT_CONFIG } from './axios'
 
 export const CLASS_SESSIONS_API_URL = '/class_sessions/'
 
@@ -20,13 +21,14 @@ export async function getClassSessions(queryParams?: Record<QueryParamsKeys, str
 		url += `?${params.toString()}`
 	}
 
-	const { data } = await axiosInstance.get<GetClassSessionsResponse>(url)
+	const { data } = await axios.get<GetClassSessionsResponse>(url, AXIOS_DEFAULT_CONFIG)
 	return data
 }
 
 export async function getClassSession(classSessionId: string) {
-	const { data } = await axiosInstance.get<GetClassSessionByIdResponse>(
+	const { data } = await axios.get<GetClassSessionByIdResponse>(
 		`${CLASS_SESSIONS_API_URL}${classSessionId}/`,
+		AXIOS_DEFAULT_CONFIG,
 	)
 	return data
 }

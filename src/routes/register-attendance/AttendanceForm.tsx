@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Alert, Button, Flex, Form, Input, Typography } from 'antd'
+import axios from 'axios'
 import classnames from 'classnames'
 import dayjs from 'dayjs'
 import {
@@ -15,7 +16,7 @@ import { useState } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
 import { getAttendanceRecords } from '@api/attendanceRecords'
-import { axiosInstance } from '@api/axiosInstance'
+import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
 import { CLASS_SESSIONS_API_URL } from '@api/classSessions'
 
 import { registerAttendanceLoader } from '.'
@@ -59,8 +60,9 @@ export function AttendanceForm({ onSubmit }: { onSubmit: (values: AttendanceForm
 	const { data: classSession } = useQuery({
 		queryKey: ['classSession', { checkinSessionId: params.checkinSessionId }],
 		queryFn: async () => {
-			const { data } = await axiosInstance.get<ClassSessionDetail>(
+			const { data } = await axios.get<ClassSessionDetail>(
 				`${CLASS_SESSIONS_API_URL}?checkin_session_id=${params.checkinSessionId}`,
+				AXIOS_DEFAULT_CONFIG,
 			)
 			return data
 		},

@@ -1,4 +1,6 @@
-import { axiosInstance } from './axiosInstance'
+import axios from 'axios'
+
+import { AXIOS_DEFAULT_CONFIG } from './axios'
 
 export interface Course {
 	id: string
@@ -10,11 +12,11 @@ export interface Course {
 }
 
 export async function getCourse(courseId: string) {
-	const { data } = await axiosInstance.get<Course>(`/courses/${courseId}/`)
+	const { data } = await axios.get<Course>(`/courses/${courseId}/`, AXIOS_DEFAULT_CONFIG)
 	return data
 }
 
 export async function getCourses() {
-	const { data } = await axiosInstance.get<Array<Course>>('/courses/')
+	const { data } = await axios.get<Array<Course>>('/courses/', AXIOS_DEFAULT_CONFIG)
 	return data
 }

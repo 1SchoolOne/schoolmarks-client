@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { Col, Divider, Flex, List, Row, Tag, Typography } from 'antd'
+import axios from 'axios'
 import dayjs from 'dayjs'
 import { useContext } from 'react'
 import { useLoaderData, useParams } from 'react-router-dom'
 
-import { axiosInstance } from '@api/axiosInstance'
+import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
 import { getClassSessionQueryOptions } from '@api/classSessions'
 
 import { IdentityContext } from '@contexts'
@@ -31,7 +32,7 @@ export function StudentList() {
 	const { data: students, isPending } = useQuery({
 		queryKey: ['checkinStudents', classSession.checkin_session?.id],
 		queryFn: async () => {
-			const { data } = await axiosInstance.get<
+			const { data } = await axios.get<
 				Array<{
 					id: string
 					checkin_session: string
@@ -39,7 +40,10 @@ export function StudentList() {
 					checked_in_at: string
 					status: string
 				}>
-			>(`/attendance_records/?checkin_session_id=${classSession.checkin_session?.id}`)
+			>(
+				`/attendance_records/?checkin_session_id=${classSession.checkin_session?.id}`,
+				AXIOS_DEFAULT_CONFIG,
+			)
 
 			return data
 		},

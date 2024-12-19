@@ -1,7 +1,8 @@
 import { UseQueryOptions } from '@tanstack/react-query'
 import { AnyObject } from 'antd/es/_util/type'
+import axios from 'axios'
 
-import { axiosInstance } from './axiosInstance'
+import { AXIOS_DEFAULT_CONFIG } from './axios'
 
 export interface Credentials {
 	email: string
@@ -57,20 +58,26 @@ const AUTH_API_URL = '/_allauth/browser/v1/auth'
  * @param credentials - Nom d'utilisateur et mot de passe
  */
 export async function login(credentials: Credentials) {
-	const { data } = await axiosInstance.post<SessionResponse>(`${AUTH_API_URL}/login`, credentials)
+	const { data } = await axios.post<SessionResponse>(
+		`${AUTH_API_URL}/login`,
+		credentials,
+		AXIOS_DEFAULT_CONFIG,
+	)
 	return data
 }
 
 /** Supprime la session en cours via l'API. Déconnecte l'utilisateur. */
 export function logout() {
-	return axiosInstance.delete(`${AUTH_API_URL}/session`, {
+	return axios.delete(`${AUTH_API_URL}/session`, {
+		...AXIOS_DEFAULT_CONFIG,
 		validateStatus: (status) => status === 401,
 	})
 }
 
 /** Récupère les informations de la session en cours, si elle existe. */
 export async function getSession() {
-	const { data } = await axiosInstance.get<SessionResponse>(`${AUTH_API_URL}/session`, {
+	const { data } = await axios.get<SessionResponse>(`${AUTH_API_URL}/session`, {
+		...AXIOS_DEFAULT_CONFIG,
 		validateStatus: (status) => (status >= 200 && status < 300) || status === 401,
 	})
 	return data
