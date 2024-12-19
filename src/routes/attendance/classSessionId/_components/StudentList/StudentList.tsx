@@ -7,13 +7,13 @@ import { useLoaderData, useParams } from 'react-router-dom'
 
 import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
 import { getClassSessionQueryOptions } from '@api/classSessions'
+import { GetUserByIdResponse } from '@apiSchema/users'
 
 import { IdentityContext } from '@contexts'
 
 import { hasPermission } from '@utils/permissions'
 
-import { classSessionloader } from '..'
-import { GetUserByIdResponse } from '../../../types/api/users'
+import { classSessionloader } from '../../..'
 
 export function StudentList() {
 	const initialData = useLoaderData() as Awaited<ReturnType<typeof classSessionloader>>

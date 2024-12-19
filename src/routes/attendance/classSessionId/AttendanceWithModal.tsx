@@ -13,7 +13,7 @@ import { hasPermission } from '@utils/permissions'
 import { classSessionloader } from '..'
 import { Attendance } from '../Attendance'
 import { CheckinSessionForm } from './CheckinSessionForm'
-import { StudentList } from './StudentList'
+import { StudentList } from './_components/StudentList/StudentList'
 import { TOTP } from './_components/TOTP/TOTP'
 
 import './AttendanceWithModal-styles.less'
