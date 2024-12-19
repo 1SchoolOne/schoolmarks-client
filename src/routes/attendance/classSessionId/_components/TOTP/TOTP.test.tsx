@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 
-import { renderWithProviders } from '@helpers/test'
+import { renderWithThemeProvider } from '@helpers/test'
 
 import { getMockServer } from '../../../../../../tests/mockServer'
 import { TOTP } from './TOTP'
@@ -13,13 +13,15 @@ describe('<TOTP.Countdown />', () => {
 	afterAll(() => mockServer.close())
 
 	it('conforme au snapshot avec TOTP', async () => {
-		const { asFragment } = renderWithProviders(<TOTP.Countdown totp="123456" totpCountdown={15} />)
+		const { asFragment } = renderWithThemeProvider(
+			<TOTP.Countdown totp="123456" totpCountdown={15} />,
+		)
 
 		expect(asFragment()).toMatchSnapshot()
 	})
 
 	it('conforme au snapshot sans TOTP', async () => {
-		const { asFragment } = renderWithProviders(
+		const { asFragment } = renderWithThemeProvider(
 			<TOTP.Countdown totp={undefined} totpCountdown={15} />,
 		)
 
@@ -27,14 +29,14 @@ describe('<TOTP.Countdown />', () => {
 	})
 
 	it('affiche le TOTP', async () => {
-		renderWithProviders(<TOTP.Countdown totp="123456" totpCountdown={15} />)
+		renderWithThemeProvider(<TOTP.Countdown totp="123456" totpCountdown={15} />)
 
 		expect(screen.getByTestId('totp-countdown-id')).toBeDefined()
 		expect(screen.getByText('Code : 123456')).toBeDefined()
 	})
 
 	it("affiche un '-' s'il n'y a pas de TOTP", async () => {
-		renderWithProviders(<TOTP.Countdown totp={undefined} totpCountdown={15} />)
+		renderWithThemeProvider(<TOTP.Countdown totp={undefined} totpCountdown={15} />)
 
 		expect(screen.queryByTestId('totp-countdown-id')).toBeNull()
 		expect(screen.getByText('Code : -')).toBeDefined()

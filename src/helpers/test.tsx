@@ -1,6 +1,6 @@
 import { PropsWithChildren, ThemeProvider } from '@1schoolone/ui'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { RenderOptions, render as renderReact } from '@testing-library/react'
+import { RenderOptions, render, render as renderReact } from '@testing-library/react'
 import { ReactNode, useMemo } from 'react'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 
@@ -44,6 +44,21 @@ function renderWithQueryClient(
 	}
 }
 
+/** This helper will render the React node only with the ThemeProvider. */
+export function renderWithThemeProvider(
+	elements: ReactNode,
+	options?: Omit<RenderOptions, 'wrapper'>,
+) {
+	return render(elements, { ...options, wrapper: ThemeProvider })
+}
+
+/**
+ * This helper will render the React node with all the following providers:
+ *
+ * - ThemeProvider
+ * - RouterProvider
+ * - QueryClientProvider
+ */
 export function renderWithProviders(elements: ReactNode, options?: RenderOptions) {
 	return renderWithQueryClient(testingQueryClient, <AllProviders>{elements}</AllProviders>, options)
 }

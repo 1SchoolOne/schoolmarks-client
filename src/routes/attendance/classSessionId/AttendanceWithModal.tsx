@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Col, Modal, QRCode, Row } from 'antd'
+import { Col, Divider, Modal, QRCode, Row } from 'antd'
 import dayjs from 'dayjs'
 import { useContext } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
@@ -67,7 +67,16 @@ export function AttendanceWithModal() {
 						{classSession.checkin_session && <TOTP />}
 						<CheckinSessionForm />
 					</Col>
-					<StudentList />
+					{canReadCheckinSessions && (
+						<>
+							<Col span={2}>
+								<Divider className="student-list-divider" type="vertical" />
+							</Col>
+							<Col span={11}>
+								<StudentList />
+							</Col>
+						</>
+					)}
 				</Row>
 			</Modal>
 		</>
