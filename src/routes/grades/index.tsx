@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom'
 
 import { Route } from '@types'
 
-import { Grades } from './grades'
+import { Grades } from './Grades'
 
 export const gradesRoute: Route = {
 	path: 'grades',
