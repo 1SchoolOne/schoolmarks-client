@@ -1,4 +1,5 @@
-import { Match, getCrumbsFromMatches } from './Breadcrumbs'
+import { Match } from './Breadcrumbs'
+import { getCrumbsFromMatches } from './Breadcrumbs-utils'
 
 const matches: Match[] = [
 	{
@@ -28,7 +29,6 @@ describe('getCrumbsFromMatches', () => {
 	it('retourne uniquement les matches qui ont un crumb', () => {
 		const crumbs = getCrumbsFromMatches(matches)
 
-		expect(crumbs).toHaveLength(2)
 		expect(crumbs).toEqual([
 			{ label: 'toto', path: 'toto' },
 			{ label: 'tata', path: 'tata' },

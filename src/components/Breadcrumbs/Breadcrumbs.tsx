@@ -5,6 +5,8 @@ import { Link, UIMatch, useMatches } from 'react-router-dom'
 
 import { Crumb } from '@types'
 
+import { getCrumbsFromMatches } from './Breadcrumbs-utils'
+
 import './Breadcrumbs-styles.less'
 
 export type MatchWithCrumb = UIMatch<
@@ -20,14 +22,6 @@ export type Match = UIMatch<
 		crumb?: Crumb
 	}
 >
-
-function isMatchWithCrumb(match: Match): match is MatchWithCrumb {
-	return match.handle?.crumb !== undefined
-}
-
-export function getCrumbsFromMatches(matches: Match[]): Crumb[] {
-	return matches.filter(isMatchWithCrumb).map((match) => match.handle.crumb)
-}
 
 function itemRender(
 	currentRoute: Partial<BreadcrumbItemType & BreadcrumbSeparatorType>,
