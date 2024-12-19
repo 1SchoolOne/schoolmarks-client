@@ -26,6 +26,7 @@ export default defineConfig({
 			'@contexts': path.resolve(__dirname, './src/contexts'),
 			'@api': path.resolve(__dirname, './src/api'),
 			'@helpers': path.resolve(__dirname, './src/helpers'),
+			'@apiSchema': path.resolve(__dirname, './src/types/api'),
 		},
 	},
 	build: { outDir: 'build' },

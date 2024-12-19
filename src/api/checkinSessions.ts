@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-import { CheckinSession, PostCheckinSessionBody } from '../types/api/checkinSessions'
+import { CheckinSession, PostCheckinSessionBody } from '@apiSchema/checkinSessions'
+
 import { AXIOS_DEFAULT_CONFIG } from './axios'
 
 export const CHECKIN_SESSIONS_API_URL = '/checkin_sessions/'

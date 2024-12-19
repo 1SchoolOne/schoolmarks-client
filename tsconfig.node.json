@@ -29,7 +29,8 @@
 			"@routes/*": ["./src/routes/*"],
 			"@contexts": ["./src/contexts/index.ts"],
 			"@api/*": ["./src/api/*"],
-			"@helpers/*": ["./src/helpers/*"]
+			"@helpers/*": ["./src/helpers/*"],
+			"@apiSchema/*": ["./src/types/api/*"]
 		},
 
 		"types": ["vitest/globals"]

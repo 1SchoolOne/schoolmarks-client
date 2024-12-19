@@ -18,9 +18,9 @@ import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { getAttendanceRecords } from '@api/attendanceRecords'
 import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
 import { CLASS_SESSIONS_API_URL } from '@api/classSessions'
+import { ClassSessionDetail } from '@apiSchema/classSessions'
 
 import { registerAttendanceLoader } from '.'
-import { ClassSessionDetail } from '../../types/api/classSessions'
 
 function formatTimeFrame(startTime: string | undefined, endTime: string | undefined) {
 	if (!startTime && !endTime) {

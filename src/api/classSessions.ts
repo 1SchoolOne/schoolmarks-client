@@ -1,7 +1,8 @@
 import { UseQueryOptions } from '@tanstack/react-query'
 import axios from 'axios'
 
-import { GetClassSessionByIdResponse, GetClassSessionsResponse } from '../types/api/classSessions'
+import { GetClassSessionByIdResponse, GetClassSessionsResponse } from '@apiSchema/classSessions'
+
 import { AXIOS_DEFAULT_CONFIG } from './axios'
 
 export const CLASS_SESSIONS_API_URL = '/class_sessions/'

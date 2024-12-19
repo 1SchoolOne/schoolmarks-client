@@ -6,10 +6,10 @@ import { getAttendanceRecords } from '@api/attendanceRecords'
 import { getSession } from '@api/auth'
 import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
 import { CLASS_SESSIONS_API_URL } from '@api/classSessions'
+import { ClassSessionDetail } from '@apiSchema/classSessions'
 
 import { Route } from '@types'
 
-import { ClassSessionDetail } from '../../types/api/classSessions'
 import { RegisterAttendance } from './RegisterAttendance'
 import { RegisterError } from './RegisterError'
 

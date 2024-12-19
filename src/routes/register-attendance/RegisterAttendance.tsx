@@ -4,10 +4,10 @@ import axios from 'axios'
 import { useParams } from 'react-router-dom'
 
 import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
+import { PostAttendanceRecordResponse } from '@apiSchema/attendanceRecords'
 
 import { isUUID } from '@utils/isUUID'
 
-import { PostAttendanceRecordResponse } from '../../types/api/attendanceRecords'
 import { AttendanceForm } from './AttendanceForm'
 
 import './RegisterAttendance-styles.less'
