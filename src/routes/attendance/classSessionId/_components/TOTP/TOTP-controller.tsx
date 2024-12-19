@@ -1,15 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
-import { Col, Flex, Progress, Row, Typography } from 'antd'
+import axios from 'axios'
 import dayjs from 'dayjs'
 import { useEffect, useRef, useState } from 'react'
 import { useLoaderData, useParams } from 'react-router-dom'
 
-import { axiosInstance } from '@api/axiosInstance'
+import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
 import { getClassSessionQueryOptions } from '@api/classSessions'
 
-import { classSessionloader } from '..'
+import { classSessionloader } from '../../..'
 
-export function TOTPCountdown() {
+export function useController() {
 	const initialData = useLoaderData() as Awaited<ReturnType<typeof classSessionloader>>
 	const params = useParams()
 	const [totpCountdown, setTotpCountdown] = useState(0)
@@ -25,10 +25,11 @@ export function TOTPCountdown() {
 	})
 
 	const { data: totp } = useQuery({
-		queryKey: ['checkin-session', 'totp', classSession.checkin_session?.id],
+		queryKey: ['checkin-session', 'totp', classSession?.checkin_session?.id],
 		queryFn: async () => {
-			const { data } = await axiosInstance.get<{ totp: string }>(
-				`/checkin_sessions/${classSession.checkin_session?.id}/totp/`,
+			const { data } = await axios.get<{ totp: string }>(
+				`/checkin_sessions/${classSession?.checkin_session?.id}/totp/`,
+				AXIOS_DEFAULT_CONFIG,
 			)
 
 			if (previousTotp.current !== data.totp) {
@@ -42,7 +43,7 @@ export function TOTPCountdown() {
 		refetchIntervalInBackground: true,
 		refetchInterval: 1000,
 		staleTime: 1000,
-		enabled: !!classSession.checkin_session,
+		enabled: !!classSession?.checkin_session,
 	})
 
 	useEffect(
@@ -65,25 +66,5 @@ export function TOTPCountdown() {
 		[totpCountdown, totpExpiresAt],
 	)
 
-	if (!totp) {
-		return <></>
-	}
-
-	return (
-		<Row className="totp-container" gutter={[8, 8]}>
-			<Col span={24}>
-				<Flex align="center" justify="center" gap={6}>
-					<Typography.Title level={3}>Code :</Typography.Title>
-					<Typography.Title level={3}>{totp}</Typography.Title>
-				</Flex>
-			</Col>
-			<Col span={24}>
-				<Progress
-					percent={(totpCountdown / 15) * 100 + 1}
-					format={() => ''}
-					strokeColor={totpCountdown > 5 ? 'var(--ant-color-info)' : 'var(--ant-color-error)'}
-				/>
-			</Col>
-		</Row>
-	)
+	return { totp, totpCountdown }
 }

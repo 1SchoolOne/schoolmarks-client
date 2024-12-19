@@ -14,7 +14,7 @@ import { classSessionloader } from '..'
 import { Attendance } from '../Attendance'
 import { CheckinSessionForm } from './CheckinSessionForm'
 import { StudentList } from './StudentList'
-import { TOTPCountdown } from './TOTPCountdown'
+import { TOTP } from './_components/TOTP/TOTP'
 
 import './AttendanceWithModal-styles.less'
 
@@ -64,7 +64,7 @@ export function AttendanceWithModal() {
 							value={checkinSessionUrl}
 							size={200}
 						/>
-						<TOTPCountdown />
+						{classSession.checkin_session && <TOTP />}
 						<CheckinSessionForm />
 					</Col>
 					<StudentList />
