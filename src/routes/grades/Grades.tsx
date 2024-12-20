@@ -28,7 +28,6 @@ export function Grades() {
 			setLoading(true)
 			const [gradesData, usersData] = await Promise.all([getGrades(), getUsers()])
 
-			// Ajouter les noms des étudiants aux notes
 			const gradesWithUsers = gradesData.map((grade) => {
 				const student = usersData.find((user) => user.id === grade.student_id)
 				return {
@@ -178,7 +177,8 @@ export function Grades() {
 						/>
 					</Col>
 				</Row>
-
+			</Flex>
+			<Flex>
 				{error && (
 					<Typography.Text type="danger" style={{ margin: '16px 0' }}>
 						{error}
