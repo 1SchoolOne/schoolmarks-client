@@ -47,7 +47,7 @@ export function CalendarGrid({
 			</Row>
 			<Row className="calendar-body">
 				{currentTimePosition >= 0 && (
-					<div className="current-time-line" style={{ top: `${currentTimePosition}%` }} />
+					<div className="current-time-line" style={{ top: `${currentTimePosition}px` }} />
 				)}
 				<Col span={4} className="time-column">
 					{hourLabels.map((hour) => (

@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { CalendarFilters } from './_components/calendar-filters/CalendarFilters'
 import { CalendarGrid } from './_components/calendar-grid/CalendarGrid'
 
@@ -10,7 +12,7 @@ const sampleEvents = [
 		startTime: '08:00',
 		endTime: '11:30',
 		classroom: 'Salle A1',
-		dayIndex: 0, // Lundi
+		dayIndex: 0,
 		color: '#ff4d4f',
 	},
 	{
@@ -19,7 +21,7 @@ const sampleEvents = [
 		startTime: '10:00',
 		endTime: '11:30',
 		classroom: 'Salle B2',
-		dayIndex: 2, // Mercredi
+		dayIndex: 2,
 		color: '#1890ff',
 	},
 	{
@@ -28,7 +30,7 @@ const sampleEvents = [
 		startTime: '13:00',
 		endTime: '15:30',
 		classroom: 'Salle C3',
-		dayIndex: 4, // Vendredi
+		dayIndex: 4,
 		color: '#52c41a',
 	},
 ]

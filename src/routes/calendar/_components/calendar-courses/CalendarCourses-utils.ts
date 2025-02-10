@@ -20,5 +20,6 @@ export function calculateEventPosition(event: ICalendarEvent, startHour: number)
 		backgroundColor: event.color || '#ffd591',
 		borderRadius: '4px',
 		padding: '8px',
+		overflow: 'hidden',
 	}
 }

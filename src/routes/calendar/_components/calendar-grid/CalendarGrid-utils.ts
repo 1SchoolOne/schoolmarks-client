@@ -5,8 +5,10 @@ export function getCurrentTimePosition(startHour: number, endHour: number): numb
 
 	if (currentHour < startHour || currentHour >= endHour) return -1
 
-	const totalMinutes = (endHour - startHour) * 60
 	const elapsedMinutes = (currentHour - startHour) * 60 + currentMinutes
 
-	return (elapsedMinutes / totalMinutes) * 100
+	const pixelPerMinute = 53 / 60
+	const positionPixels = elapsedMinutes * pixelPerMinute
+
+	return positionPixels
 }
