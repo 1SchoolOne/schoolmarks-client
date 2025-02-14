@@ -3,29 +3,20 @@ import { Select, Space, Typography } from 'antd'
 
 import { IconButton } from '@components'
 
-import { useCalendar } from './CalendarFilters-utils'
+import { CalendarFiltersProps } from './CalendarFilters-types'
 
 import './CalendarFilters-styles.less'
 
-export function CalendarFilters() {
-	const {
-		currentDate,
-		monthOptions,
-		yearOptions,
-		updateCurrentDate,
-		handleMonthSelectChange,
-		handleYearSelectChange,
-	} = useCalendar()
-
-	const totalWeeks = Math.ceil(currentDate.endOf('month').date() / 7)
-	const selectedWeek = Math.min(Math.ceil(currentDate.date() / 7), totalWeeks)
+export function CalendarFilters(props: CalendarFiltersProps) {
+	const totalWeeks = Math.ceil(props.currentDate.endOf('month').date() / 7)
+	const selectedWeek = Math.min(Math.ceil(props.currentDate.date() / 7), totalWeeks)
 
 	function handleNextWeek() {
-		updateCurrentDate('next')
+		props.updateCurrentDate('next')
 	}
 
 	function handlePrevWeek() {
-		updateCurrentDate('prev')
+		props.updateCurrentDate('prev')
 	}
 
 	return (
@@ -34,18 +25,18 @@ export function CalendarFilters() {
 				<Select
 					size="small"
 					className="month"
-					value={currentDate.month()}
-					onChange={handleMonthSelectChange}
+					value={props.currentDate.month()}
+					onChange={props.handleMonthSelectChange}
 				>
-					{monthOptions}
+					{props.monthOptions}
 				</Select>
 				<Select
 					size="small"
 					className="year"
-					value={currentDate.year()}
-					onChange={handleYearSelectChange}
+					value={props.currentDate.year()}
+					onChange={props.handleYearSelectChange}
 				>
-					{yearOptions}
+					{props.yearOptions}
 				</Select>
 			</div>
 			<div className="switch-week-by-week">

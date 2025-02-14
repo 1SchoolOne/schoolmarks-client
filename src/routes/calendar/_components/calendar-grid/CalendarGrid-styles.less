@@ -4,7 +4,7 @@
 }
 
 .calendar-body {
-	max-height: 600px;
+	max-height: auto;
 }
 
 .current-time-line {
@@ -30,14 +30,19 @@
 	padding-left: 10px;
 }
 
+.dates {
+	display: flex;
+	justify-content: space-between;
+	padding-right: 10px;
+}
+
 .day-column {
 	border-right: 1px solid var(--ant-color-border);
 }
 
 .hour-slot {
 	height: 53px;
-	border-top: 1px solid #ccc;
-	//border-top: 1px solid var(--ant-color-bg-layout);
+	border-top: 1px solid var(--ant-color-border);
 	position: relative;
 }
 
@@ -47,7 +52,7 @@
 	bottom: 50%;
 	left: 0;
 	width: 100%;
-	border-top: 1px solid var(--ant-color-border-secondary);
+	border-top: 1px dashed var(--ant-color-border);
 }
 
 .day-grid {
@@ -58,7 +63,6 @@
 
 .hour-label {
 	height: 53px;
-	border-bottom: 1px solid var(--ant-color-border-secondary);
 }
 
 .text-sm {
