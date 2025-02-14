@@ -1,4 +1,5 @@
 import { Col, Row, Typography } from 'antd'
+import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 
 import { CalendarCourses } from '../calendar-courses/CalendarCourses'
@@ -10,17 +11,13 @@ import './CalendarGrid-styles.less'
 
 const { Text } = Typography
 
-export function CalendarGrid({
-	events,
-	startHour = 0,
-	endHour = 0,
-	dateRange,
-}: ICalendarGridProps) {
+export function CalendarGrid(params: ICalendarGridProps) {
+	const { events, startHour = 0, endHour = 0, weekDates, hourHeight } = params
 	const [currentTimePosition, setCurrentTimePosition] = useState(0)
 
 	useEffect(() => {
 		function updateCurrentTime() {
-			setCurrentTimePosition(getCurrentTimePosition(startHour, endHour))
+			setCurrentTimePosition(getCurrentTimePosition(startHour, endHour, hourHeight))
 		}
 
 		updateCurrentTime()
@@ -33,14 +30,22 @@ export function CalendarGrid({
 
 	const days = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.']
 
+	const getEventsForDate = (dateInfo: { fullDate: string }) => {
+		return events.filter((event) => {
+			const eventDate = dayjs(event.date)
+			const columnDate = dayjs(dateInfo.fullDate)
+			return eventDate.isSame(columnDate, 'day')
+		})
+	}
+
 	return (
 		<div className="calendar-grid">
 			<Row justify="end" className="calendar-header">
 				{days.map((day, index) => (
 					<Col key={day} span={4} className="day-column-header">
-						<div>
+						<div className="dates">
 							<Text>{day}</Text>
-							{dateRange && <Text>{dateRange.weekNumber * 7 + index + 1}</Text>}
+							<Text>{weekDates.dates[index]?.date}</Text>
 						</div>
 					</Col>
 				))}
@@ -56,21 +61,23 @@ export function CalendarGrid({
 						</div>
 					))}
 				</Col>
-				{Array.from({ length: 5 }).map((_, dayIndex) => (
-					<Col key={`day-${dayIndex}`} span={4} className="day-column">
+				{weekDates.dates.map((dateInfo) => (
+					<Col key={dateInfo.fullDate} span={4} className="day-column">
 						<div className="day-grid">
 							{hourLabels.map((hour) => (
-								<div key={`${dayIndex}-${hour}`} className="hour-slot"></div>
+								<div
+									key={`${dateInfo.fullDate}-${hour}`}
+									style={{ height: `${hourHeight}px` }}
+									className="hour-slot"
+								></div>
 							))}
-							{events
-								.filter((event) => event.dayIndex === dayIndex)
-								.map((event) => (
-									<CalendarCourses
-										key={event.id}
-										event={event}
-										style={calculateEventPosition(event, startHour)}
-									/>
-								))}
+							{getEventsForDate(dateInfo).map((event) => (
+								<CalendarCourses
+									key={`${event.id}-${dateInfo.fullDate}`}
+									event={event}
+									style={calculateEventPosition(event, startHour, hourHeight)}
+								/>
+							))}
 						</div>
 					</Col>
 				))}
