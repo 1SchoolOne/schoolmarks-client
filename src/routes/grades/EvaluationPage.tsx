@@ -100,7 +100,7 @@ export function EvaluationPage() {
 		if (invalidGrades.length > 0) {
 			const errorMessage = `Certaines notes sont invalides : \n${invalidGrades
 				.map(([studentId]) => {
-					const student = students.find((s) => s.id === studentId)
+					const student = students.find((s) => s.id === Number(studentId))
 					return `- ${student?.first_name} ${student?.last_name}`
 				})
 				.join('\n')}`
@@ -128,13 +128,13 @@ export function EvaluationPage() {
 				coef: values.coef?.toString(),
 			}
 
-			const createdGrade: { id: string } = await postGrade(gradeData)
+			const createdGrade = await postGrade(gradeData)
 
 			if (withGrades && createdGrade?.id && students.length > 0) {
 				await Promise.all(
 					Object.entries(grades).map(([studentId, value]) =>
 						postStudentGrade({
-							grade: createdGrade.id,
+							grade: createdGrade.id!,
 							student: Number(studentId),
 							value: value.toString(),
 							comment: comments[studentId] || '',
@@ -362,6 +362,9 @@ export function EvaluationPage() {
 					}))}
 					rowKey="id"
 					loading={isLoadingStudents}
+					locale={{
+						emptyText: selectedClass ? 'Aucun élève trouvé' : 'Aucune classe sélectionnée',
+					}}
 				/>
 			</Col>
 		</Row>
