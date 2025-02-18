@@ -1,6 +1,11 @@
 import axios from 'axios'
 
-import { GetGradeByIdResponse, GetGradesResponse, PostGradeBody } from '@apiSchema/grades'
+import {
+	GetGradeByIdResponse,
+	GetGradesResponse,
+	PostGradeBody,
+	PostGradeResponse,
+} from '@apiSchema/grades'
 import { GetUsersResponse } from '@apiSchema/users'
 
 import { AXIOS_DEFAULT_CONFIG } from './axios'
@@ -28,6 +33,6 @@ export async function getUsers() {
 /* - - - POST - - - */
 
 export async function postGrade(GradeData: PostGradeBody) {
-	const { data } = await axios.post<PostGradeBody>('/grades/', GradeData, AXIOS_DEFAULT_CONFIG)
+	const { data } = await axios.post<PostGradeResponse>('/grades/', GradeData, AXIOS_DEFAULT_CONFIG)
 	return data
 }
