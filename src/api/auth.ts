@@ -2,7 +2,7 @@ import { UseQueryOptions } from '@tanstack/react-query'
 import { AnyObject } from 'antd/es/_util/type'
 import axios from 'axios'
 
-import { AXIOS_DEFAULT_CONFIG } from './axios'
+import { API_BASE_URL, AXIOS_DEFAULT_CONFIG } from './axios'
 
 export interface Credentials {
 	email: string
@@ -13,6 +13,7 @@ export interface SessionUserData {
 	id: number
 	display: string
 	has_usable_password: boolean
+	has_changed_password: boolean
 	email: string
 	username: string
 	role: string
@@ -45,6 +46,25 @@ interface SessionNotAuthenticatedResponse {
 export type SessionResponse = SessionAuthenticatedResponse | SessionNotAuthenticatedResponse
 
 const AUTH_API_URL = '/_allauth/browser/v1/auth'
+const ACCOUNT_API_URL = '/_allauth/browser/v1/account'
+
+export async function changePassword(values: {
+	currentPassword: string
+	newPassword: string
+	userId: number
+}) {
+	await axios.post(
+		`${ACCOUNT_API_URL}/password/change`,
+		{ current_password: values.currentPassword, new_password: values.newPassword },
+		AXIOS_DEFAULT_CONFIG,
+	)
+
+	await axios.patch(
+		`${API_BASE_URL}/users/${values.userId}/`,
+		{ has_changed_password: true },
+		AXIOS_DEFAULT_CONFIG,
+	)
+}
 
 /**
  * Permet de se connecter.

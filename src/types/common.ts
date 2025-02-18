@@ -18,4 +18,7 @@ export interface Handle {
 export interface Crumb {
 	label: string
 	path: string
+	disabled?: true
 }
+
+export type UserRole = 'admin' | 'teacher' | 'student'

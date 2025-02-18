@@ -1,5 +1,4 @@
 import { Breadcrumb, Typography } from 'antd'
-import { AnyObject } from 'antd/es/_util/type'
 import { BreadcrumbItemType, BreadcrumbSeparatorType } from 'antd/es/breadcrumb/Breadcrumb'
 import { Link, UIMatch, useMatches } from 'react-router-dom'
 
@@ -25,26 +24,32 @@ export type Match = UIMatch<
 
 function itemRender(
 	currentRoute: Partial<BreadcrumbItemType & BreadcrumbSeparatorType>,
-	_params: AnyObject,
+	params: Record<string, { disabled: boolean }>,
 	items: Partial<BreadcrumbItemType & BreadcrumbSeparatorType>[],
-	paths: string[],
 ) {
 	const isLast = currentRoute?.path === items[items.length - 1]?.path
+	const isDisabled = !!params[currentRoute.path!]?.disabled
 
-	return isLast ? (
+	return isLast || isDisabled ? (
 		<span>{currentRoute.title}</span>
 	) : (
-		<Link to={`/${paths.join('/')}`}>{currentRoute.title}</Link>
+		<Link to={`/app/${currentRoute?.path}`}>{currentRoute.title}</Link>
 	)
 }
 
 export function Breadcrumbs() {
 	const matches = useMatches() as Match[]
 	const crumbs: Crumb[] = getCrumbsFromMatches(matches)
+	const pathParams: Record<string, { disabled: boolean }> = {}
+
+	crumbs.forEach((crumb) => {
+		pathParams[crumb.path] = { disabled: !!crumb.disabled }
+	})
 
 	return (
 		<Breadcrumb
 			className="path-breadcrumb"
+			params={pathParams}
 			itemRender={itemRender}
 			items={crumbs.map((crumb, index) => ({
 				title:

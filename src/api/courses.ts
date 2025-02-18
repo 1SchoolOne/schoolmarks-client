@@ -6,7 +6,7 @@ import { AXIOS_DEFAULT_CONFIG } from './axios'
 
 /* - - - GET - - - */
 
-export async function getCourse(courseId: string) {
+export async function getCourseById(courseId: string) {
 	const { data } = await axios.get<GetCourseByIdResponse>(
 		`/courses/${courseId}/`,
 		AXIOS_DEFAULT_CONFIG,
