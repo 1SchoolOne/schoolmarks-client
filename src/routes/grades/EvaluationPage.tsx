@@ -3,6 +3,7 @@ import {
 	Button,
 	Col,
 	Dropdown,
+	Empty,
 	Form,
 	Input,
 	Row,
@@ -227,145 +228,195 @@ export function EvaluationPage() {
 	const isCourseDisabled = !selectedClass
 	const isSubmitDisabled = !selectedClass || !selectedCourse
 
+	// Ajouter un composant pour l'état vide
+	const EmptyState = () => (
+		<Empty
+			description="Veuillez sélectionner une classe"
+			style={{
+				margin: '48px 0',
+			}}
+		/>
+	)
+
 	return (
-		<Row gutter={24}>
+		<Row
+			gutter={24}
+			style={{
+				padding: '24px',
+				margin: '0 16px',
+			}}
+		>
 			<Col span={10}>
-				<Typography.Title level={3}>Créer une évaluation</Typography.Title>
-				<Form
-					form={form}
-					layout="vertical"
-					initialValues={{ coef: 1 }}
-					// Ajout de la configuration pour gérer les nombres
-					validateTrigger="onBlur"
-					onValuesChange={(_, values) => {
-						// Conversion des valeurs en nombres si nécessaire
-						if (values.max_value) {
-							form.setFieldValue('max_value', Number(values.max_value))
-						}
-						if (values.coef) {
-							form.setFieldValue('coef', Number(values.coef))
-						}
+				<div
+					style={{
+						background: '#fff',
+						padding: '24px',
+						borderRadius: '8px',
+						boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
 					}}
 				>
-					<Form.Item
-						name="class"
-						label="Classe"
-						required
-						rules={[{ required: true, message: 'Veuillez sélectionner une classe' }]}
+					<Typography.Title level={3}>Créer une évaluation</Typography.Title>
+					<Form
+						form={form}
+						layout="vertical"
+						style={{ marginTop: '24px' }}
+						initialValues={{ coef: 1 }}
+						// Ajout de la configuration pour gérer les nombres
+						validateTrigger="onBlur"
+						onValuesChange={(_, values) => {
+							// Conversion des valeurs en nombres si nécessaire
+							if (values.max_value) {
+								form.setFieldValue('max_value', Number(values.max_value))
+							}
+							if (values.coef) {
+								form.setFieldValue('coef', Number(values.coef))
+							}
+						}}
 					>
-						<Select
-							placeholder="Sélectionner une classe"
-							onChange={setSelectedClass}
-							loading={isLoadingClasses}
+						<Form.Item
+							name="class"
+							label="Classe"
+							required
+							rules={[{ required: true, message: 'Veuillez sélectionner une classe' }]}
 						>
-							{classes.map(renderClassOption)}
-						</Select>
-					</Form.Item>
-
-					<Form.Item
-						name="course"
-						label="Cours"
-						required
-						rules={[{ required: true, message: 'Veuillez sélectionner un cours' }]}
-					>
-						<Select
-							placeholder="Sélectionner un cours"
-							onChange={setSelectedCourse}
-							loading={isLoadingCourses}
-							disabled={isCourseDisabled}
-						>
-							{courses.map(renderCourseOption)}
-						</Select>
-					</Form.Item>
-
-					<Form.Item
-						name="name"
-						label="Nom de l'évaluation"
-						required
-						rules={[{ required: true, message: 'Veuillez saisir un nom' }]}
-					>
-						<Input placeholder="Nom de l'évaluation" disabled={isSubmitDisabled} />
-					</Form.Item>
-
-					<Form.Item
-						name="coef"
-						label="Coefficient (%)"
-						rules={[
-							{ required: true, message: 'Veuillez saisir un coefficient' },
-							{ type: 'number', min: 0, max: 100 },
-						]}
-					>
-						<Input
-							type="number"
-							placeholder="Coefficient"
-							min={0}
-							max={100}
-							step={0.01}
-							disabled={isSubmitDisabled}
-						/>
-					</Form.Item>
-
-					<Form.Item
-						name="max_value"
-						label="Note maximale"
-						rules={[
-							{ required: true, message: 'Veuillez saisir une note maximale' },
-							{
-								validator: async (_, value) => {
-									const num = Number(value)
-									if (isNaN(num) || num < 0) {
-										throw new Error('La note doit être un nombre positif')
-									}
-								},
-							},
-						]}
-					>
-						<Input
-							type="number"
-							placeholder="Note maximale"
-							min={0}
-							step={0.01}
-							disabled={isSubmitDisabled}
-						/>
-					</Form.Item>
-
-					<Form.Item name="description" label="Description">
-						<Input.TextArea placeholder="Description de l'évaluation" disabled={isSubmitDisabled} />
-					</Form.Item>
-
-					<Form.Item>
-						<Space>
-							<Button type="default" onClick={() => navigate('/app/grades')}>
-								Annuler
-							</Button>
-							<Dropdown.Button
-								type="primary"
-								loading={isLoading}
-								menu={{ items: dropdownItems }}
-								onClick={() => handleSubmit(true)}
-								disabled={isSubmitDisabled}
+							<Select
+								placeholder="Sélectionner une classe"
+								onChange={setSelectedClass}
+								loading={isLoadingClasses}
 							>
-								Valider
-							</Dropdown.Button>
-						</Space>
-					</Form.Item>
-				</Form>
+								{classes.map(renderClassOption)}
+							</Select>
+						</Form.Item>
+
+						<Form.Item
+							name="course"
+							label="Cours"
+							required
+							rules={[{ required: true, message: 'Veuillez sélectionner un cours' }]}
+						>
+							<Select
+								placeholder="Sélectionner un cours"
+								onChange={setSelectedCourse}
+								loading={isLoadingCourses}
+								disabled={isCourseDisabled}
+							>
+								{courses.map(renderCourseOption)}
+							</Select>
+						</Form.Item>
+
+						<Form.Item
+							name="name"
+							label="Nom de l'évaluation"
+							required
+							rules={[{ required: true, message: 'Veuillez saisir un nom' }]}
+						>
+							<Input placeholder="Nom de l'évaluation" disabled={isSubmitDisabled} />
+						</Form.Item>
+
+						<Form.Item
+							name="coef"
+							label="Coefficient (%)"
+							rules={[
+								{ required: true, message: 'Veuillez saisir un coefficient' },
+								{ type: 'number', min: 0, max: 100 },
+							]}
+						>
+							<Input
+								type="number"
+								placeholder="Coefficient"
+								min={0}
+								max={100}
+								step={0.01}
+								disabled={isSubmitDisabled}
+							/>
+						</Form.Item>
+
+						<Form.Item
+							name="max_value"
+							label="Note maximale"
+							rules={[
+								{ required: true, message: 'Veuillez saisir une note maximale' },
+								{
+									validator: async (_, value) => {
+										const num = Number(value)
+										if (isNaN(num) || num < 0) {
+											throw new Error('La note doit être un nombre positif')
+										}
+									},
+								},
+							]}
+						>
+							<Input
+								type="number"
+								placeholder="Note maximale"
+								min={0}
+								step={0.01}
+								disabled={isSubmitDisabled}
+							/>
+						</Form.Item>
+
+						<Form.Item name="description" label="Description">
+							<Input.TextArea
+								placeholder="Description de l'évaluation"
+								disabled={isSubmitDisabled}
+							/>
+						</Form.Item>
+
+						<Form.Item>
+							<Space>
+								<Button type="default" onClick={() => navigate('/app/grades')}>
+									Annuler
+								</Button>
+								<Dropdown.Button
+									type="primary"
+									loading={isLoading}
+									menu={{ items: dropdownItems }}
+									onClick={() => handleSubmit(true)}
+									disabled={isSubmitDisabled}
+								>
+									Valider
+								</Dropdown.Button>
+							</Space>
+						</Form.Item>
+					</Form>
+				</div>
 			</Col>
 
-			<Col span={14}>
-				<Typography.Title level={3}>Liste des élèves</Typography.Title>
-				<Table
-					columns={columns}
-					dataSource={students.map((student: User) => ({
-						id: student.id?.toString() || '',
-						studentName: `${student.first_name} ${student.last_name}`,
-					}))}
-					rowKey="id"
-					loading={isLoadingStudents}
-					locale={{
-						emptyText: selectedClass ? 'Aucun élève trouvé' : 'Aucune classe sélectionnée',
+			<Col
+				span={14}
+				style={{
+					borderLeft: '1px solid #f0f0f0',
+					paddingLeft: '24px',
+				}}
+			>
+				<div
+					style={{
+						background: '#fff',
+						padding: '24px',
+						borderRadius: '8px',
+						boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
 					}}
-				/>
+				>
+					<Typography.Title level={3}>Liste des élèves</Typography.Title>
+
+					{!selectedClass ? (
+						<EmptyState />
+					) : (
+						<Table
+							columns={columns}
+							dataSource={students.map((student: User) => ({
+								id: student.id?.toString() || '',
+								studentName: `${student.first_name} ${student.last_name}`,
+							}))}
+							rowKey="id"
+							loading={isLoadingStudents}
+							locale={{
+								emptyText: 'Aucun élève trouvé dans cette classe',
+							}}
+							style={{ marginTop: '24px' }}
+						/>
+					)}
+				</div>
 			</Col>
 		</Row>
 	)
