@@ -1,3 +1,4 @@
+import { SearchOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import {
 	Button,
@@ -26,6 +27,8 @@ import type { Class } from '@apiSchema/classes'
 import type { Course } from '@apiSchema/courses'
 import type { User } from '@apiSchema/users'
 
+import styles from './CreateGradePage-styles.module.less'
+
 const { Option } = Select
 
 interface StudentTableData {
@@ -43,7 +46,7 @@ interface FormData {
 	description: string
 }
 
-export function EvaluationPage() {
+export function CreateGradePage() {
 	const navigate = useNavigate()
 	const [form] = Form.useForm<FormData>()
 
@@ -53,6 +56,7 @@ export function EvaluationPage() {
 	const [grades, setGrades] = useState<Record<string, number>>({})
 	const [comments, setComments] = useState<Record<string, string>>({})
 	const [isLoading, setIsLoading] = useState<boolean>(false)
+	const [searchText, setSearchText] = useState<string>('')
 
 	// Queries
 	const { data: courses = [], isPending: isLoadingCourses } = useQuery({
@@ -71,18 +75,22 @@ export function EvaluationPage() {
 		enabled: Boolean(selectedClass),
 	})
 
+	// Ajout de la fonction de filtrage
+	const filteredStudents = students.filter((student) => {
+		const fullName = `${student.first_name} ${student.last_name}`.toLowerCase()
+		return fullName.includes(searchText.toLowerCase())
+	})
+
 	// Handlers
 	const handleGradeChange = (studentId: string, value: string) => {
 		const numValue = Number(value)
 		const maxValue = form.getFieldValue('max_value')
 
 		if (!isNaN(numValue)) {
-			if (numValue > maxValue) {
-				message.error(`La note ne peut pas dépasser ${maxValue}`)
-				return
-			}
-			if (numValue < 0) {
-				message.error('La note ne peut pas être négative')
+			if (numValue > maxValue || numValue < 0) {
+				// Supprimer le message.error et simplement mettre à jour la note
+				// Le message d'erreur sera affiché par le Form.Item
+				setGrades((prev) => ({ ...prev, [studentId]: numValue }))
 				return
 			}
 			setGrades((prev) => ({ ...prev, [studentId]: numValue }))
@@ -179,27 +187,37 @@ export function EvaluationPage() {
 			title: 'Note',
 			dataIndex: 'grade_value',
 			key: 'grade_value',
-			render: (_: unknown, record: StudentTableData) => (
-				<Form.Item
-					validateStatus={grades[record.id] > form.getFieldValue('max_value') ? 'error' : ''}
-					help={
-						grades[record.id] > form.getFieldValue('max_value')
-							? `Ne peut pas dépasser ${form.getFieldValue('max_value')}`
-							: ''
-					}
-				>
-					<Input
-						type="number"
-						placeholder="Note"
-						min={0}
-						max={form.getFieldValue('max_value')}
-						value={grades[record.id]}
-						onChange={(e) => handleGradeChange(record.id, e.target.value)}
-						disabled={!selectedCourse || !selectedClass}
-						status={grades[record.id] > form.getFieldValue('max_value') ? 'error' : ''}
-					/>
-				</Form.Item>
-			),
+			render: (_: unknown, record: StudentTableData) => {
+				const value = grades[record.id]
+				const maxValue = form.getFieldValue('max_value')
+				const isError = value > maxValue || value < 0
+				let errorMessage = ''
+
+				if (value > maxValue) {
+					errorMessage = `La note ne peut pas dépasser ${maxValue}`
+				} else if (value < 0) {
+					errorMessage = 'La note ne peut pas être négative'
+				}
+
+				return (
+					<Form.Item
+						validateStatus={isError ? 'error' : ''}
+						help={errorMessage}
+						style={{ marginBottom: 0 }}
+					>
+						<Input
+							type="number"
+							placeholder="Note"
+							min={0}
+							max={maxValue}
+							value={value}
+							onChange={(e) => handleGradeChange(record.id, e.target.value)}
+							disabled={!selectedCourse || !selectedClass}
+							status={isError ? 'error' : ''}
+						/>
+					</Form.Item>
+				)
+			},
 		},
 		{
 			title: 'Commentaire',
@@ -239,29 +257,15 @@ export function EvaluationPage() {
 	)
 
 	return (
-		<Row
-			gutter={24}
-			style={{
-				padding: '24px',
-				margin: '0 16px',
-			}}
-		>
-			<Col span={10}>
-				<div
-					style={{
-						background: '#fff',
-						padding: '24px',
-						borderRadius: '8px',
-						boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
-					}}
-				>
+		<Row gutter={24} className={styles.pageContainer}>
+			<Col span={10} className={styles.formContainer}>
+				<div className={styles.card}>
 					<Typography.Title level={3}>Créer une évaluation</Typography.Title>
 					<Form
 						form={form}
 						layout="vertical"
-						style={{ marginTop: '24px' }}
+						className={styles.form}
 						initialValues={{ coef: 1 }}
-						// Ajout de la configuration pour gérer les nombres
 						validateTrigger="onBlur"
 						onValuesChange={(_, values) => {
 							// Conversion des valeurs en nombres si nécessaire
@@ -382,40 +386,50 @@ export function EvaluationPage() {
 				</div>
 			</Col>
 
-			<Col
-				span={14}
-				style={{
-					borderLeft: '1px solid #f0f0f0',
-					paddingLeft: '24px',
-				}}
-			>
-				<div
-					style={{
-						background: '#fff',
-						padding: '24px',
-						borderRadius: '8px',
-						boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
-					}}
-				>
-					<Typography.Title level={3}>Liste des élèves</Typography.Title>
+			<Col span={14} className={styles.tableContainer}>
+				<div className={styles.card}>
+					<Space direction="vertical" style={{ width: '100%' }}>
+						<Row justify="space-between" align="middle">
+							<Col>
+								<Typography.Title level={3} className={styles.titleRow}>
+									Liste des élèves
+								</Typography.Title>
+							</Col>
+							<Col>
+								{selectedClass && (
+									<Input
+										placeholder="Rechercher..."
+										prefix={<SearchOutlined />}
+										value={searchText}
+										onChange={(e) => setSearchText(e.target.value)}
+										className={styles.searchBox}
+									/>
+								)}
+							</Col>
+						</Row>
 
-					{!selectedClass ? (
-						<EmptyState />
-					) : (
-						<Table
-							columns={columns}
-							dataSource={students.map((student: User) => ({
-								id: student.id?.toString() || '',
-								studentName: `${student.first_name} ${student.last_name}`,
-							}))}
-							rowKey="id"
-							loading={isLoadingStudents}
-							locale={{
-								emptyText: 'Aucun élève trouvé dans cette classe',
-							}}
-							style={{ marginTop: '24px' }}
-						/>
-					)}
+						{!selectedClass ? (
+							<Empty description="Veuillez sélectionner une classe" className={styles.emptyState} />
+						) : (
+							<Table
+								columns={columns}
+								dataSource={filteredStudents.map((student: User) => ({
+									id: student.id?.toString() || '',
+									studentName: `${student.first_name} ${student.last_name}`,
+								}))}
+								rowKey="id"
+								loading={isLoadingStudents}
+								locale={{
+									emptyText: 'Aucun élève trouvé dans cette classe',
+								}}
+								style={{ marginTop: '20px' }}
+								className={styles.table}
+								pagination={false}
+								scroll={{ y: 'calc(100vh - 350px)' }}
+								sticky
+							/>
+						)}
+					</Space>
 				</div>
 			</Col>
 		</Row>
