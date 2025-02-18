@@ -15,7 +15,7 @@ import {
 	message,
 } from 'antd'
 import type { MenuProps } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { getClasses } from '@api/classes'
@@ -75,13 +75,20 @@ export function CreateGradePage() {
 		enabled: Boolean(selectedClass),
 	})
 
-	// Ajout de la fonction de filtrage
+	useEffect(() => {
+		if (selectedCourse) {
+			const selectedCourseData = courses.find((course) => course.id === selectedCourse)
+			if (selectedCourseData) {
+				form.setFieldValue('name', `Évaluation ${selectedCourseData.name}`)
+			}
+		}
+	}, [selectedCourse, courses, form])
+
 	const filteredStudents = students.filter((student) => {
 		const fullName = `${student.first_name} ${student.last_name}`.toLowerCase()
 		return fullName.includes(searchText.toLowerCase())
 	})
 
-	// Handlers
 	const handleGradeChange = (studentId: string, value: string) => {
 		const numValue = Number(value)
 		const maxValue = form.getFieldValue('max_value')
@@ -164,7 +171,6 @@ export function CreateGradePage() {
 		}
 	}
 
-	// Render helpers
 	const renderCourseOption = (course: Course) => (
 		<Option key={course.id} value={course.id}>
 			{course.name}
@@ -190,12 +196,12 @@ export function CreateGradePage() {
 			render: (_: unknown, record: StudentTableData) => {
 				const value = grades[record.id]
 				const maxValue = form.getFieldValue('max_value')
-				const isError = value > maxValue || value < 0
+				const isError = value !== undefined && (value > maxValue || value < 0)
 				let errorMessage = ''
 
-				if (value > maxValue) {
+				if (value !== undefined && value > maxValue) {
 					errorMessage = `La note ne peut pas dépasser ${maxValue}`
-				} else if (value < 0) {
+				} else if (value !== undefined && value < 0) {
 					errorMessage = 'La note ne peut pas être négative'
 				}
 
@@ -242,19 +248,8 @@ export function CreateGradePage() {
 		},
 	]
 
-	// États de désactivation
 	const isCourseDisabled = !selectedClass
 	const isSubmitDisabled = !selectedClass || !selectedCourse
-
-	// Ajouter un composant pour l'état vide
-	const EmptyState = () => (
-		<Empty
-			description="Veuillez sélectionner une classe"
-			style={{
-				margin: '48px 0',
-			}}
-		/>
-	)
 
 	return (
 		<Row gutter={24} className={styles.pageContainer}>
