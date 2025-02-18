@@ -1,134 +1,368 @@
-import { Button, Col, Form, Input, Row, Select, Space, Table, Typography } from 'antd'
+import { useQuery } from '@tanstack/react-query'
+import {
+	Button,
+	Col,
+	Dropdown,
+	Form,
+	Input,
+	Row,
+	Select,
+	Space,
+	Table,
+	Typography,
+	message,
+} from 'antd'
+import type { MenuProps } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { getClasses } from '@api/classes'
+import { getCourses } from '@api/courses'
+import { postGrade } from '@api/grades'
+import { postStudentGrade } from '@api/studentGrade'
+import { getUsers } from '@api/users'
+import type { Class } from '@apiSchema/classes'
+import type { Course } from '@apiSchema/courses'
+import type { User } from '@apiSchema/users'
+
 const { Option } = Select
 
-interface Student {
-	id: number
+interface StudentTableData {
+	id: string
 	studentName: string
 	grade_value?: number
 	comment?: string
 }
 
-const students: Student[] = [
-	{ id: 1, studentName: 'Jean Dupont' },
-	{ id: 2, studentName: 'Marie Curie' },
-	{ id: 3, studentName: 'Albert Einstein' },
-]
+interface FormData {
+	course: string
+	name: string
+	max_value: number
+	coef: number
+	description: string
+}
 
 export function EvaluationPage() {
 	const navigate = useNavigate()
-	const [selectedClass, setSelectedClass] = useState<string | null>(null)
-	const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
-	const [maxGrade, setMaxGrade] = useState<number | null>(null)
-	const [coefficient, setCoefficient] = useState<number>(1)
-	const [grades, setGrades] = useState<Record<number, number>>({})
-	const [comments, setComments] = useState<Record<number, string>>({})
+	const [form] = Form.useForm<FormData>()
 
-	const handleGradeChange = (studentId: number, value: string) => {
-		setGrades((prev) => ({ ...prev, [studentId]: Number(value) }))
+	// États
+	const [selectedCourse, setSelectedCourse] = useState<string>('')
+	const [selectedClass, setSelectedClass] = useState<string>('')
+	const [grades, setGrades] = useState<Record<string, number>>({})
+	const [comments, setComments] = useState<Record<string, string>>({})
+	const [isLoading, setIsLoading] = useState<boolean>(false)
+
+	// Queries
+	const { data: courses = [], isPending: isLoadingCourses } = useQuery({
+		queryKey: ['courses'],
+		queryFn: getCourses,
+	})
+
+	const { data: classes = [], isPending: isLoadingClasses } = useQuery({
+		queryKey: ['classes'],
+		queryFn: getClasses,
+	})
+
+	const { data: students = [], isPending: isLoadingStudents } = useQuery({
+		queryKey: ['users', selectedClass],
+		queryFn: () => getUsers(selectedClass),
+		enabled: Boolean(selectedClass),
+	})
+
+	// Handlers
+	const handleGradeChange = (studentId: string, value: string) => {
+		const numValue = Number(value)
+		const maxValue = form.getFieldValue('max_value')
+
+		if (!isNaN(numValue)) {
+			if (numValue > maxValue) {
+				message.error(`La note ne peut pas dépasser ${maxValue}`)
+				return
+			}
+			if (numValue < 0) {
+				message.error('La note ne peut pas être négative')
+				return
+			}
+			setGrades((prev) => ({ ...prev, [studentId]: numValue }))
+		}
 	}
 
-	const handleCommentChange = (studentId: number, value: string) => {
+	const handleCommentChange = (studentId: string, value: string) => {
 		setComments((prev) => ({ ...prev, [studentId]: value }))
 	}
 
-	const handleSubmit = (withGrades: boolean = true) => {
-		const evaluation = {
-			subject: selectedSubject,
-			class: selectedClass,
-			coefficient,
-			maxGrade,
-			grades: withGrades ? grades : {},
-			comments,
+	const validateGrades = (maxValue: number) => {
+		const invalidGrades = Object.entries(grades).filter(
+			([_, value]) => value > maxValue || value < 0,
+		)
+
+		if (invalidGrades.length > 0) {
+			const errorMessage = `Certaines notes sont invalides : \n${invalidGrades
+				.map(([studentId]) => {
+					const student = students.find((s) => s.id === studentId)
+					return `- ${student?.first_name} ${student?.last_name}`
+				})
+				.join('\n')}`
+			message.error(errorMessage)
+			return false
 		}
-		console.log('Evaluation à soumettre:', evaluation)
-		// Ajoutez ici la logique pour envoyer les données
+		return true
 	}
 
+	const handleSubmit = async (withGrades: boolean = true) => {
+		try {
+			const values = await form.validateFields()
+
+			if (withGrades && !validateGrades(values.max_value)) {
+				return
+			}
+
+			setIsLoading(true)
+
+			// Conversion explicite des valeurs numériques
+			const gradeData = {
+				...values,
+				course: selectedCourse,
+				max_value: values.max_value?.toString(),
+				coef: values.coef?.toString(),
+			}
+
+			const createdGrade: { id: string } = await postGrade(gradeData)
+
+			if (withGrades && createdGrade?.id && students.length > 0) {
+				await Promise.all(
+					Object.entries(grades).map(([studentId, value]) =>
+						postStudentGrade({
+							grade: createdGrade.id,
+							student: Number(studentId),
+							value: value.toString(),
+							comment: comments[studentId] || '',
+						}),
+					),
+				)
+				message.success('Évaluation et notes créées avec succès')
+			} else {
+				message.success('Évaluation créée avec succès')
+			}
+
+			navigate('/app/grades')
+		} catch (error) {
+			message.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+			console.error(error)
+		} finally {
+			setIsLoading(false)
+		}
+	}
+
+	// Render helpers
+	const renderCourseOption = (course: Course) => (
+		<Option key={course.id} value={course.id}>
+			{course.name}
+		</Option>
+	)
+
+	const renderClassOption = (classItem: Class) => (
+		<Option key={classItem.id} value={classItem.id}>
+			{classItem.name}
+		</Option>
+	)
+
 	const columns = [
-		{ title: 'Étudiant', dataIndex: 'studentName', key: 'studentName' },
+		{
+			title: 'Étudiant',
+			dataIndex: 'studentName',
+			key: 'studentName',
+		},
 		{
 			title: 'Note',
 			dataIndex: 'grade_value',
 			key: 'grade_value',
-			render: (_: any, record: Student) => (
-				<Input
-					type="number"
-					placeholder="Note"
-					min={0}
-					max={maxGrade || undefined}
-					value={grades[record.id]}
-					onChange={(e) => handleGradeChange(record.id, e.target.value)}
-				/>
+			render: (_: unknown, record: StudentTableData) => (
+				<Form.Item
+					validateStatus={grades[record.id] > form.getFieldValue('max_value') ? 'error' : ''}
+					help={
+						grades[record.id] > form.getFieldValue('max_value')
+							? `Ne peut pas dépasser ${form.getFieldValue('max_value')}`
+							: ''
+					}
+				>
+					<Input
+						type="number"
+						placeholder="Note"
+						min={0}
+						max={form.getFieldValue('max_value')}
+						value={grades[record.id]}
+						onChange={(e) => handleGradeChange(record.id, e.target.value)}
+						disabled={!selectedCourse || !selectedClass}
+						status={grades[record.id] > form.getFieldValue('max_value') ? 'error' : ''}
+					/>
+				</Form.Item>
 			),
 		},
 		{
 			title: 'Commentaire',
 			dataIndex: 'comment',
 			key: 'comment',
-			render: (_: any, record: Student) => (
+			render: (_: unknown, record: StudentTableData) => (
 				<Input
 					placeholder="Appréciation"
 					value={comments[record.id]}
 					onChange={(e) => handleCommentChange(record.id, e.target.value)}
+					disabled={!selectedCourse || !selectedClass}
 				/>
 			),
 		},
 	]
 
+	const dropdownItems: MenuProps['items'] = [
+		{
+			key: 'without_grades',
+			label: 'Valider sans noter',
+			onClick: () => handleSubmit(false),
+		},
+	]
+
+	// États de désactivation
+	const isCourseDisabled = !selectedClass
+	const isSubmitDisabled = !selectedClass || !selectedCourse
+
 	return (
 		<Row gutter={24}>
 			<Col span={10}>
 				<Typography.Title level={3}>Créer une évaluation</Typography.Title>
-				<Form layout="vertical">
-					<Form.Item label="Matière" required>
-						<Select placeholder="Sélectionner une matière" onChange={setSelectedSubject}>
-							<Option value="maths">Mathématiques</Option>
-							<Option value="français">Français</Option>
+				<Form
+					form={form}
+					layout="vertical"
+					initialValues={{ coef: 1 }}
+					// Ajout de la configuration pour gérer les nombres
+					validateTrigger="onBlur"
+					onValuesChange={(_, values) => {
+						// Conversion des valeurs en nombres si nécessaire
+						if (values.max_value) {
+							form.setFieldValue('max_value', Number(values.max_value))
+						}
+						if (values.coef) {
+							form.setFieldValue('coef', Number(values.coef))
+						}
+					}}
+				>
+					<Form.Item
+						name="class"
+						label="Classe"
+						required
+						rules={[{ required: true, message: 'Veuillez sélectionner une classe' }]}
+					>
+						<Select
+							placeholder="Sélectionner une classe"
+							onChange={setSelectedClass}
+							loading={isLoadingClasses}
+						>
+							{classes.map(renderClassOption)}
 						</Select>
 					</Form.Item>
-					<Form.Item label="Coefficient">
+
+					<Form.Item
+						name="course"
+						label="Cours"
+						required
+						rules={[{ required: true, message: 'Veuillez sélectionner un cours' }]}
+					>
+						<Select
+							placeholder="Sélectionner un cours"
+							onChange={setSelectedCourse}
+							loading={isLoadingCourses}
+							disabled={isCourseDisabled}
+						>
+							{courses.map(renderCourseOption)}
+						</Select>
+					</Form.Item>
+
+					<Form.Item
+						name="name"
+						label="Nom de l'évaluation"
+						required
+						rules={[{ required: true, message: 'Veuillez saisir un nom' }]}
+					>
+						<Input placeholder="Nom de l'évaluation" disabled={isSubmitDisabled} />
+					</Form.Item>
+
+					<Form.Item
+						name="coef"
+						label="Coefficient (%)"
+						rules={[
+							{ required: true, message: 'Veuillez saisir un coefficient' },
+							{ type: 'number', min: 0, max: 100 },
+						]}
+					>
 						<Input
 							type="number"
 							placeholder="Coefficient"
-							min={1}
-							value={coefficient}
-							onChange={(e) => setCoefficient(Number(e.target.value))}
+							min={0}
+							max={100}
+							step={0.01}
+							disabled={isSubmitDisabled}
 						/>
 					</Form.Item>
-					<Form.Item label="Note maximale">
+
+					<Form.Item
+						name="max_value"
+						label="Note maximale"
+						rules={[
+							{ required: true, message: 'Veuillez saisir une note maximale' },
+							{
+								validator: async (_, value) => {
+									const num = Number(value)
+									if (isNaN(num) || num < 0) {
+										throw new Error('La note doit être un nombre positif')
+									}
+								},
+							},
+						]}
+					>
 						<Input
 							type="number"
-							placeholder="Note max"
+							placeholder="Note maximale"
 							min={0}
-							onChange={(e) => setMaxGrade(Number(e.target.value))}
+							step={0.01}
+							disabled={isSubmitDisabled}
 						/>
 					</Form.Item>
-					<Form.Item label="Classe">
-						<Select placeholder="Sélectionner une classe" onChange={setSelectedClass}>
-							<Option value="classe1">Classe 1</Option>
-							<Option value="classe2">Classe 2</Option>
-						</Select>
+
+					<Form.Item name="description" label="Description">
+						<Input.TextArea placeholder="Description de l'évaluation" disabled={isSubmitDisabled} />
 					</Form.Item>
-					<Space>
-						<Button type="default" onClick={() => navigate('/app/grades')}>
-							Annuler
-						</Button>
-						<Button type="primary" onClick={() => handleSubmit(false)}>
-							Valider sans noter
-						</Button>
-						<Button type="primary" onClick={() => handleSubmit(true)}>
-							Valider
-						</Button>
-					</Space>
+
+					<Form.Item>
+						<Space>
+							<Button type="default" onClick={() => navigate('/app/grades')}>
+								Annuler
+							</Button>
+							<Dropdown.Button
+								type="primary"
+								loading={isLoading}
+								menu={{ items: dropdownItems }}
+								onClick={() => handleSubmit(true)}
+								disabled={isSubmitDisabled}
+							>
+								Valider
+							</Dropdown.Button>
+						</Space>
+					</Form.Item>
 				</Form>
 			</Col>
 
 			<Col span={14}>
 				<Typography.Title level={3}>Liste des élèves</Typography.Title>
-				<Table columns={columns} dataSource={students} rowKey="id" />
+				<Table
+					columns={columns}
+					dataSource={students.map((student: User) => ({
+						id: student.id?.toString() || '',
+						studentName: `${student.first_name} ${student.last_name}`,
+					}))}
+					rowKey="id"
+					loading={isLoadingStudents}
+				/>
 			</Col>
 		</Row>
 	)
