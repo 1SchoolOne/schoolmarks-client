@@ -18,6 +18,16 @@ import { EnrollCourses } from './classes/EnrollCourses'
 import { CourseAdminTable } from './courses/CourseAdminTable'
 import { CreateCourse } from './courses/CreateCourse'
 import { EditCourseModal } from './courses/EditCourseModal'
+import { ImportCategories } from './import/ImportCategories'
+import { ImportClasses } from './import/classes/ImportClasses'
+import { ImportClassesDetail } from './import/classes/ImportClassesDetail'
+import { ImportClassesList } from './import/classes/ImportClassesList'
+import { ImportCourses } from './import/courses/ImportCourses'
+import { ImportCoursesDetail } from './import/courses/ImportCoursesDetail'
+import { ImportCoursesList } from './import/courses/ImportCoursesList'
+import { ImportUsers } from './import/users/ImportUsers'
+import { ImportUsersDetail } from './import/users/ImportUsersDetail'
+import { ImportUsersList } from './import/users/ImportUsersList'
 import { UserAdminTable } from './users/UserAdminTable'
 
 export function getAdminRoute(queryClient: QueryClient): Route {
@@ -119,6 +129,130 @@ export function getAdminRoute(queryClient: QueryClient): Route {
 								<EditCourseModal />
 							</>
 						),
+					},
+				],
+			},
+			/* - - - - - - - - Import CSV - - - - - - - - */
+			{
+				path: 'import',
+				element: <Outlet />,
+				handle: {
+					crumb: {
+						label: 'Import',
+						path: 'import',
+					},
+				},
+				children: [
+					{
+						index: true,
+						element: <ImportCategories />,
+					},
+					{
+						path: 'users',
+						handle: {
+							crumb: {
+								label: 'Utilisateurs',
+								path: 'users',
+							},
+						},
+						children: [
+							{
+								index: true,
+								element: <ImportUsersList />,
+							},
+							{
+								path: 'new',
+								handle: {
+									crumb: {
+										label: 'Nouveau',
+										path: 'new',
+									},
+								},
+								element: <ImportUsers />,
+							},
+							{
+								path: 'view/:importId',
+								handle: {
+									crumb: {
+										label: 'Détails',
+										path: 'view',
+									},
+								},
+								element: <ImportUsersDetail />,
+							},
+						],
+					},
+					{
+						path: 'classes',
+						handle: {
+							crumb: {
+								label: 'Classes',
+								path: 'classes',
+							},
+						},
+						element: <Outlet />,
+						children: [
+							{
+								index: true,
+								element: <ImportClassesList />,
+							},
+							{
+								path: 'new',
+								handle: {
+									crumb: {
+										label: 'Nouveau',
+										path: 'new',
+									},
+								},
+								element: <ImportClasses />,
+							},
+							{
+								path: 'view/:importId',
+								handle: {
+									crumb: {
+										label: 'Détails',
+										path: 'view',
+									},
+								},
+								element: <ImportClassesDetail />,
+							},
+						],
+					},
+					{
+						path: 'courses',
+						handle: {
+							crumb: {
+								label: 'Cours',
+								path: 'courses',
+							},
+						},
+						element: <Outlet />,
+						children: [
+							{
+								index: true,
+								element: <ImportCoursesList />,
+							},
+							{
+								path: 'new',
+								handle: {
+									crumb: {
+										label: 'Nouveau',
+										path: 'new',
+									},
+								},
+								element: <ImportCourses />,
+							},
+							{
+								path: 'view/:importId',
+								handle: {
+									crumb: {
+										label: 'Détails',
+										path: 'view',
+									},
+								},
+								element: <ImportCoursesDetail />,
+							},
+						],
 					},
 				],
 			},
