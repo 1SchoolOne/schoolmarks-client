@@ -75,7 +75,7 @@ export function CreateGradePage() {
 
 	const { data: students = [], isPending: isLoadingStudents } = useQuery({
 		queryKey: ['users', selectedClass],
-		queryFn: () => getUsers(selectedClass),
+		queryFn: () => getUsers({ role: 'student', class_id: selectedClass }),
 		enabled: Boolean(selectedClass),
 	})
 

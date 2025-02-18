@@ -4,22 +4,51 @@ import { Navigate } from 'react-router-dom'
 
 import { IdentityContext } from '@contexts'
 
+import { UserRole } from '@types'
+
 import { LoadingScreen } from '../LoadingScreen/LoadingScreen'
+
+interface ProtectedRouteProps {
+	/** Permet de restreindre l'accès à certains rôles. */
+	restrictedTo?: [UserRole, ...UserRole[]]
+}
+
+function RoleCheck(props: PropsWithChildren<{ userRole: UserRole; acceptedRoles: UserRole[] }>) {
+	const { acceptedRoles, userRole, children } = props
+
+	if (acceptedRoles.includes(userRole)) {
+		return children
+	} else {
+		return <Navigate to="/app/attendance" replace />
+	}
+}
 
 /**
  * La `ProtectedRoute` permet de restreindre l'accès à une ou plusieurs routes
- * seulement aux utilisateurs authentifié.
- *
- * Redirige automatiquement vers la page de connexion lors du logout.
+ * seulement aux utilisateurs authentifié. Si on passe la props `restrictedTo`,
+ * le vérification d'authentification est ignorée pour restreindre l'accès
+ * seulement aux rôles spécifiés.
  */
-export function ProtectedRoute({ children }: PropsWithChildren) {
-	const { status } = useContext(IdentityContext)
+export function ProtectedRoute(props: PropsWithChildren<ProtectedRouteProps>) {
+	const { restrictedTo, children } = props
 
-	if (status === 'authenticated') {
-		return children
-	} else if (status === 'unreachable' || status === null) {
+	const { status, user } = useContext(IdentityContext)
+
+	if (status === undefined) {
+		return <LoadingScreen />
+	}
+
+	if (restrictedTo) {
+		return (
+			<RoleCheck acceptedRoles={restrictedTo} userRole={user!.role as UserRole}>
+				{children}
+			</RoleCheck>
+		)
+	}
+
+	if (status !== 'authenticated') {
 		return <Navigate to="/authenticate" replace />
 	} else {
-		return <LoadingScreen />
+		return children
 	}
 }

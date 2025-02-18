@@ -19,6 +19,7 @@ export const roleHandler = {
 					email: 'mock.admin@schoolmarks.fr',
 					has_usable_password: true,
 					role: 'admin',
+					has_changed_password: true,
 				},
 			},
 			meta: {
@@ -38,6 +39,7 @@ export const roleHandler = {
 					email: 'mock.teacher@schoolmarks.fr',
 					has_usable_password: true,
 					role: 'teacher',
+					has_changed_password: true,
 				},
 			},
 			meta: {
@@ -57,6 +59,7 @@ export const roleHandler = {
 					email: 'mock.student@schoolmarks.fr',
 					has_usable_password: true,
 					role: 'student',
+					has_changed_password: true,
 				},
 			},
 			meta: {
@@ -80,6 +83,7 @@ export const commonHandlers = [
 					id: '1',
 					class_session: '1',
 					started_at: dayjs().toISOString(),
+					closed_at: dayjs().add(5, 'minutes').toISOString(),
 					created_by: 1,
 					status: 'open',
 				},
@@ -98,6 +102,7 @@ export const commonHandlers = [
 				id: '1',
 				class_session: '1',
 				started_at: dayjs().toISOString(),
+				closed_at: dayjs().add(5, 'minutes').toISOString(),
 				created_by: 1,
 				status: 'open',
 			},

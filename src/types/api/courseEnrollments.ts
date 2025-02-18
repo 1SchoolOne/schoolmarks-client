@@ -1,7 +1,14 @@
-import { components, paths } from '../api-schema'
+import { paths } from '../api-schema'
+import { Class } from './classes'
+import { Course } from './courses'
 
 /* - - - Model - - - */
-export type CourseEnrollment = components['schemas']['CourseEnrollment']
+export interface CourseEnrollment {
+	id: string
+	course: Course
+	class_group: Class
+	enrolled_at: string
+}
 
 /* - - - GET - - - */
 

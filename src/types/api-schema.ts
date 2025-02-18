@@ -4,6 +4,70 @@
  */
 
 export interface paths {
+	'/import/users/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['listUserBulkImports']
+		put?: never
+		post: operations['createUserBulkImport']
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
+	'/import/classes/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['listClassBulkImports']
+		put?: never
+		post: operations['createClassBulkImport']
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
+	'/import/courses/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['listCourseBulkImports']
+		put?: never
+		post: operations['createCourseBulkImport']
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
+	'/import/{import_id}/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['retrieveImportDetail']
+		put?: never
+		post?: never
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
 	'/users/': {
 		parameters: {
 			query?: never
@@ -34,38 +98,6 @@ export interface paths {
 		options?: never
 		head?: never
 		patch: operations['partialUpdateUser']
-		trace?: never
-	}
-	'/user_roles/': {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		get: operations['listUserRoles']
-		put?: never
-		post: operations['createUserRole']
-		delete?: never
-		options?: never
-		head?: never
-		patch?: never
-		trace?: never
-	}
-	'/user_roles/{id}/': {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		get: operations['retrieveUserRole']
-		put: operations['updateUserRole']
-		post?: never
-		delete: operations['destroyUserRole']
-		options?: never
-		head?: never
-		patch: operations['partialUpdateUserRole']
 		trace?: never
 	}
 	'/classes/': {
@@ -404,29 +436,87 @@ export interface paths {
 		patch: operations['partialUpdateStudentGrade']
 		trace?: never
 	}
+	'/classes/bulk_delete/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get?: never
+		put?: never
+		post: operations['bulkDeleteClass']
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
+	'/courses/bulk_delete/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get?: never
+		put?: never
+		post: operations['bulkDeleteCourse']
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
+	'/course_enrollments/bulk_delete/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get?: never
+		put?: never
+		post: operations['bulkDeleteCourseEnrollment']
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
+	'/classes/{id}/update_students/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get?: never
+		put: operations['updateStudentsClass']
+		post?: never
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
 }
 export type webhooks = Record<string, never>
 export interface components {
 	schemas: {
 		User: {
 			readonly id?: number
-			readonly role?: string
 			/** Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
 			username: string
 			first_name?: string
 			last_name?: string
 			/** Format: email */
-			email?: string
+			email: string
 			/** Format: date */
 			birthday?: string | null
 			phone_number?: string | null
-		}
-		UserRole: {
-			/** Format: uuid */
-			readonly id?: string
-			readonly user_id?: string
-			/** @enum {string} */
-			role: 'student' | 'teacher' | 'admin'
+			has_changed_password?: boolean
+			readonly role?: string
 		}
 		Class: {
 			/** Format: uuid */
@@ -434,7 +524,6 @@ export interface components {
 			readonly students?: string
 			name: string
 			code: string
-			/** Format: int64 */
 			year_of_graduation?: number | null
 			/** Format: date-time */
 			readonly created_at?: string
@@ -457,7 +546,6 @@ export interface components {
 				code: string
 				readonly professor?: {
 					readonly id?: number
-					readonly role?: string
 					/**
 					 * Required. 150 characters or fewer. Letters, digits and
 					 *
@@ -467,11 +555,14 @@ export interface components {
 					first_name?: string
 					last_name?: string
 					/** Format: email */
-					email?: string
+					email: string
 					/** Format: date */
 					birthday?: string | null
 					phone_number?: string | null
+					has_changed_password?: boolean
+					readonly role?: string
 				}
+				professor_id?: number | null
 				/** Format: date-time */
 				readonly created_at?: string
 				/** Format: date-time */
@@ -492,7 +583,6 @@ export interface components {
 			code: string
 			readonly professor?: {
 				readonly id?: number
-				readonly role?: string
 				/**
 				 * Required. 150 characters or fewer. Letters, digits and
 				 *
@@ -502,11 +592,14 @@ export interface components {
 				first_name?: string
 				last_name?: string
 				/** Format: email */
-				email?: string
+				email: string
 				/** Format: date */
 				birthday?: string | null
 				phone_number?: string | null
+				has_changed_password?: boolean
+				readonly role?: string
 			}
+			professor_id?: number | null
 			/** Format: date-time */
 			readonly created_at?: string
 			/** Format: date-time */
@@ -515,8 +608,51 @@ export interface components {
 		CourseEnrollment: {
 			/** Format: uuid */
 			readonly id?: string
-			readonly course_id?: string
-			readonly class_group_id?: string
+			/** Format: uuid */
+			course_id: string
+			/** Format: uuid */
+			class_group_id: string
+			readonly course?: {
+				/** Format: uuid */
+				readonly id?: string
+				name: string
+				code: string
+				readonly professor?: {
+					readonly id?: number
+					/**
+					 * Required. 150 characters or fewer. Letters, digits and
+					 *
+					 * @/./+/-/_ only.
+					 */
+					username: string
+					first_name?: string
+					last_name?: string
+					/** Format: email */
+					email: string
+					/** Format: date */
+					birthday?: string | null
+					phone_number?: string | null
+					has_changed_password?: boolean
+					readonly role?: string
+				}
+				professor_id?: number | null
+				/** Format: date-time */
+				readonly created_at?: string
+				/** Format: date-time */
+				readonly updated_at?: string
+			}
+			readonly class_group?: {
+				/** Format: uuid */
+				readonly id?: string
+				readonly students?: string
+				name: string
+				code: string
+				year_of_graduation?: number | null
+				/** Format: date-time */
+				readonly created_at?: string
+				/** Format: date-time */
+				readonly updated_at?: string
+			}
 			/** Format: date-time */
 			readonly enrolled_at?: string
 		}
@@ -527,7 +663,7 @@ export interface components {
 			/** Format: date-time */
 			started_at: string
 			/** Format: date-time */
-			closed_at?: string | null
+			closed_at: string
 			created_by: number
 			status: string
 			secret?: string | null
@@ -539,7 +675,6 @@ export interface components {
 			student: number
 			readonly student_detail?: {
 				readonly id?: number
-				readonly role?: string
 				/**
 				 * Required. 150 characters or fewer. Letters, digits and
 				 *
@@ -549,10 +684,12 @@ export interface components {
 				first_name?: string
 				last_name?: string
 				/** Format: email */
-				email?: string
+				email: string
 				/** Format: date */
 				birthday?: string | null
 				phone_number?: string | null
+				has_changed_password?: boolean
+				readonly role?: string
 			}
 			/** Format: date-time */
 			checked_in_at: string
@@ -568,7 +705,6 @@ export interface components {
 			status: string
 			/** Format: date-time */
 			checked_in_at: string
-			/** Format: int64 */
 			minutes_late: number
 			/** Format: date-time */
 			readonly created_at?: string
@@ -593,7 +729,6 @@ export interface components {
 				readonly students?: string
 				name: string
 				code: string
-				/** Format: int64 */
 				year_of_graduation?: number | null
 				/** Format: date-time */
 				readonly created_at?: string
@@ -651,6 +786,159 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
+	listUserBulkImports: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': unknown[]
+				}
+			}
+		}
+	}
+	createUserBulkImport: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': unknown
+				'application/x-www-form-urlencoded': unknown
+				'multipart/form-data': unknown
+			}
+		}
+		responses: {
+			201: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': unknown
+				}
+			}
+		}
+	}
+	listClassBulkImports: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': unknown[]
+				}
+			}
+		}
+	}
+	createClassBulkImport: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': unknown
+				'application/x-www-form-urlencoded': unknown
+				'multipart/form-data': unknown
+			}
+		}
+		responses: {
+			201: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': unknown
+				}
+			}
+		}
+	}
+	listCourseBulkImports: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': unknown[]
+				}
+			}
+		}
+	}
+	createCourseBulkImport: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': unknown
+				'application/x-www-form-urlencoded': unknown
+				'multipart/form-data': unknown
+			}
+		}
+		responses: {
+			201: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': unknown
+				}
+			}
+		}
+	}
+	retrieveImportDetail: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				import_id: string
+			}
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': unknown
+				}
+			}
+		}
+	}
 	listUsers: {
 		parameters: {
 			query?: never
@@ -789,148 +1077,6 @@ export interface operations {
 				}
 				content: {
 					'application/json': components['schemas']['User']
-				}
-			}
-		}
-	}
-	listUserRoles: {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		requestBody?: never
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['UserRole'][]
-				}
-			}
-		}
-	}
-	createUserRole: {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		requestBody?: {
-			content: {
-				'application/json': components['schemas']['UserRole']
-				'application/x-www-form-urlencoded': components['schemas']['UserRole']
-				'multipart/form-data': components['schemas']['UserRole']
-			}
-		}
-		responses: {
-			201: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['UserRole']
-				}
-			}
-		}
-	}
-	retrieveUserRole: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this user role. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: never
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['UserRole']
-				}
-			}
-		}
-	}
-	updateUserRole: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this user role. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: {
-			content: {
-				'application/json': components['schemas']['UserRole']
-				'application/x-www-form-urlencoded': components['schemas']['UserRole']
-				'multipart/form-data': components['schemas']['UserRole']
-			}
-		}
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['UserRole']
-				}
-			}
-		}
-	}
-	destroyUserRole: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this user role. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: never
-		responses: {
-			204: {
-				headers: {
-					[name: string]: unknown
-				}
-				content?: never
-			}
-		}
-	}
-	partialUpdateUserRole: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this user role. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: {
-			content: {
-				'application/json': components['schemas']['UserRole']
-				'application/x-www-form-urlencoded': components['schemas']['UserRole']
-				'multipart/form-data': components['schemas']['UserRole']
-			}
-		}
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['UserRole']
 				}
 			}
 		}
@@ -2373,6 +2519,109 @@ export interface operations {
 				}
 				content: {
 					'application/json': components['schemas']['StudentGrade']
+				}
+			}
+		}
+	}
+	bulkDeleteClass: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['Class']
+				'application/x-www-form-urlencoded': components['schemas']['Class']
+				'multipart/form-data': components['schemas']['Class']
+			}
+		}
+		responses: {
+			201: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['Class']
+				}
+			}
+		}
+	}
+	bulkDeleteCourse: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['Course']
+				'application/x-www-form-urlencoded': components['schemas']['Course']
+				'multipart/form-data': components['schemas']['Course']
+			}
+		}
+		responses: {
+			201: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['Course']
+				}
+			}
+		}
+	}
+	bulkDeleteCourseEnrollment: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['CourseEnrollment']
+				'application/x-www-form-urlencoded': components['schemas']['CourseEnrollment']
+				'multipart/form-data': components['schemas']['CourseEnrollment']
+			}
+		}
+		responses: {
+			201: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['CourseEnrollment']
+				}
+			}
+		}
+	}
+	updateStudentsClass: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this class. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['Class']
+				'application/x-www-form-urlencoded': components['schemas']['Class']
+				'multipart/form-data': components['schemas']['Class']
+			}
+		}
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['Class']
 				}
 			}
 		}

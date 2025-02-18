@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Navigate, Outlet, RouterProvider, createBrowserRouter, redirect } from 'react-router-dom'
 
+import { getAdminRoute } from '@routes/admin'
 import { getAttendanceRoute } from '@routes/attendance'
 import { authenticateRoute } from '@routes/authenticate'
 import { calendarRoute } from '@routes/calendar'
@@ -65,6 +66,7 @@ const routes = createBrowserRouter([
 					getAttendanceRoute(queryClient),
 					gradesRoute,
 					calendarRoute,
+					getAdminRoute(queryClient),
 				],
 			},
 		],
