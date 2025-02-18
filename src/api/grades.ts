@@ -1,19 +1,33 @@
 import axios from 'axios'
 
-import { GetGradesResponse, Grade } from '../types/api/grades'
-import { GetUsersResponse, User } from '../types/api/users'
+import { GetGradeByIdResponse, GetGradesResponse, PostGradeBody } from '@apiSchema/grades'
+import { GetUsersResponse } from '@apiSchema/users'
+
 import { AXIOS_DEFAULT_CONFIG } from './axios'
 
-export const GRADES_API_URL = '/grades/'
+/* - - - GET - - - */
 
-export async function getGrades(): Promise<Grade[]> {
-	const { data } = await axios.get<GetGradesResponse>(GRADES_API_URL, AXIOS_DEFAULT_CONFIG)
-	return Array.isArray(data) ? data : [data]
+export async function getGrade(gradeId: string) {
+	const { data } = await axios.get<GetGradeByIdResponse>(
+		`/grades/${gradeId}/`,
+		AXIOS_DEFAULT_CONFIG,
+	)
+	return data
 }
 
-export const USERS_API_URL = '/users/'
+export async function getGrades() {
+	const { data } = await axios.get<GetGradesResponse>('/grades/', AXIOS_DEFAULT_CONFIG)
+	return data
+}
 
-export async function getUsers(): Promise<User[]> {
-	const { data } = await axios.get<GetUsersResponse>(USERS_API_URL, AXIOS_DEFAULT_CONFIG)
-	return Array.isArray(data) ? data : [data]
+export async function getUsers() {
+	const { data } = await axios.get<GetUsersResponse>(`/users/`, AXIOS_DEFAULT_CONFIG)
+	return data
+}
+
+/* - - - POST - - - */
+
+export async function postGrade(GradeData: PostGradeBody) {
+	const { data } = await axios.post<PostGradeBody>('/grades/', GradeData, AXIOS_DEFAULT_CONFIG)
+	return data
 }
