@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 
 import { Route } from '@types'
 
+import { EvaluationPage } from './EvaluationPage'
 import { Grades } from './Grades'
 
 export const gradesRoute: Route = {
@@ -17,6 +18,10 @@ export const gradesRoute: Route = {
 		{
 			index: true,
 			element: <Grades />,
+		},
+		{
+			path: 'evaluation/new',
+			element: <EvaluationPage />,
 		},
 	],
 }
