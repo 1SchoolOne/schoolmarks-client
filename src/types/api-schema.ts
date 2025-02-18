@@ -100,70 +100,6 @@ export interface paths {
 		patch: operations['partialUpdateClass']
 		trace?: never
 	}
-	'/courses/': {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		get: operations['listCourses']
-		put?: never
-		post: operations['createCourse']
-		delete?: never
-		options?: never
-		head?: never
-		patch?: never
-		trace?: never
-	}
-	'/courses/{id}/': {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		get: operations['retrieveCourse']
-		put: operations['updateCourse']
-		post?: never
-		delete: operations['destroyCourse']
-		options?: never
-		head?: never
-		patch: operations['partialUpdateCourse']
-		trace?: never
-	}
-	'/course_enrollments/': {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		get: operations['listCourseEnrollments']
-		put?: never
-		post: operations['createCourseEnrollment']
-		delete?: never
-		options?: never
-		head?: never
-		patch?: never
-		trace?: never
-	}
-	'/course_enrollments/{id}/': {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		get: operations['retrieveCourseEnrollment']
-		put: operations['updateCourseEnrollment']
-		post?: never
-		delete: operations['destroyCourseEnrollment']
-		options?: never
-		head?: never
-		patch: operations['partialUpdateCourseEnrollment']
-		trace?: never
-	}
 	'/class_students/': {
 		parameters: {
 			query?: never
@@ -226,6 +162,70 @@ export interface paths {
 		options?: never
 		head?: never
 		patch: operations['partialUpdateClassSession']
+		trace?: never
+	}
+	'/courses/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['listCourses']
+		put?: never
+		post: operations['createCourse']
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
+	'/courses/{id}/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['retrieveCourse']
+		put: operations['updateCourse']
+		post?: never
+		delete: operations['destroyCourse']
+		options?: never
+		head?: never
+		patch: operations['partialUpdateCourse']
+		trace?: never
+	}
+	'/course_enrollments/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['listCourseEnrollments']
+		put?: never
+		post: operations['createCourseEnrollment']
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
+	'/course_enrollments/{id}/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['retrieveCourseEnrollment']
+		put: operations['updateCourseEnrollment']
+		post?: never
+		delete: operations['destroyCourseEnrollment']
+		options?: never
+		head?: never
+		patch: operations['partialUpdateCourseEnrollment']
 		trace?: never
 	}
 	'/checkin_sessions/': {
@@ -372,6 +372,38 @@ export interface paths {
 		patch: operations['partialUpdateGrade']
 		trace?: never
 	}
+	'/student_grades/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['listStudentGrades']
+		put?: never
+		post: operations['createStudentGrade']
+		delete?: never
+		options?: never
+		head?: never
+		patch?: never
+		trace?: never
+	}
+	'/student_grades/{id}/': {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		get: operations['retrieveStudentGrade']
+		put: operations['updateStudentGrade']
+		post?: never
+		delete: operations['destroyStudentGrade']
+		options?: never
+		head?: never
+		patch: operations['partialUpdateStudentGrade']
+		trace?: never
+	}
 }
 export type webhooks = Record<string, never>
 export interface components {
@@ -379,7 +411,10 @@ export interface components {
 		User: {
 			readonly id?: number
 			readonly role?: string
-			/** Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
+			/**
+			 * Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+			 * only.
+			 */
 			username: string
 			first_name?: string
 			last_name?: string
@@ -393,7 +428,8 @@ export interface components {
 			/** Format: uuid */
 			readonly id?: string
 			readonly user_id?: string
-			role: string
+			/** @enum {string} */
+			role: 'student' | 'professor' | 'admin'
 		}
 		Class: {
 			/** Format: uuid */
@@ -401,46 +437,12 @@ export interface components {
 			readonly students?: string
 			name: string
 			code: string
+			/** Format: int64 */
 			year_of_graduation?: number | null
 			/** Format: date-time */
 			readonly created_at?: string
 			/** Format: date-time */
 			readonly updated_at?: string
-		}
-		Course: {
-			/** Format: uuid */
-			readonly id?: string
-			name: string
-			code: string
-			readonly professor?: {
-				readonly id?: number
-				readonly role?: string
-				/**
-				 * Required. 150 characters or fewer. Letters, digits and
-				 *
-				 * @/./+/-/_ only.
-				 */
-				username: string
-				first_name?: string
-				last_name?: string
-				/** Format: email */
-				email?: string
-				/** Format: date */
-				birthday?: string | null
-				phone_number?: string | null
-			}
-			/** Format: date-time */
-			readonly created_at?: string
-			/** Format: date-time */
-			readonly updated_at?: string
-		}
-		CourseEnrollment: {
-			/** Format: uuid */
-			readonly id?: string
-			readonly course_id?: string
-			readonly class_group_id?: string
-			/** Format: date-time */
-			readonly enrolled_at?: string
 		}
 		ClassStudent: {
 			/** Format: uuid */
@@ -461,7 +463,6 @@ export interface components {
 					readonly role?: string
 					/**
 					 * Required. 150 characters or fewer. Letters, digits and
-					 *
 					 * @/./+/-/_ only.
 					 */
 					username: string
@@ -486,6 +487,40 @@ export interface components {
 			status: string
 			readonly checkin_session?: string
 		}
+		Course: {
+			/** Format: uuid */
+			readonly id?: string
+			name: string
+			code: string
+			readonly professor?: {
+				readonly id?: number
+				readonly role?: string
+				/**
+				 * Required. 150 characters or fewer. Letters, digits and
+				 * @/./+/-/_ only.
+				 */
+				username: string
+				first_name?: string
+				last_name?: string
+				/** Format: email */
+				email?: string
+				/** Format: date */
+				birthday?: string | null
+				phone_number?: string | null
+			}
+			/** Format: date-time */
+			readonly created_at?: string
+			/** Format: date-time */
+			readonly updated_at?: string
+		}
+		CourseEnrollment: {
+			/** Format: uuid */
+			readonly id?: string
+			readonly course_id?: string
+			readonly class_group_id?: string
+			/** Format: date-time */
+			readonly enrolled_at?: string
+		}
 		CheckinSession: {
 			/** Format: uuid */
 			readonly id?: string
@@ -508,7 +543,6 @@ export interface components {
 				readonly role?: string
 				/**
 				 * Required. 150 characters or fewer. Letters, digits and
-				 *
 				 * @/./+/-/_ only.
 				 */
 				username: string
@@ -534,6 +568,7 @@ export interface components {
 			status: string
 			/** Format: date-time */
 			checked_in_at: string
+			/** Format: int64 */
 			minutes_late: number
 			/** Format: date-time */
 			readonly created_at?: string
@@ -541,11 +576,29 @@ export interface components {
 		Grade: {
 			/** Format: uuid */
 			readonly id?: string
-			readonly professor_id?: string
-			readonly class_session_id?: string
-			readonly student_id?: string
+			course: string
+			name: string
 			/** Format: decimal */
-			grade_value: string
+			max_value: string
+			/**
+			 * Format: decimal
+			 *
+			 * Pourcentage de la note finale
+			 */
+			coef: string
+			description?: string | null
+			/** Format: date-time */
+			readonly created_at?: string
+			/** Format: date-time */
+			readonly updated_at?: string
+		}
+		StudentGrade: {
+			/** Format: uuid */
+			readonly id?: string
+			grade: string
+			student: number
+			/** Format: decimal */
+			value: string
 			comment?: string | null
 			/** Format: date-time */
 			readonly created_at?: string
@@ -998,290 +1051,6 @@ export interface operations {
 			}
 		}
 	}
-	listCourses: {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		requestBody?: never
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['Course'][]
-				}
-			}
-		}
-	}
-	createCourse: {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		requestBody?: {
-			content: {
-				'application/json': components['schemas']['Course']
-				'application/x-www-form-urlencoded': components['schemas']['Course']
-				'multipart/form-data': components['schemas']['Course']
-			}
-		}
-		responses: {
-			201: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['Course']
-				}
-			}
-		}
-	}
-	retrieveCourse: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this course. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: never
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['Course']
-				}
-			}
-		}
-	}
-	updateCourse: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this course. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: {
-			content: {
-				'application/json': components['schemas']['Course']
-				'application/x-www-form-urlencoded': components['schemas']['Course']
-				'multipart/form-data': components['schemas']['Course']
-			}
-		}
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['Course']
-				}
-			}
-		}
-	}
-	destroyCourse: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this course. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: never
-		responses: {
-			204: {
-				headers: {
-					[name: string]: unknown
-				}
-				content?: never
-			}
-		}
-	}
-	partialUpdateCourse: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this course. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: {
-			content: {
-				'application/json': components['schemas']['Course']
-				'application/x-www-form-urlencoded': components['schemas']['Course']
-				'multipart/form-data': components['schemas']['Course']
-			}
-		}
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['Course']
-				}
-			}
-		}
-	}
-	listCourseEnrollments: {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		requestBody?: never
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['CourseEnrollment'][]
-				}
-			}
-		}
-	}
-	createCourseEnrollment: {
-		parameters: {
-			query?: never
-			header?: never
-			path?: never
-			cookie?: never
-		}
-		requestBody?: {
-			content: {
-				'application/json': components['schemas']['CourseEnrollment']
-				'application/x-www-form-urlencoded': components['schemas']['CourseEnrollment']
-				'multipart/form-data': components['schemas']['CourseEnrollment']
-			}
-		}
-		responses: {
-			201: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['CourseEnrollment']
-				}
-			}
-		}
-	}
-	retrieveCourseEnrollment: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this course enrollment. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: never
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['CourseEnrollment']
-				}
-			}
-		}
-	}
-	updateCourseEnrollment: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this course enrollment. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: {
-			content: {
-				'application/json': components['schemas']['CourseEnrollment']
-				'application/x-www-form-urlencoded': components['schemas']['CourseEnrollment']
-				'multipart/form-data': components['schemas']['CourseEnrollment']
-			}
-		}
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['CourseEnrollment']
-				}
-			}
-		}
-	}
-	destroyCourseEnrollment: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this course enrollment. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: never
-		responses: {
-			204: {
-				headers: {
-					[name: string]: unknown
-				}
-				content?: never
-			}
-		}
-	}
-	partialUpdateCourseEnrollment: {
-		parameters: {
-			query?: never
-			header?: never
-			path: {
-				/** A UUID string identifying this course enrollment. */
-				id: string
-			}
-			cookie?: never
-		}
-		requestBody?: {
-			content: {
-				'application/json': components['schemas']['CourseEnrollment']
-				'application/x-www-form-urlencoded': components['schemas']['CourseEnrollment']
-				'multipart/form-data': components['schemas']['CourseEnrollment']
-			}
-		}
-		responses: {
-			200: {
-				headers: {
-					[name: string]: unknown
-				}
-				content: {
-					'application/json': components['schemas']['CourseEnrollment']
-				}
-			}
-		}
-	}
 	listClassStudents: {
 		parameters: {
 			query?: never
@@ -1562,6 +1331,290 @@ export interface operations {
 				}
 				content: {
 					'application/json': components['schemas']['ClassSessionDetail']
+				}
+			}
+		}
+	}
+	listCourses: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['Course'][]
+				}
+			}
+		}
+	}
+	createCourse: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['Course']
+				'application/x-www-form-urlencoded': components['schemas']['Course']
+				'multipart/form-data': components['schemas']['Course']
+			}
+		}
+		responses: {
+			201: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['Course']
+				}
+			}
+		}
+	}
+	retrieveCourse: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this course. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['Course']
+				}
+			}
+		}
+	}
+	updateCourse: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this course. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['Course']
+				'application/x-www-form-urlencoded': components['schemas']['Course']
+				'multipart/form-data': components['schemas']['Course']
+			}
+		}
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['Course']
+				}
+			}
+		}
+	}
+	destroyCourse: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this course. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			204: {
+				headers: {
+					[name: string]: unknown
+				}
+				content?: never
+			}
+		}
+	}
+	partialUpdateCourse: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this course. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['Course']
+				'application/x-www-form-urlencoded': components['schemas']['Course']
+				'multipart/form-data': components['schemas']['Course']
+			}
+		}
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['Course']
+				}
+			}
+		}
+	}
+	listCourseEnrollments: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['CourseEnrollment'][]
+				}
+			}
+		}
+	}
+	createCourseEnrollment: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['CourseEnrollment']
+				'application/x-www-form-urlencoded': components['schemas']['CourseEnrollment']
+				'multipart/form-data': components['schemas']['CourseEnrollment']
+			}
+		}
+		responses: {
+			201: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['CourseEnrollment']
+				}
+			}
+		}
+	}
+	retrieveCourseEnrollment: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this course enrollment. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['CourseEnrollment']
+				}
+			}
+		}
+	}
+	updateCourseEnrollment: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this course enrollment. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['CourseEnrollment']
+				'application/x-www-form-urlencoded': components['schemas']['CourseEnrollment']
+				'multipart/form-data': components['schemas']['CourseEnrollment']
+			}
+		}
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['CourseEnrollment']
+				}
+			}
+		}
+	}
+	destroyCourseEnrollment: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this course enrollment. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			204: {
+				headers: {
+					[name: string]: unknown
+				}
+				content?: never
+			}
+		}
+	}
+	partialUpdateCourseEnrollment: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this course enrollment. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['CourseEnrollment']
+				'application/x-www-form-urlencoded': components['schemas']['CourseEnrollment']
+				'multipart/form-data': components['schemas']['CourseEnrollment']
+			}
+		}
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['CourseEnrollment']
 				}
 			}
 		}
@@ -2152,6 +2205,148 @@ export interface operations {
 				}
 				content: {
 					'application/json': components['schemas']['Grade']
+				}
+			}
+		}
+	}
+	listStudentGrades: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['StudentGrade'][]
+				}
+			}
+		}
+	}
+	createStudentGrade: {
+		parameters: {
+			query?: never
+			header?: never
+			path?: never
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['StudentGrade']
+				'application/x-www-form-urlencoded': components['schemas']['StudentGrade']
+				'multipart/form-data': components['schemas']['StudentGrade']
+			}
+		}
+		responses: {
+			201: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['StudentGrade']
+				}
+			}
+		}
+	}
+	retrieveStudentGrade: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this student grade. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['StudentGrade']
+				}
+			}
+		}
+	}
+	updateStudentGrade: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this student grade. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['StudentGrade']
+				'application/x-www-form-urlencoded': components['schemas']['StudentGrade']
+				'multipart/form-data': components['schemas']['StudentGrade']
+			}
+		}
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['StudentGrade']
+				}
+			}
+		}
+	}
+	destroyStudentGrade: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this student grade. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: never
+		responses: {
+			204: {
+				headers: {
+					[name: string]: unknown
+				}
+				content?: never
+			}
+		}
+	}
+	partialUpdateStudentGrade: {
+		parameters: {
+			query?: never
+			header?: never
+			path: {
+				/** A UUID string identifying this student grade. */
+				id: string
+			}
+			cookie?: never
+		}
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['StudentGrade']
+				'application/x-www-form-urlencoded': components['schemas']['StudentGrade']
+				'multipart/form-data': components['schemas']['StudentGrade']
+			}
+		}
+		responses: {
+			200: {
+				headers: {
+					[name: string]: unknown
+				}
+				content: {
+					'application/json': components['schemas']['StudentGrade']
 				}
 			}
 		}
