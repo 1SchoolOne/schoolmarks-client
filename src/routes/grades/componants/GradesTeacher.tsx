@@ -21,6 +21,7 @@ import {
 	Typography,
 } from 'antd'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { filterGrades } from '../hooks/gradeFilter'
 import { GradeWithUser, useGradesData } from '../hooks/useGradesData'
@@ -31,6 +32,7 @@ import './GradesTeacher-styles.less'
 const { Text, Title } = Typography
 
 export function GradesTeacher() {
+	const navigate = useNavigate()
 	const { grades, setGrades, loading, courses, classes, fetchGradesData, fetchClassesAndCourses } =
 		useGradesData()
 
@@ -180,7 +182,9 @@ export function GradesTeacher() {
 			<Flex className="grades-actions" justify="space-between" align="center">
 				<Space>
 					<Input.Search placeholder="Rechercher une évaluation" className="grades-actions-search" />
-					<Button type="primary">Créer une évaluation</Button>
+					<Button type="primary" onClick={() => navigate('/app/grades/create')}>
+						Créer une évaluation
+					</Button>
 				</Space>
 				<Button.Group>
 					<Button
