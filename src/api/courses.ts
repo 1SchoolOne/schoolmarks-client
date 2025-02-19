@@ -18,3 +18,11 @@ export async function getCourses() {
 	const { data } = await axios.get<GetCoursesResponse>('/courses/', AXIOS_DEFAULT_CONFIG)
 	return data
 }
+
+export async function getCoursesClass(classId?: string) {
+	const { data } = await axios.get<GetCoursesResponse>(
+		`/courses/${classId ? `?class_id=${classId}` : ''}`,
+		AXIOS_DEFAULT_CONFIG,
+	)
+	return data
+}
