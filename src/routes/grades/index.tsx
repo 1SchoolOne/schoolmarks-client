@@ -2,8 +2,7 @@ import { Outlet } from 'react-router-dom'
 
 import { Route } from '@types'
 
-import { CreateGradePage } from './CreateGradePage'
-import { Grades } from './Grades'
+import { GradesTeacher } from './componants/GradesTeacher'
 
 export const gradesRoute: Route = {
 	path: 'grades',
@@ -17,11 +16,7 @@ export const gradesRoute: Route = {
 	children: [
 		{
 			index: true,
-			element: <Grades />,
-		},
-		{
-			path: 'create',
-			element: <CreateGradePage />,
+			element: <GradesTeacher />,
 		},
 	],
 }
