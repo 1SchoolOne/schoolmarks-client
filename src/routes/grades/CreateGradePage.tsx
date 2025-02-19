@@ -21,7 +21,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { getClasses } from '@api/classes'
 import { getCoursesClass } from '@api/courses'
 import { getGrade, patchGrade, postGrade } from '@api/grades'
-import { postStudentGrade } from '@api/studentGrade'
+import { patchStudentGrade, postStudentGrade } from '@api/studentGrade'
 import { getUsers } from '@api/users'
 import type { Class } from '@apiSchema/classes'
 import type { Course } from '@apiSchema/courses'
@@ -39,6 +39,7 @@ interface StudentTableData {
 }
 
 interface FormData {
+	class: string
 	course: string
 	name: string
 	max_value: number
@@ -86,10 +87,11 @@ export function CreateGradePage() {
 
 	useEffect(() => {
 		if (existingGrade) {
-			setSelectedClass(existingGrade.class)
+			setSelectedClass(existingGrade.class_group?.id || '')
+			setSelectedCourse(existingGrade.course)
 
 			form.setFieldsValue({
-				class: existingGrade.class,
+				class: existingGrade.class_group?.id,
 				course: existingGrade.course,
 				name: existingGrade.name,
 				max_value: Number(existingGrade.max_value),
@@ -102,10 +104,8 @@ export function CreateGradePage() {
 				const gradeComments: Record<string, string> = {}
 
 				existingGrade.student_grades.forEach((grade) => {
-					if (grade.student) {
-						gradeValues[grade.student.toString()] = Number(grade.value)
-						gradeComments[grade.student.toString()] = grade.comment || ''
-					}
+					gradeValues[grade.student.toString()] = Number(grade.value)
+					gradeComments[grade.student.toString()] = grade.comment || ''
 				})
 
 				setGrades(gradeValues)
@@ -114,7 +114,6 @@ export function CreateGradePage() {
 		}
 	}, [existingGrade, form])
 
-	// Désactiver l'effet automatique du nom d'évaluation si en mode édition
 	useEffect(() => {
 		if (selectedCourse && !isEditMode) {
 			const selectedCourseData = courses.find((course) => course.id === selectedCourse)
@@ -186,21 +185,48 @@ export function CreateGradePage() {
 				: await postGrade(gradeData)
 
 			if (withGrades && finalGrade?.id && students.length > 0) {
-				await Promise.all(
-					Object.entries(grades).map(([studentId, value]) =>
-						postStudentGrade({
-							grade: finalGrade.id!,
-							student: Number(studentId),
-							value: value.toString(),
-							comment: comments[studentId] || '',
+				if (isEditMode && existingGrade?.student_grades) {
+					const existingGradesMap = new Map(
+						existingGrade.student_grades.map((grade) => [grade.student.toString(), grade]),
+					)
+
+					await Promise.all(
+						Object.entries(grades).map(([studentId, value]) => {
+							const existingGrade = existingGradesMap.get(studentId)
+							if (existingGrade) {
+								if (!existingGrade.id) return
+								return patchStudentGrade(existingGrade.id, {
+									grade: finalGrade.id!,
+									student: Number(studentId),
+									value: value.toString(),
+									comment: comments[studentId] || '',
+								})
+							} else {
+								return postStudentGrade({
+									grade: finalGrade.id!,
+									student: Number(studentId),
+									value: value.toString(),
+									comment: comments[studentId] || '',
+								})
+							}
 						}),
-					),
-				)
-				message.success(`Évaluation ${isEditMode ? 'modifiée' : 'créée'} avec succès`)
-			} else {
-				message.success(`Évaluation ${isEditMode ? 'modifiée' : 'créée'} avec succès`)
+					)
+				} else {
+					// En mode création, créer toutes les notes
+					await Promise.all(
+						Object.entries(grades).map(([studentId, value]) =>
+							postStudentGrade({
+								grade: finalGrade.id!,
+								student: Number(studentId),
+								value: value.toString(),
+								comment: comments[studentId] || '',
+							}),
+						),
+					)
+				}
 			}
 
+			message.success(`Évaluation ${isEditMode ? 'modifiée' : 'créée'} avec succès`)
 			navigate('/app/grades')
 		} catch (error) {
 			message.error(error instanceof Error ? error.message : 'Une erreur est survenue')
