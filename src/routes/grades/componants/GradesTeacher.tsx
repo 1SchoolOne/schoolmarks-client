@@ -81,8 +81,7 @@ export function GradesTeacher() {
 	}
 
 	const handleEdit = (record: GradeWithUser) => {
-		console.log('Éditer la note:', record)
-		//TODO: Implement edit grade
+		navigate(`/app/grades/edit?id=${record.id}`)
 	}
 
 	const handleDelete = (record: GradeWithUser) => {
