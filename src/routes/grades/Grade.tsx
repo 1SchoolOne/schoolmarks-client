@@ -1,12 +1,12 @@
 import { Alert, Flex, Spin } from 'antd'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { getSession } from '@api/auth'
 
 import { GradesStudent } from './componants/GradesStudent'
 import { GradesTeacher } from './componants/GradesTeacher'
 
-export const Grade: React.FC = () => {
+export const Grade = () => {
 	const [userRole, setUserRole] = useState<string | null>(null)
 	const [loading, setLoading] = useState<boolean>(true)
 	const [error, setError] = useState<string | null>(null)
