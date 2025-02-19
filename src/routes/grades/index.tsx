@@ -23,5 +23,9 @@ export const gradesRoute: Route = {
 			path: 'new',
 			element: <CreateGradePage />,
 		},
+		{
+			path: 'edit',
+			element: <CreateGradePage />,
+		},
 	],
 }
