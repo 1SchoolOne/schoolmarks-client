@@ -1,18 +1,16 @@
 import { useState } from 'react'
 
 import { SessionUserData, getSession } from '@api/auth'
-import {
-	getClasses,
-	getCourseEnrollments,
-	getCourses,
-	getGrades,
-	getStudentGrades,
-} from '@api/grades'
+import { getClasses } from '@api/classes'
+import { getCourseEnrollments } from '@api/courseEnrollments'
+import { getCourses } from '@api/courses'
+import { getGrades } from '@api/grades'
+import { getStudentGrades } from '@api/studentGrade'
 import { Class } from '@apiSchema/classes'
 import { CourseEnrollment } from '@apiSchema/courseEnrollments'
 import { Course } from '@apiSchema/courses'
 import { Grade } from '@apiSchema/grades'
-import { StudentGrade } from '@apiSchema/studentGrade'
+import { StudentGrade } from '@apiSchema/studentGrades'
 
 export const useGradesData = () => {
 	const [grades, setGrades] = useState<GradeWithUser[]>([])
