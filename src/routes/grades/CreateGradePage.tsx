@@ -16,11 +16,11 @@ import {
 } from 'antd'
 import type { MenuProps } from 'antd'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { getClasses } from '@api/classes'
-import { getCourses } from '@api/courses'
-import { postGrade } from '@api/grades'
+import { getCoursesClass } from '@api/courses'
+import { getGrade, patchGrade, postGrade } from '@api/grades'
 import { postStudentGrade } from '@api/studentGrade'
 import { getUsers } from '@api/users'
 import type { Class } from '@apiSchema/classes'
@@ -48,7 +48,11 @@ interface FormData {
 
 export function CreateGradePage() {
 	const navigate = useNavigate()
+	const location = useLocation()
 	const [form] = Form.useForm<FormData>()
+
+	const gradeId = new URLSearchParams(location.search).get('id')
+	const isEditMode = Boolean(gradeId)
 
 	const [selectedCourse, setSelectedCourse] = useState<string>('')
 	const [selectedClass, setSelectedClass] = useState<string>('')
@@ -58,8 +62,9 @@ export function CreateGradePage() {
 	const [searchText, setSearchText] = useState<string>('')
 
 	const { data: courses = [], isPending: isLoadingCourses } = useQuery({
-		queryKey: ['courses'],
-		queryFn: getCourses,
+		queryKey: ['courses', selectedClass],
+		queryFn: () => getCoursesClass(selectedClass),
+		enabled: Boolean(selectedClass),
 	})
 
 	const { data: classes = [], isPending: isLoadingClasses } = useQuery({
@@ -73,14 +78,51 @@ export function CreateGradePage() {
 		enabled: Boolean(selectedClass),
 	})
 
+	const { data: existingGrade } = useQuery({
+		queryKey: ['grade', gradeId],
+		queryFn: () => (gradeId ? getGrade(gradeId) : null),
+		enabled: !!gradeId,
+	})
+
 	useEffect(() => {
-		if (selectedCourse) {
+		if (existingGrade) {
+			setSelectedClass(existingGrade.class)
+
+			form.setFieldsValue({
+				class: existingGrade.class,
+				course: existingGrade.course,
+				name: existingGrade.name,
+				max_value: Number(existingGrade.max_value),
+				coef: Number(existingGrade.coef),
+				description: existingGrade.description || '',
+			})
+
+			if (existingGrade.student_grades?.length) {
+				const gradeValues: Record<string, number> = {}
+				const gradeComments: Record<string, string> = {}
+
+				existingGrade.student_grades.forEach((grade) => {
+					if (grade.student) {
+						gradeValues[grade.student.toString()] = Number(grade.value)
+						gradeComments[grade.student.toString()] = grade.comment || ''
+					}
+				})
+
+				setGrades(gradeValues)
+				setComments(gradeComments)
+			}
+		}
+	}, [existingGrade, form])
+
+	// Désactiver l'effet automatique du nom d'évaluation si en mode édition
+	useEffect(() => {
+		if (selectedCourse && !isEditMode) {
 			const selectedCourseData = courses.find((course) => course.id === selectedCourse)
 			if (selectedCourseData) {
 				form.setFieldValue('name', `Évaluation ${selectedCourseData.name}`)
 			}
 		}
-	}, [selectedCourse, courses, form])
+	}, [selectedCourse, courses, form, isEditMode])
 
 	const filteredStudents = students.filter((student) => {
 		const fullName = `${student.first_name} ${student.last_name}`.toLowerCase()
@@ -139,22 +181,24 @@ export function CreateGradePage() {
 				coef: values.coef?.toString(),
 			}
 
-			const createdGrade = await postGrade(gradeData)
+			const finalGrade = isEditMode
+				? await patchGrade(gradeId!, gradeData)
+				: await postGrade(gradeData)
 
-			if (withGrades && createdGrade?.id && students.length > 0) {
+			if (withGrades && finalGrade?.id && students.length > 0) {
 				await Promise.all(
 					Object.entries(grades).map(([studentId, value]) =>
 						postStudentGrade({
-							grade: createdGrade.id!,
+							grade: finalGrade.id!,
 							student: Number(studentId),
 							value: value.toString(),
 							comment: comments[studentId] || '',
 						}),
 					),
 				)
-				message.success('Évaluation et notes créées avec succès')
+				message.success(`Évaluation ${isEditMode ? 'modifiée' : 'créée'} avec succès`)
 			} else {
-				message.success('Évaluation créée avec succès')
+				message.success(`Évaluation ${isEditMode ? 'modifiée' : 'créée'} avec succès`)
 			}
 
 			navigate('/app/grades')
@@ -238,7 +282,7 @@ export function CreateGradePage() {
 	const dropdownItems: MenuProps['items'] = [
 		{
 			key: 'without_grades',
-			label: 'Valider sans noter',
+			label: isEditMode ? 'Modifier sans noter' : 'Valider sans noter',
 			onClick: () => handleSubmit(false),
 		},
 	]
@@ -246,11 +290,19 @@ export function CreateGradePage() {
 	const isCourseDisabled = !selectedClass
 	const isSubmitDisabled = !selectedClass || !selectedCourse
 
+	const handleClassChange = (value: string) => {
+		setSelectedClass(value)
+		setSelectedCourse('')
+		form.setFieldValue('course', undefined)
+	}
+
 	return (
 		<Row gutter={24} className={styles.pageContainer}>
 			<Col span={10} className={styles.formContainer}>
 				<div className={styles.card}>
-					<Typography.Title level={3}>Créer une évaluation</Typography.Title>
+					<Typography.Title level={3}>
+						{isEditMode ? "Modifier l'évaluation" : 'Créer une évaluation'}
+					</Typography.Title>
 					<Form
 						form={form}
 						layout="vertical"
@@ -274,8 +326,10 @@ export function CreateGradePage() {
 						>
 							<Select
 								placeholder="Sélectionner une classe"
-								onChange={setSelectedClass}
+								onChange={handleClassChange}
 								loading={isLoadingClasses}
+								disabled={isEditMode} // Désactiver en mode édition
+								value={selectedClass}
 							>
 								{classes.map(renderClassOption)}
 							</Select>
@@ -291,7 +345,8 @@ export function CreateGradePage() {
 								placeholder="Sélectionner un cours"
 								onChange={setSelectedCourse}
 								loading={isLoadingCourses}
-								disabled={isCourseDisabled}
+								disabled={isCourseDisabled || isEditMode} // Désactiver en mode édition
+								value={selectedCourse}
 							>
 								{courses.map(renderCourseOption)}
 							</Select>
@@ -367,7 +422,7 @@ export function CreateGradePage() {
 									onClick={() => handleSubmit(true)}
 									disabled={isSubmitDisabled}
 								>
-									Valider
+									{isEditMode ? 'Modifier' : 'Valider'}
 								</Dropdown.Button>
 							</Space>
 						</Form.Item>
