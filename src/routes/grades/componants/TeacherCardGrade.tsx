@@ -68,7 +68,6 @@ export const TeacherCardGrade = ({ grade, grades, onEdit, onDelete }: TeacherCar
 					</Space>
 				</Space>
 
-				{/* Grades */}
 				<Row gutter={8}>
 					<Col span={8}>
 						<Statistic
@@ -84,7 +83,7 @@ export const TeacherCardGrade = ({ grade, grades, onEdit, onDelete }: TeacherCar
 					</Col>
 					<Col span={8}>
 						<Statistic
-							title={<Text type="secondary">Moy. classe</Text>}
+							title={<Text type="secondary">Moyenne</Text>}
 							value={`${averageGrade}/20`}
 							formatter={formatter}
 							valueStyle={{
