@@ -1,5 +1,4 @@
 import { Card, Col, Row, Space, Statistic, Typography } from 'antd'
-import React from 'react'
 
 import { GradeWithUser } from '../hooks/useGradesData'
 
@@ -10,7 +9,7 @@ interface StudentGradeCardProps {
 	userGrade?: string
 }
 
-export const StudentCardGrade: React.FC<StudentGradeCardProps> = ({ grade, userGrade }) => {
+export const StudentCardGrade = ({ grade, userGrade }: StudentGradeCardProps) => {
 	if (!grade) return null
 
 	const numericGrades = grade.studentGrades?.map((g) => Number(g.value)) || []

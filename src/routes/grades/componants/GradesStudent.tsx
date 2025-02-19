@@ -14,7 +14,7 @@ import {
 	TableProps,
 	Typography,
 } from 'antd'
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { filterGrades } from '../hooks/gradeFilter'
 import { GradeWithUser, useGradesData } from '../hooks/useGradesData'
@@ -24,7 +24,7 @@ import './GradesStudent-styles.less'
 
 const { Text, Title, Paragraph } = Typography
 
-export function GradesStudent(): React.ReactElement {
+export function GradesStudent() {
 	const {
 		grades,
 		setGrades,

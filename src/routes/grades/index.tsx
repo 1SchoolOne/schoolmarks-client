@@ -2,8 +2,8 @@ import { Outlet } from 'react-router-dom'
 
 import { Route } from '@types'
 
-import { CreateGradePage } from './CreateGradePage'
 import { Grade } from './Grade'
+import { CreateGradePage } from './componants/CreateGradePage'
 
 export const gradesRoute: Route = {
 	path: 'grades',
