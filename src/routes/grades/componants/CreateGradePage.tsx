@@ -212,7 +212,6 @@ export function CreateGradePage() {
 						}),
 					)
 				} else {
-					// En mode création, créer toutes les notes
 					await Promise.all(
 						Object.entries(grades).map(([studentId, value]) =>
 							postStudentGrade({
