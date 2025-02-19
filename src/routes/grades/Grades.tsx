@@ -1,5 +1,6 @@
 import { Button, Col, Divider, Flex, Input, Row, Select, Table, TableProps, Typography } from 'antd'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { getGrades, getUsers } from '@api/grades'
 
@@ -11,6 +12,7 @@ interface GradeWithUser extends Grade {
 }
 
 export function Grades() {
+	const navigate = useNavigate()
 	const [grades, setGrades] = useState<GradeWithUser[]>([])
 	const [users, setUsers] = useState<User[]>([])
 	const [loading, setLoading] = useState(true)
@@ -99,7 +101,9 @@ export function Grades() {
 						<Input.Search placeholder="Rechercher une évaluation" />
 					</Col>
 					<Col>
-						<Button type="primary">Créer une évaluation</Button>
+						<Button type="primary" onClick={() => navigate('/app/grades/create')}>
+							Créer une évaluation
+						</Button>
 					</Col>
 				</Row>
 			</Flex>

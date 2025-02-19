@@ -50,7 +50,6 @@ export function CreateGradePage() {
 	const navigate = useNavigate()
 	const [form] = Form.useForm<FormData>()
 
-	// États
 	const [selectedCourse, setSelectedCourse] = useState<string>('')
 	const [selectedClass, setSelectedClass] = useState<string>('')
 	const [grades, setGrades] = useState<Record<string, number>>({})
@@ -58,7 +57,6 @@ export function CreateGradePage() {
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [searchText, setSearchText] = useState<string>('')
 
-	// Queries
 	const { data: courses = [], isPending: isLoadingCourses } = useQuery({
 		queryKey: ['courses'],
 		queryFn: getCourses,
@@ -95,8 +93,6 @@ export function CreateGradePage() {
 
 		if (!isNaN(numValue)) {
 			if (numValue > maxValue || numValue < 0) {
-				// Supprimer le message.error et simplement mettre à jour la note
-				// Le message d'erreur sera affiché par le Form.Item
 				setGrades((prev) => ({ ...prev, [studentId]: numValue }))
 				return
 			}
@@ -136,7 +132,6 @@ export function CreateGradePage() {
 
 			setIsLoading(true)
 
-			// Conversion explicite des valeurs numériques
 			const gradeData = {
 				...values,
 				course: selectedCourse,
@@ -263,7 +258,6 @@ export function CreateGradePage() {
 						initialValues={{ coef: 1 }}
 						validateTrigger="onBlur"
 						onValuesChange={(_, values) => {
-							// Conversion des valeurs en nombres si nécessaire
 							if (values.max_value) {
 								form.setFieldValue('max_value', Number(values.max_value))
 							}
