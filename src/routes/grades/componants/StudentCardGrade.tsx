@@ -13,12 +13,10 @@ interface StudentGradeCardProps {
 export const StudentCardGrade: React.FC<StudentGradeCardProps> = ({ grade, userGrade }) => {
 	if (!grade) return null
 
-	// Calculate min and max grades
 	const numericGrades = grade.studentGrades?.map((g) => Number(g.value)) || []
 	const minGrade = numericGrades.length ? Math.min(...numericGrades) : '-'
 	const maxGrade = numericGrades.length ? Math.max(...numericGrades) : '-'
 
-	// Format date
 	const formattedDate = grade.created_at
 		? new Date(grade.created_at).toLocaleDateString('fr-FR', {
 				day: '2-digit',
@@ -26,7 +24,6 @@ export const StudentCardGrade: React.FC<StudentGradeCardProps> = ({ grade, userG
 			})
 		: ''
 
-	// Custom formatter pour afficher la note et /20 sur la même ligne
 	const formatter = (value: string | number) => <span>{value}</span>
 
 	return (
@@ -54,7 +51,6 @@ export const StudentCardGrade: React.FC<StudentGradeCardProps> = ({ grade, userG
 					</Space>
 				</Space>
 
-				{/* Grades */}
 				<Row gutter={8}>
 					<Col span={8}>
 						<Statistic

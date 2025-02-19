@@ -4,15 +4,17 @@ import {
 	Card,
 	Col,
 	Divider,
+	Empty,
 	Flex,
 	Input,
 	Row,
 	Select,
+	Spin,
 	Table,
 	TableProps,
 	Typography,
 } from 'antd'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { filterGrades } from '../hooks/gradeFilter'
 import { GradeWithUser, useGradesData } from '../hooks/useGradesData'
@@ -22,7 +24,7 @@ import './GradesStudent-styles.less'
 
 const { Text, Title, Paragraph } = Typography
 
-export function GradesStudent() {
+export function GradesStudent(): React.ReactElement {
 	const {
 		grades,
 		setGrades,
@@ -32,6 +34,7 @@ export function GradesStudent() {
 		fetchGradesData,
 		fetchClassesAndCourses,
 		userSession,
+		getStudentGradesForUser,
 	} = useGradesData()
 
 	const [viewMode, setViewMode] = useState<'list' | 'card'>('list')
@@ -41,42 +44,67 @@ export function GradesStudent() {
 		month: '',
 		year: '',
 	})
+	const [searchTerm, setSearchTerm] = useState<string>('')
+
+	const studentGrades = useMemo(() => {
+		if (!userSession?.id) return []
+
+		if (getStudentGradesForUser) {
+			return getStudentGradesForUser(userSession.id)
+		}
+
+		return grades.filter((grade) =>
+			grade.studentGrades?.some((sg) => sg.student === userSession.id),
+		)
+	}, [grades, userSession, getStudentGradesForUser])
 
 	useEffect(() => {
-		const fetchData = async () => {
+		const fetchData = async (): Promise<void> => {
 			await fetchGradesData()
 			await fetchClassesAndCourses()
-			const initialGrades = await filterGrades({})
-			setGrades(initialGrades)
 		}
 		fetchData()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
-	const handleChange = async (value: string, type: keyof typeof filters) => {
+	const handleChange = async (value: string, type: keyof typeof filters): Promise<void> => {
 		const newFilters = { ...filters, [type]: value }
 		setFilters(newFilters)
 		const filteredGrades = await filterGrades(newFilters)
 		setGrades(filteredGrades)
 	}
 
-	const handleResetFilter = async (type: keyof typeof filters) => {
+	const handleResetFilter = async (type: keyof typeof filters): Promise<void> => {
 		const newFilters = { ...filters, [type]: '' }
 		setFilters(newFilters)
 		const filteredGrades = await filterGrades(newFilters)
 		setGrades(filteredGrades)
 	}
 
-	const handleResetAllFilters = async () => {
+	const handleResetAllFilters = async (): Promise<void> => {
 		setFilters({
 			subject: '',
 			class: '',
 			month: '',
 			year: '',
 		})
+		setSearchTerm('')
 		const filteredGrades = await filterGrades({})
 		setGrades(filteredGrades)
 	}
+
+	const filteredGrades = useMemo(() => {
+		if (!searchTerm) return studentGrades
+
+		const lowercaseSearch = searchTerm.toLowerCase()
+		return studentGrades.filter((grade) => {
+			return (
+				grade.courseName?.toLowerCase().includes(lowercaseSearch) ||
+				grade.name.toLowerCase().includes(lowercaseSearch) ||
+				grade.className?.toLowerCase().includes(lowercaseSearch)
+			)
+		})
+	}, [studentGrades, searchTerm])
 
 	const columns: TableProps<GradeWithUser>['columns'] = [
 		{
@@ -159,7 +187,16 @@ export function GradesStudent() {
 			<Flex justify="space-around">
 				<Row>
 					<Col style={{ marginRight: '10px' }}>
-						<Input.Search placeholder="Rechercher une évaluation" />
+						<Input.Search
+							placeholder="Rechercher une évaluation"
+							value={searchTerm}
+							onChange={(e) => setSearchTerm(e.target.value)}
+							onSearch={setSearchTerm}
+							style={{
+								width: '250px',
+							}}
+							enterButton
+						/>
 					</Col>
 				</Row>
 				<Row>
@@ -259,7 +296,7 @@ export function GradesStudent() {
 				<Divider type="vertical" className="filter-divider" />
 
 				<Flex vertical align="flex-end" justify="flex-end" className="filter-reset-all-container">
-					<Button onClick={handleResetAllFilters} className="filter-reset-all">
+					<Button onClick={handleResetAllFilters} type="primary">
 						Réinitialiser tous les filtres
 					</Button>
 				</Flex>
@@ -272,16 +309,19 @@ export function GradesStudent() {
 					</Text>
 				)}
 
-				{viewMode === 'list' ? (
+				{loading ? (
+					<Flex justify="center" align="center" style={{ padding: '40px' }}>
+						<Spin size="large" tip="Chargement de vos évaluations..." />
+					</Flex>
+				) : filteredGrades.length === 0 ? (
+					<Empty description="Aucune évaluation trouvée" style={{ padding: '40px' }} />
+				) : viewMode === 'list' ? (
 					<Table<GradeWithUser>
 						columns={columns}
-						dataSource={grades.filter((grade) =>
-							grade.studentGrades?.some((g) => g.student === userSession?.id),
-						)}
-						loading={loading}
+						dataSource={filteredGrades}
 						rowKey="id"
 						className="grades-table student-grades-table"
-						pagination={false}
+						pagination={filteredGrades.length > 10 ? { pageSize: 10 } : false}
 					/>
 				) : (
 					<Row
@@ -291,16 +331,14 @@ export function GradesStudent() {
 							margin: 0,
 						}}
 					>
-						{grades
-							.filter((grade) => grade.studentGrades?.some((g) => g.student === userSession?.id))
-							.map((grade) => {
-								const studentGrade = grade.studentGrades?.find((g) => g.student === userSession?.id)
-								return (
-									<Col xs={24} sm={12} md={8} lg={6} key={grade.id}>
-										<StudentCardGrade grade={grade} userGrade={studentGrade?.value} />
-									</Col>
-								)
-							})}
+						{filteredGrades.map((grade) => {
+							const studentGrade = grade.studentGrades?.find((g) => g.student === userSession?.id)
+							return (
+								<Col xs={24} sm={12} md={8} lg={6} key={grade.id}>
+									<StudentCardGrade grade={grade} userGrade={studentGrade?.value} />
+								</Col>
+							)
+						})}
 					</Row>
 				)}
 			</Flex>
