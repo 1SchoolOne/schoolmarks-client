@@ -182,7 +182,7 @@ export function GradesTeacher() {
 			<Flex className="grades-actions" justify="space-between" align="center">
 				<Space>
 					<Input.Search placeholder="Rechercher une évaluation" className="grades-actions-search" />
-					<Button type="primary" onClick={() => navigate('/app/grades/create')}>
+					<Button type="primary" onClick={() => navigate('/app/grades/new')}>
 						Créer une évaluation
 					</Button>
 				</Space>

@@ -20,7 +20,7 @@ export const gradesRoute: Route = {
 			element: <GradesTeacher />,
 		},
 		{
-			path: 'create',
+			path: 'new',
 			element: <CreateGradePage />,
 		},
 	],
