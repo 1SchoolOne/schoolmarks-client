@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom'
 
 import { Route } from '@types'
 
-import { CreateGradePage } from './CreateGradePage'
+import { CreateGradePage } from './componants/CreateGradePage'
 import { GradesTeacher } from './componants/GradesTeacher'
 
 export const gradesRoute: Route = {
