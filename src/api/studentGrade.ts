@@ -3,6 +3,7 @@ import axios from 'axios'
 import {
 	GetStudentGradeByIdResponse,
 	GetStudentGradeResponse,
+	PatchStudentGradeByIdResponse,
 	PostStudentGradeBody,
 } from '@apiSchema/studentGrades'
 
@@ -12,7 +13,7 @@ import { AXIOS_DEFAULT_CONFIG } from './axios'
 
 export async function getStudentGrade(studentGradeId: string) {
 	const { data } = await axios.get<GetStudentGradeByIdResponse>(
-		`/classes/${studentGradeId}/`,
+		`/student_grades/${studentGradeId}/`,
 		AXIOS_DEFAULT_CONFIG,
 	)
 	return data
@@ -34,5 +35,22 @@ export async function postStudentGrade(studentGradeData: PostStudentGradeBody) {
 		studentGradeData,
 		AXIOS_DEFAULT_CONFIG,
 	)
+	return data
+}
+
+/* - - - PATCH - - - */
+
+export async function patchStudentGrade(studentGradeId: string) {
+	const { data } = await axios.patch<PatchStudentGradeByIdResponse>(
+		`/student_grades/${studentGradeId}/`,
+		AXIOS_DEFAULT_CONFIG,
+	)
+	return data
+}
+
+/* - - - DELETE - - - */
+
+export async function deleteStudentGrade(studentGradeId: string) {
+	const { data } = await axios.delete(`/student_grades/${studentGradeId}/`, AXIOS_DEFAULT_CONFIG)
 	return data
 }
