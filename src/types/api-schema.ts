@@ -411,7 +411,10 @@ export interface components {
 		User: {
 			readonly id?: number
 			readonly role?: string
-			/** Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
+			/**
+			 * Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+			 * only.
+			 */
 			username: string
 			first_name?: string
 			last_name?: string
@@ -426,7 +429,7 @@ export interface components {
 			readonly id?: string
 			readonly user_id?: string
 			/** @enum {string} */
-			role: 'student' | 'professor' | 'admin'
+			role: 'student' | 'teacher' | 'admin'
 		}
 		Class: {
 			/** Format: uuid */
@@ -460,7 +463,6 @@ export interface components {
 					readonly role?: string
 					/**
 					 * Required. 150 characters or fewer. Letters, digits and
-					 *
 					 * @/./+/-/_ only.
 					 */
 					username: string
@@ -495,7 +497,6 @@ export interface components {
 				readonly role?: string
 				/**
 				 * Required. 150 characters or fewer. Letters, digits and
-				 *
 				 * @/./+/-/_ only.
 				 */
 				username: string
@@ -542,7 +543,6 @@ export interface components {
 				readonly role?: string
 				/**
 				 * Required. 150 characters or fewer. Letters, digits and
-				 *
 				 * @/./+/-/_ only.
 				 */
 				username: string
@@ -587,6 +587,32 @@ export interface components {
 			 */
 			coef: string
 			description?: string | null
+			readonly class_group?: {
+				/** Format: uuid */
+				readonly id?: string
+				readonly students?: string
+				name: string
+				code: string
+				/** Format: int64 */
+				year_of_graduation?: number | null
+				/** Format: date-time */
+				readonly created_at?: string
+				/** Format: date-time */
+				readonly updated_at?: string
+			}
+			readonly student_grades?: {
+				/** Format: uuid */
+				readonly id?: string
+				grade: string
+				student: number
+				/** Format: decimal */
+				value: string
+				comment?: string | null
+				/** Format: date-time */
+				readonly created_at?: string
+				/** Format: date-time */
+				readonly updated_at?: string
+			}[]
 			/** Format: date-time */
 			readonly created_at?: string
 			/** Format: date-time */
