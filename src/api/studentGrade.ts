@@ -40,9 +40,13 @@ export async function postStudentGrade(studentGradeData: PostStudentGradeBody) {
 
 /* - - - PATCH - - - */
 
-export async function patchStudentGrade(studentGradeId: string) {
+export async function patchStudentGrade(
+	studentGradeId: string,
+	studentGradeData: PostStudentGradeBody,
+) {
 	const { data } = await axios.patch<PatchStudentGradeByIdResponse>(
 		`/student_grades/${studentGradeId}/`,
+		studentGradeData,
 		AXIOS_DEFAULT_CONFIG,
 	)
 	return data
