@@ -1,12 +1,14 @@
-import { Button } from 'antd'
+import { Button, ButtonProps } from 'antd'
 import classNames from 'classnames'
-
-import { IIconButtonProps } from './IconButton-types'
 
 import './IconButton-styles.less'
 
-export function IconButton(props: IIconButtonProps) {
-	const { className } = props
+interface IIconButtonProps extends Omit<ButtonProps, 'icon' | 'children'> {
+	icon: React.ReactNode
+}
 
-	return <Button {...props} className={classNames('icon-button', className)} />
+export function IconButton(props: IIconButtonProps) {
+	const { className, ...restprops } = props
+
+	return <Button {...restprops} className={classNames('icon-button', className)} />
 }

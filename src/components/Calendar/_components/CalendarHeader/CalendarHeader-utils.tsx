@@ -1,15 +1,8 @@
-import { Select } from 'antd'
 import dayjs from 'dayjs'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export function useCalendar() {
 	const [currentDate, setCurrentDate] = useState(dayjs())
-	const currentYear = dayjs().year()
-
-	const years = useMemo(
-		() => Array.from({ length: 7 }, (_, i) => currentYear - 1 + i),
-		[currentYear],
-	)
 
 	const firstDayOfMonth = currentDate.clone().startOf('month')
 	const lastDayOfMonth = currentDate.clone().endOf('month')
@@ -40,25 +33,6 @@ export function useCalendar() {
 		})
 	}, [])
 
-	const monthOptions = useMemo(() => {
-		return Array.from({ length: 12 }, (_, i) => {
-			const month = currentDate.locale('fr').month(i).format('MMMM')
-			return (
-				<Select.Option key={i} value={i}>
-					{month}
-				</Select.Option>
-			)
-		})
-	}, [currentDate])
-
-	const yearOptions = useMemo(() => {
-		return years.map((year) => (
-			<Select.Option key={year} value={String(year)}>
-				{year}
-			</Select.Option>
-		))
-	}, [years])
-
 	const handleMonthSelectChange = useCallback((newMonth: number) => {
 		setCurrentDate((current) => current.clone().month(newMonth))
 	}, [])
@@ -67,14 +41,17 @@ export function useCalendar() {
 		setCurrentDate((current) => current.clone().year(newYear))
 	}, [])
 
+	const handleToCurrentWeek = useCallback(() => {
+		setCurrentDate(dayjs().startOf('week'))
+	}, [])
+
 	return {
 		currentDate,
 		firstDayOfMonth,
 		lastDayOfMonth,
-		monthOptions,
-		yearOptions,
 		updateCurrentDate,
 		handleMonthSelectChange,
 		handleYearSelectChange,
+		handleToCurrentWeek,
 	}
 }
