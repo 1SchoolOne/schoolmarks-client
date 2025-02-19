@@ -46,6 +46,10 @@ export async function patchGrade(gradeId: string, gradeData: PostGradeBody) {
 /* - - - DELETE - - - */
 
 export async function deleteGrade(gradeId: string) {
-	const { data } = await axios.delete(`/grades/${gradeId}/`, AXIOS_DEFAULT_CONFIG)
-	return data
+	await axios.delete(`/grades/${gradeId}/`, {
+		...AXIOS_DEFAULT_CONFIG,
+		params: {
+			cascade: true, // Pour indiquer au backend de supprimer aussi les notes associées
+		},
+	})
 }

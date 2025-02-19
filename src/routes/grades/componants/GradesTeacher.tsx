@@ -24,6 +24,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { filterGrades } from '../hooks/gradeFilter'
+import { useDeleteGrade } from '../hooks/useDeleteGrade'
 import { GradeWithUser, useGradesData } from '../hooks/useGradesData'
 import { TeacherCardGrade } from './TeacherCardGrade'
 
@@ -35,6 +36,10 @@ export function GradesTeacher() {
 	const navigate = useNavigate()
 	const { grades, setGrades, loading, courses, classes, fetchGradesData, fetchClassesAndCourses } =
 		useGradesData()
+
+	const { handleDelete } = useDeleteGrade({
+		onSuccess: fetchGradesData,
+	})
 
 	const [viewMode, setViewMode] = useState<'list' | 'card'>('list')
 	const [filters, setFilters] = useState({
@@ -82,11 +87,6 @@ export function GradesTeacher() {
 
 	const handleEdit = (record: GradeWithUser) => {
 		navigate(`/app/grades/edit?id=${record.id}`)
-	}
-
-	const handleDelete = (record: GradeWithUser) => {
-		console.log('Supprimer la note:', record)
-		//TODO : Implement delete grade
 	}
 
 	const columns: TableProps<GradeWithUser>['columns'] = [
