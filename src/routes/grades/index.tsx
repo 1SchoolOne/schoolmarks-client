@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 
 import { Route } from '@types'
 
+import { CreateGradePage } from './CreateGradePage'
 import { GradesTeacher } from './componants/GradesTeacher'
 
 export const gradesRoute: Route = {
@@ -17,6 +18,10 @@ export const gradesRoute: Route = {
 		{
 			index: true,
 			element: <GradesTeacher />,
+		},
+		{
+			path: 'create',
+			element: <CreateGradePage />,
 		},
 	],
 }
