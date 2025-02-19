@@ -1,10 +1,22 @@
 .calendar-header {
-	padding-top: 20px;
+	padding-top: var(--ant-padding-md);
 	height: 50px;
 }
 
+.day-column-header {
+	border-right: 1px solid var(--ant-color-border);
+	padding-left: var(--ant-padding-sm);
+}
+
 .calendar-body {
-	max-height: auto;
+	//position: relative;
+	//max-height: 200px;
+}
+
+.dates {
+	display: flex;
+	justify-content: space-between;
+	padding-right: var(--ant-padding-sm);
 }
 
 .current-time-line {
@@ -20,20 +32,9 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
-	padding-right: 10px;
+	padding-right: var(--ant-padding-sm);
 	margin-top: -11px;
 	border-right: 1px solid var(--ant-color-border);
-}
-
-.day-column-header {
-	border-right: 1px solid var(--ant-color-border);
-	padding-left: 10px;
-}
-
-.dates {
-	display: flex;
-	justify-content: space-between;
-	padding-right: 10px;
 }
 
 .day-column {
@@ -41,7 +42,6 @@
 }
 
 .hour-slot {
-	height: 53px;
 	border-top: 1px solid var(--ant-color-border);
 	position: relative;
 }
@@ -59,12 +59,4 @@
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-}
-
-.hour-label {
-	height: 53px;
-}
-
-.text-sm {
-	font-size: 0.875rem;
 }
