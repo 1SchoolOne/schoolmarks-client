@@ -2,7 +2,7 @@ import { Modal, message } from 'antd'
 
 import { deleteGrade } from '@api/grades'
 
-import { GradeWithUser } from './useGradesData'
+import { GradeWithUser } from './useGrades'
 
 interface UseDeleteGradeProps {
 	onSuccess?: () => Promise<void>
