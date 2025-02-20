@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { Button, Card, Col, Row, Space, Statistic, Tooltip, Typography } from 'antd'
 
-import { GradeWithUser } from '../hooks/useGradesData'
+import { GradeWithUser } from '../hooks/useGrades'
 
 const { Text, Title } = Typography
 
@@ -29,8 +29,9 @@ export const TeacherCardGrade = ({ grade, grades, onEdit, onDelete }: TeacherCar
 		}
 	})
 
-	const minGrade = allStudentGrades.length ? Math.min(...allStudentGrades) : '-'
-	const maxGrade = allStudentGrades.length ? Math.max(...allStudentGrades) : '-'
+	const minGrade = allStudentGrades.length ? Math.floor(Math.min(...allStudentGrades)) : '-'
+	const maxGrade = allStudentGrades.length ? Math.floor(Math.max(...allStudentGrades)) : '-'
+
 	const averageGrade = allStudentGrades.length
 		? Math.round((allStudentGrades.reduce((a, b) => a + b, 0) / allStudentGrades.length) * 10) / 10
 		: '-'
@@ -72,7 +73,7 @@ export const TeacherCardGrade = ({ grade, grades, onEdit, onDelete }: TeacherCar
 					<Col span={8}>
 						<Statistic
 							title={<Text type="secondary">Note -</Text>}
-							value={`${minGrade}/20`}
+							value={`${minGrade}/${parseInt(grade.max_value, 10)}`}
 							formatter={formatter}
 							valueStyle={{
 								color: '#f5222d',
@@ -84,7 +85,7 @@ export const TeacherCardGrade = ({ grade, grades, onEdit, onDelete }: TeacherCar
 					<Col span={8}>
 						<Statistic
 							title={<Text type="secondary">Moyenne</Text>}
-							value={`${averageGrade}/20`}
+							value={`${averageGrade}/${parseInt(grade.max_value, 10)}`}
 							formatter={formatter}
 							valueStyle={{
 								color: '#1890ff',
@@ -96,7 +97,7 @@ export const TeacherCardGrade = ({ grade, grades, onEdit, onDelete }: TeacherCar
 					<Col span={8}>
 						<Statistic
 							title={<Text type="secondary">Note +</Text>}
-							value={`${maxGrade}/20`}
+							value={`${maxGrade}/${parseInt(grade.max_value, 10)}`}
 							formatter={formatter}
 							valueStyle={{
 								color: '#52c41a',
