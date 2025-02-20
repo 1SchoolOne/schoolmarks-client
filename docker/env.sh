@@ -1,13 +1,15 @@
-#!/bin/sh
-for i in $(env | grep VITE_)
-do
-    key=$(echo $i | cut -d '=' -f 1)
-    value=$(echo $i | cut -d '=' -f 2-)
-    echo $key=$value
-    # sed All files
-    # find /usr/share/nginx/html -type f -exec sed -i "s|${key}|${value}|g" '{}' +
+#! /bin/sh
 
-    # sed JS and CSS only
-    find /usr/share/nginx/html/assets -type f -name '*.js' -exec sed -i "s|\"${key}\"|\"${value}\"|g" '{}' +
+if [ -z "$APP_ENV_PREFIX" ]; then
+    echo "APP_ENV_PREFIX is not set. Exiting."
+    exit 1
+fi
+
+for i in $(env | grep "^$APP_ENV_PREFIX"); do
+    key=$(echo "$i" | cut -d '=' -f 1)
+    value=$(echo "$i" | cut -d '=' -f 2-)
+
+    echo "$key=$value"
+
+    find "/usr/share/nginx/html/" -type f -exec sed -i 's|'"${key}"'|'"${value}"'|g' {} \;
 done
-echo 'done'
