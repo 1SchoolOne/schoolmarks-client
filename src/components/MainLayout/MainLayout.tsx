@@ -47,55 +47,69 @@ function getSelectedKeysFromPathname(pathname: string): string[] {
 }
 
 function getMenuItems(userRole: string): ItemType[] {
-	const menuItems: ItemType[] = [
-		{
-			key: 'attendance',
-			label: <Link to="/app/attendance">Assiduité</Link>,
-			icon: <Clock size={16} />,
-		},
-		{
-			key: 'grades',
-			label: <Link to="/app/grades">Notes</Link>,
-			icon: <ScrollText size={16} />,
-		},
-		{
-			key: 'calendar',
-			label: <Link to="/app/calendar">Calendrier</Link>,
-			icon: <CalendarDays size={16} />,
-		},
-	]
+	switch (userRole) {
+		case 'admin':
+			return [
+				{
+					key: 'admin',
+					label: 'Administration',
+					icon: <SettingsIcon size={16} />,
+					children: [
+						{
+							key: 'admin-users',
+							label: <Link to="/app/admin/users">Utilisateurs</Link>,
+							icon: <UsersIcon size={16} />,
+						},
+						{
+							key: 'admin-classes',
+							label: <Link to="/app/admin/classes">Classes</Link>,
+							icon: <ComponentIcon size={16} />,
+						},
+						{
+							key: 'admin-courses',
+							label: <Link to="/app/admin/courses">Cours</Link>,
+							icon: <BookMarkedIcon size={16} />,
+						},
+						{
+							key: 'admin-import',
+							label: <Link to="/app/admin/import">Import</Link>,
+							icon: <FileSpreadsheetIcon size={16} />,
+						},
+					],
+				},
+			]
 
-	if (userRole === 'admin') {
-		menuItems.push({
-			key: 'admin',
-			label: 'Administration',
-			icon: <SettingsIcon size={16} />,
-			children: [
+		case 'teacher':
+			return [
 				{
-					key: 'admin-users',
-					label: <Link to="/app/admin/users">Utilisateurs</Link>,
-					icon: <UsersIcon size={16} />,
+					key: 'attendance',
+					label: <Link to="/app/attendance">Assiduité</Link>,
+					icon: <Clock size={16} />,
 				},
 				{
-					key: 'admin-classes',
-					label: <Link to="/app/admin/classes">Classes</Link>,
-					icon: <ComponentIcon size={16} />,
+					key: 'grades',
+					label: <Link to="/app/grades">Notes</Link>,
+					icon: <ScrollText size={16} />,
+				},
+			]
+
+		case 'student':
+			return [
+				{
+					key: 'grades',
+					label: <Link to="/app/grades">Notes</Link>,
+					icon: <ScrollText size={16} />,
 				},
 				{
-					key: 'admin-courses',
-					label: <Link to="/app/admin/courses">Cours</Link>,
-					icon: <BookMarkedIcon size={16} />,
+					key: 'calendar',
+					label: <Link to="/app/calendar">Calendrier</Link>,
+					icon: <CalendarDays size={16} />,
 				},
-				{
-					key: 'admin-import',
-					label: <Link to="/app/admin/import">Import</Link>,
-					icon: <FileSpreadsheetIcon size={16} />,
-				},
-			],
-		})
+			]
+
+		default:
+			return []
 	}
-
-	return menuItems
 }
 
 export function MainLayout({ children }: PropsWithChildren) {
