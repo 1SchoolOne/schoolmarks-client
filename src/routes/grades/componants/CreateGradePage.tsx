@@ -68,7 +68,7 @@ export function CreateGradePage() {
 		enabled: Boolean(selectedClass),
 	})
 
-	const { data: classes = [], isPending: isLoadingClasses } = useQuery({
+	const { data: classes, isPending: isLoadingClasses } = useQuery({
 		queryKey: ['classes'],
 		queryFn: getClasses,
 	})
@@ -356,7 +356,7 @@ export function CreateGradePage() {
 								disabled={isEditMode} // Désactiver en mode édition
 								value={selectedClass}
 							>
-								{classes.map(renderClassOption)}
+								{(classes ?? []).map(renderClassOption)}
 							</Select>
 						</Form.Item>
 
