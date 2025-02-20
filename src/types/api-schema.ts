@@ -411,10 +411,7 @@ export interface components {
 		User: {
 			readonly id?: number
 			readonly role?: string
-			/**
-			 * Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-			 * only.
-			 */
+			/** Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
 			username: string
 			first_name?: string
 			last_name?: string
@@ -463,6 +460,7 @@ export interface components {
 					readonly role?: string
 					/**
 					 * Required. 150 characters or fewer. Letters, digits and
+					 *
 					 * @/./+/-/_ only.
 					 */
 					username: string
@@ -497,6 +495,7 @@ export interface components {
 				readonly role?: string
 				/**
 				 * Required. 150 characters or fewer. Letters, digits and
+				 *
 				 * @/./+/-/_ only.
 				 */
 				username: string
@@ -543,6 +542,7 @@ export interface components {
 				readonly role?: string
 				/**
 				 * Required. 150 characters or fewer. Letters, digits and
+				 *
 				 * @/./+/-/_ only.
 				 */
 				username: string
