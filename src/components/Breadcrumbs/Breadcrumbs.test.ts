@@ -31,7 +31,7 @@ describe('getCrumbsFromMatches', () => {
 
 		expect(crumbs).toEqual([
 			{ label: 'toto', path: 'toto' },
-			{ label: 'tata', path: 'tata' },
+			{ label: 'tata', path: 'toto/tata' },
 		])
 	})
 })
