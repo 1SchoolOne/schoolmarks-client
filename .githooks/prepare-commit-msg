@@ -14,6 +14,11 @@ if [[ "$GIT_REFLOG_ACTION" == "rebase"* ]]; then
   exit 0
 fi
 
+if [ -n "$GIT_SEQUENCE_EDITOR" ]; then
+  echo "Skipping prepare-commit-msg hook due to rebase."
+  exit 0
+fi
+
 if [ -n "$(grep 'chore(release):' "$1")" ]; then
   echo "Skipping prepare-commit-msg hook due to lerna."
   exit 0
