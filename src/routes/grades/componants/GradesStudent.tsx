@@ -14,173 +14,113 @@ import {
 	TableProps,
 	Typography,
 } from 'antd'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
-import { filterGrades } from '../hooks/gradeFilter'
-import { GradeWithUser, useGradesData } from '../hooks/useGradesData'
+import { GradeWithUser, useGrades } from '../hooks/useGrades'
 import { StudentCardGrade } from './StudentCardGrade'
 
 import './GradesStudent-styles.less'
 
-const { Text, Title, Paragraph } = Typography
-
 export function GradesStudent() {
 	const {
-		grades,
-		setGrades,
-		loading,
-		courses,
-		error,
-		fetchGradesData,
-		fetchClassesAndCourses,
-		userSession,
-		getStudentGradesForUser,
-	} = useGradesData()
+		viewMode,
+		setViewMode,
+		filters,
+		searchTerm,
+		setSearchTerm,
+		filteredGrades,
+		isLoading,
+		handleChange,
+		handleResetFilter,
+		handleResetAllFilters,
+		subjectOptions,
+		classOptions,
+		monthOptions,
+		yearOptions,
+		user,
+	} = useGrades('student')
 
-	const [viewMode, setViewMode] = useState<'list' | 'card'>('list')
-	const [filters, setFilters] = useState({
-		subject: '',
-		class: '',
-		month: '',
-		year: '',
-	})
-	const [searchTerm, setSearchTerm] = useState<string>('')
-
-	const studentGrades = useMemo(() => {
-		if (!userSession?.id) return []
-
-		if (getStudentGradesForUser) {
-			return getStudentGradesForUser(userSession.id)
-		}
-
-		return grades.filter((grade) =>
-			grade.studentGrades?.some((sg) => sg.student === userSession.id),
-		)
-	}, [grades, userSession, getStudentGradesForUser])
-
-	useEffect(() => {
-		const fetchData = async (): Promise<void> => {
-			await fetchGradesData()
-			await fetchClassesAndCourses()
-		}
-		fetchData()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
-
-	const handleChange = async (value: string, type: keyof typeof filters): Promise<void> => {
-		const newFilters = { ...filters, [type]: value }
-		setFilters(newFilters)
-		const filteredGrades = await filterGrades(newFilters)
-		setGrades(filteredGrades)
-	}
-
-	const handleResetFilter = async (type: keyof typeof filters): Promise<void> => {
-		const newFilters = { ...filters, [type]: '' }
-		setFilters(newFilters)
-		const filteredGrades = await filterGrades(newFilters)
-		setGrades(filteredGrades)
-	}
-
-	const handleResetAllFilters = async (): Promise<void> => {
-		setFilters({
-			subject: '',
-			class: '',
-			month: '',
-			year: '',
-		})
-		setSearchTerm('')
-		const filteredGrades = await filterGrades({})
-		setGrades(filteredGrades)
-	}
-
-	const filteredGrades = useMemo(() => {
-		if (!searchTerm) return studentGrades
-
-		const lowercaseSearch = searchTerm.toLowerCase()
-		return studentGrades.filter((grade) => {
-			return (
-				grade.courseName?.toLowerCase().includes(lowercaseSearch) ||
-				grade.name.toLowerCase().includes(lowercaseSearch) ||
-				grade.className?.toLowerCase().includes(lowercaseSearch)
-			)
-		})
-	}, [studentGrades, searchTerm])
-
-	const columns: TableProps<GradeWithUser>['columns'] = [
-		{
-			title: 'Matière',
-			dataIndex: 'courseName',
-			key: 'courseName',
-			render: (text) => <Text strong>{text}</Text>,
-		},
-		{
-			title: 'Date',
-			dataIndex: 'created_at',
-			key: 'created_at',
-			render: (date: string) => {
-				if (!date) return '-'
-				const d = new Date(date)
-				return `${d.getDate()}/${d.getMonth() + 1}`
+	// Définition des colonnes spécifiques pour la vue étudiant
+	const columns: TableProps<GradeWithUser>['columns'] = useMemo(
+		() => [
+			{
+				title: 'Matière',
+				dataIndex: 'courseName',
+				key: 'courseName',
+				render: (text) => <Typography.Text strong>{text}</Typography.Text>,
 			},
-		},
-		{
-			title: 'Coeff.',
-			dataIndex: 'coef',
-			key: 'coef',
-			render: (coef) => parseInt(coef, 10) || 1,
-		},
-		{
-			title: 'Ta Note',
-			key: 'yourGrade',
-			render: (_, record) => {
-				const yourGrade = record.studentGrades?.find((g) => g.student === userSession?.id)
-				return yourGrade ? yourGrade.value : '-'
+			{
+				title: 'Date',
+				dataIndex: 'created_at',
+				key: 'created_at',
+				render: (date: string) => {
+					if (!date) return '-'
+					const d = new Date(date)
+					return `${d.getDate()}/${d.getMonth() + 1}`
+				},
 			},
-		},
-		{
-			title: 'Note -',
-			key: 'minGrade',
-			render: (_, record) => {
-				const numericGrades = record.studentGrades?.map((g) => Number(g.value)) || []
-				return numericGrades.length ? Math.min(...numericGrades) : '-'
+			{
+				title: 'Coeff.',
+				dataIndex: 'coef',
+				key: 'coef',
+				render: (coef) => parseInt(coef, 10) || 1,
 			},
-		},
-		{
-			title: 'Note +',
-			key: 'maxGrade',
-			render: (_, record) => {
-				const numericGrades = record.studentGrades?.map((g) => Number(g.value)) || []
-				return numericGrades.length ? Math.max(...numericGrades) : '-'
+			{
+				title: 'Ta Note',
+				key: 'yourGrade',
+				render: (_, record) => {
+					const yourGrade = record.studentGrades?.find((g) => g.student === user?.id)
+					return yourGrade ? yourGrade.value : '-'
+				},
 			},
-		},
-		{
-			title: 'Classe',
-			dataIndex: 'className',
-			key: 'className',
-			render: (text) => text || '-',
-		},
-		{
-			title: 'Appréciation',
-			key: 'appreciation',
-			width: 250,
-			render: (_, record) => {
-				const yourGrade = record.studentGrades?.find((g) => g.student === userSession?.id)
-				return (
-					<Card className="appreciation-card" bordered size="small">
-						<Paragraph className="appreciation-text">
-							{yourGrade?.comment || 'Pas de commentaire'}
-						</Paragraph>
-					</Card>
-				)
+			{
+				title: 'Note -',
+				key: 'minGrade',
+				render: (_, record) => {
+					const numericGrades = record.studentGrades?.map((g) => Number(g.value)) || []
+					return numericGrades.length ? Math.min(...numericGrades) : '-'
+				},
 			},
-		},
-	]
+			{
+				title: 'Note +',
+				key: 'maxGrade',
+				render: (_, record) => {
+					const numericGrades = record.studentGrades?.map((g) => Number(g.value)) || []
+					return numericGrades.length ? Math.max(...numericGrades) : '-'
+				},
+			},
+			{
+				title: 'Classe',
+				dataIndex: 'className',
+				key: 'className',
+				render: (text) => text || '-',
+			},
+			{
+				title: 'Appréciation',
+				key: 'appreciation',
+				width: 250,
+				render: (_, record) => {
+					const yourGrade = record.studentGrades?.find((g) => g.student === user?.id)
+					return (
+						<Card className="appreciation-card" bordered size="small">
+							<Typography.Paragraph className="appreciation-text">
+								{yourGrade?.comment || 'Pas de commentaire'}
+							</Typography.Paragraph>
+						</Card>
+					)
+				},
+			},
+		],
+		[user],
+	)
 
 	return (
 		<Flex vertical>
 			<Row>
 				<Col style={{ padding: '8px' }}>
-					<Text type="secondary">Consultez vos évaluations et suivez votre progression</Text>
+					<Typography.Text type="secondary">
+						Consultez vos évaluations et suivez votre progression
+					</Typography.Text>
 				</Col>
 			</Row>
 
@@ -222,14 +162,14 @@ export function GradesStudent() {
 			<Flex className="filters-container" justify="center" align="center">
 				<Flex className="filter-group" align="center">
 					<Flex vertical align="center" className="filter-group-item">
-						<Title level={5}>Matière</Title>
+						<Typography.Title level={5}>Matière</Typography.Title>
 						<Flex align="center" className="filter-group-item-controls">
 							<Select
 								className="filter-select"
 								placeholder="Matière"
 								onChange={(value) => handleChange(value, 'subject')}
 								value={filters.subject}
-								options={courses.map((course) => ({ value: course.name, label: course.name }))}
+								options={subjectOptions}
 							/>
 							<CloseCircleOutlined
 								className="filter-reset-icon"
@@ -241,27 +181,33 @@ export function GradesStudent() {
 					<Divider type="vertical" className="filter-divider" />
 
 					<Flex vertical align="center" className="filter-group-item">
-						<Title level={5}>Mois</Title>
+						<Typography.Title level={5}>Classe</Typography.Title>
+						<Flex align="center" className="filter-group-item-controls">
+							<Select
+								className="filter-select"
+								placeholder="Classe"
+								onChange={(value) => handleChange(value, 'class')}
+								value={filters.class}
+								options={classOptions}
+							/>
+							<CloseCircleOutlined
+								className="filter-reset-icon"
+								onClick={() => handleResetFilter('class')}
+							/>
+						</Flex>
+					</Flex>
+
+					<Divider type="vertical" className="filter-divider" />
+
+					<Flex vertical align="center" className="filter-group-item">
+						<Typography.Title level={5}>Mois</Typography.Title>
 						<Flex align="center" className="filter-group-item-controls">
 							<Select
 								className="filter-select"
 								placeholder="Mois"
 								onChange={(value) => handleChange(value, 'month')}
 								value={filters.month}
-								options={[
-									{ value: 'Janvier', label: 'Janvier' },
-									{ value: 'Février', label: 'Février' },
-									{ value: 'Mars', label: 'Mars' },
-									{ value: 'Avril', label: 'Avril' },
-									{ value: 'Mai', label: 'Mai' },
-									{ value: 'Juin', label: 'Juin' },
-									{ value: 'Juillet', label: 'Juillet' },
-									{ value: 'Aout', label: 'Aout' },
-									{ value: 'Septembre', label: 'Septembre' },
-									{ value: 'Octobre', label: 'Octobre' },
-									{ value: 'Novembre', label: 'Novembre' },
-									{ value: 'Décembre', label: 'Décembre' },
-								]}
+								options={monthOptions}
 							/>
 							<CloseCircleOutlined
 								className="filter-reset-icon"
@@ -273,17 +219,14 @@ export function GradesStudent() {
 					<Divider type="vertical" className="filter-divider" />
 
 					<Flex vertical align="center" className="filter-group-item">
-						<Title level={5}>Année</Title>
+						<Typography.Title level={5}>Année</Typography.Title>
 						<Flex align="center" className="filter-group-item-controls">
 							<Select
 								className="filter-select"
 								placeholder="Année"
 								onChange={(value) => handleChange(value, 'year')}
 								value={filters.year}
-								options={Array.from({ length: new Date().getFullYear() - 2020 + 1 }, (_, i) => {
-									const year = (2020 + i).toString()
-									return { value: year, label: year }
-								})}
+								options={yearOptions}
 							/>
 							<CloseCircleOutlined
 								className="filter-reset-icon"
@@ -303,38 +246,40 @@ export function GradesStudent() {
 			</Flex>
 
 			<Flex vertical className="grades-content">
-				{error && (
-					<Text type="danger" className="grades-error">
-						{error}
-					</Text>
-				)}
-
-				{loading ? (
-					<Flex justify="center" align="center" style={{ padding: '40px' }}>
-						<Spin size="large" tip="Chargement de vos évaluations..." />
+				{isLoading ? (
+					<Flex justify="center" align="center" style={{ height: '200px' }}>
+						<Spin size="large" />
 					</Flex>
 				) : filteredGrades.length === 0 ? (
-					<Empty description="Aucune évaluation trouvée" style={{ padding: '40px' }} />
+					<Empty
+						description={
+							<Typography.Text>
+								Aucune évaluation trouvée. Essayez de modifier vos filtres.
+							</Typography.Text>
+						}
+					/>
 				) : viewMode === 'list' ? (
-					<Table<GradeWithUser>
+					<Table
 						columns={columns}
 						dataSource={filteredGrades}
 						rowKey="id"
 						className="grades-table student-grades-table"
 						pagination={filteredGrades.length > 10 ? { pageSize: 10 } : false}
+						loading={isLoading}
 					/>
 				) : (
 					<Row
-						gutter={[24, 24]}
+						gutter={[16, 16]}
 						style={{
-							padding: '20px',
+							width: '100%',
 							margin: 0,
+							padding: '16px 0',
 						}}
 					>
 						{filteredGrades.map((grade) => {
-							const studentGrade = grade.studentGrades?.find((g) => g.student === userSession?.id)
+							const studentGrade = grade.studentGrades?.find((g) => g.student === user?.id)
 							return (
-								<Col xs={24} sm={12} md={8} lg={6} key={grade.id}>
+								<Col xs={24} sm={12} md={8} lg={6} key={grade.id} style={{ display: 'flex' }}>
 									<StudentCardGrade grade={grade} userGrade={studentGrade?.value} />
 								</Col>
 							)
