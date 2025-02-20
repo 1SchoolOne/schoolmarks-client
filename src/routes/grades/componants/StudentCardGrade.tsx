@@ -1,6 +1,8 @@
 import { Card, Col, Row, Space, Statistic, Typography } from 'antd'
 
-import { GradeWithUser } from '../hooks/useGradesData'
+import { GradeWithUser } from '../hooks/useGrades'
+
+import './StudentCardGrades-styles.less'
 
 const { Text, Title } = Typography
 
@@ -13,8 +15,8 @@ export const StudentCardGrade = ({ grade, userGrade }: StudentGradeCardProps) =>
 	if (!grade) return null
 
 	const numericGrades = grade.studentGrades?.map((g) => Number(g.value)) || []
-	const minGrade = numericGrades.length ? Math.min(...numericGrades) : '-'
-	const maxGrade = numericGrades.length ? Math.max(...numericGrades) : '-'
+	const minGrade = numericGrades.length ? Math.floor(Math.min(...numericGrades)) : '-'
+	const maxGrade = numericGrades.length ? Math.floor(Math.max(...numericGrades)) : '-'
 
 	const formattedDate = grade.created_at
 		? new Date(grade.created_at).toLocaleDateString('fr-FR', {
@@ -54,7 +56,7 @@ export const StudentCardGrade = ({ grade, userGrade }: StudentGradeCardProps) =>
 					<Col span={8}>
 						<Statistic
 							title={<Text type="secondary">Ta note :</Text>}
-							value={`${userGrade || '-'}/20`}
+							value={`${parseInt(userGrade || '0', 10) || '-'}/${parseInt(grade.max_value, 10)}`}
 							formatter={formatter}
 							valueStyle={{
 								color: '#dcb14a',
@@ -66,7 +68,7 @@ export const StudentCardGrade = ({ grade, userGrade }: StudentGradeCardProps) =>
 					<Col span={8}>
 						<Statistic
 							title={<Text type="secondary">Note - :</Text>}
-							value={`${minGrade}/20`}
+							value={`${minGrade}/${parseInt(grade.max_value, 10)}`}
 							formatter={formatter}
 							valueStyle={{
 								color: '#f5222d',
@@ -78,7 +80,7 @@ export const StudentCardGrade = ({ grade, userGrade }: StudentGradeCardProps) =>
 					<Col span={8}>
 						<Statistic
 							title={<Text type="secondary">Note + :</Text>}
-							value={`${maxGrade}/20`}
+							value={`${maxGrade}/${parseInt(grade.max_value, 10)}`}
 							formatter={formatter}
 							valueStyle={{
 								color: '#52c41a',
