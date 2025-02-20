@@ -1,18 +1,20 @@
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, ExportOutlined } from '@ant-design/icons'
 import { Button, Card, Col, Row, Space, Statistic, Tooltip, Typography } from 'antd'
 
+import { useGradeExport } from '../hooks/useGradeExport'
 import { GradeWithUser } from '../hooks/useGrades'
 
 const { Text, Title } = Typography
-
 interface TeacherCardGradeProps {
 	grade: GradeWithUser
 	grades: GradeWithUser[]
 	onEdit: (grade: GradeWithUser) => void
 	onDelete: (grade: GradeWithUser) => void
+	onExport?: (grade: GradeWithUser) => void
 }
 
 export const TeacherCardGrade = ({ grade, grades, onEdit, onDelete }: TeacherCardGradeProps) => {
+	const { handleExport } = useGradeExport()
 	if (!grade) return null
 
 	const courseGrades = grades.filter((g) => g.course === grade.course)
@@ -116,6 +118,15 @@ export const TeacherCardGrade = ({ grade, grades, onEdit, onDelete }: TeacherCar
 								type="text"
 								icon={<EditOutlined style={{ color: '#1890ff' }} />}
 								onClick={() => onEdit(grade)}
+							/>
+						</Tooltip>
+					</Col>
+					<Col>
+						<Tooltip title="Exporter l'évaluation">
+							<Button
+								type="text"
+								icon={<ExportOutlined style={{ color: '#1890ff' }} />}
+								onClick={() => handleExport(grade)}
 							/>
 						</Tooltip>
 					</Col>
