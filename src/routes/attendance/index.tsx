@@ -3,6 +3,8 @@ import { Outlet } from 'react-router-dom'
 
 import { getClassSessionQueryOptions, getClassSessions } from '@api/classSessions'
 
+import { ProtectedRoute } from '@components'
+
 import { Route } from '@types'
 
 import { Attendance } from './Attendance'
@@ -26,7 +28,11 @@ export function getAttendanceRoute(queryClient: QueryClient): Route {
 			},
 			{
 				path: 'class-session/:classSessionId',
-				element: <AttendanceWithModal />,
+				element: (
+					<ProtectedRoute restrictedTo={['teacher']} redirectTo="/app/attendance">
+						<AttendanceWithModal />
+					</ProtectedRoute>
+				),
 				loader: ({ params }) =>
 					classSessionloader({ queryClient, classSessionId: params.classSessionId }),
 			},
