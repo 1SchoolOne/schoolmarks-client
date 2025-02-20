@@ -11,15 +11,18 @@ import { LoadingScreen } from '../LoadingScreen/LoadingScreen'
 interface ProtectedRouteProps {
 	/** Permet de restreindre l'accès à certains rôles. */
 	restrictedTo?: [UserRole, ...UserRole[]]
+	redirectTo?: string
 }
 
-function RoleCheck(props: PropsWithChildren<{ userRole: UserRole; acceptedRoles: UserRole[] }>) {
-	const { acceptedRoles, userRole, children } = props
+function RoleCheck(
+	props: PropsWithChildren<{ userRole: UserRole; acceptedRoles: UserRole[]; redirectTo?: string }>,
+) {
+	const { acceptedRoles, userRole, children, redirectTo = '/app/attendance' } = props
 
 	if (acceptedRoles.includes(userRole)) {
 		return children
 	} else {
-		return <Navigate to="/app/attendance" replace />
+		return <Navigate to={redirectTo} replace />
 	}
 }
 
@@ -30,7 +33,7 @@ function RoleCheck(props: PropsWithChildren<{ userRole: UserRole; acceptedRoles:
  * seulement aux rôles spécifiés.
  */
 export function ProtectedRoute(props: PropsWithChildren<ProtectedRouteProps>) {
-	const { restrictedTo, children } = props
+	const { restrictedTo, redirectTo, children } = props
 
 	const { status, user } = useContext(IdentityContext)
 
@@ -40,7 +43,11 @@ export function ProtectedRoute(props: PropsWithChildren<ProtectedRouteProps>) {
 
 	if (restrictedTo) {
 		return (
-			<RoleCheck acceptedRoles={restrictedTo} userRole={user!.role as UserRole}>
+			<RoleCheck
+				acceptedRoles={restrictedTo}
+				userRole={user!.role as UserRole}
+				redirectTo={redirectTo}
+			>
 				{children}
 			</RoleCheck>
 		)
