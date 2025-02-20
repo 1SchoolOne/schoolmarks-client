@@ -1,6 +1,5 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo, useState } from 'react'
 
-import { SessionUserData, getSession } from '@api/auth'
 import { getClasses } from '@api/classes'
 import { getCourseEnrollments } from '@api/courseEnrollments'
 import { getCourses } from '@api/courses'
@@ -12,37 +11,40 @@ import { Course } from '@apiSchema/courses'
 import { Grade } from '@apiSchema/grades'
 import { StudentGrade } from '@apiSchema/studentGrades'
 
+import { IdentityContext } from '@contexts'
+
 export interface GradeWithUser extends Grade {
 	courseName?: string
 	studentGrades?: StudentGrade[]
 	className?: string
 }
 
+// TODO: revoir la récupération des données et toute la logique
 export const useGradesData = () => {
+	const { user } = useContext(IdentityContext)
+
 	const [grades, setGrades] = useState<GradeWithUser[]>([])
 	const [loading, setLoading] = useState<boolean>(true)
 	const [courses, setCourses] = useState<Course[]>([])
 	const [error, setError] = useState<string | null>(null)
 	const [classes, setClasses] = useState<Class[]>([])
-	const [userSession, setUserSession] = useState<SessionUserData>()
 	const [enrollments, setEnrollments] = useState<CourseEnrollment[]>([])
 	const [studentGrades, setStudentGrades] = useState<StudentGrade[]>([])
 
 	const fetchGradesData = useCallback(async (): Promise<void> => {
 		try {
 			setLoading(true)
-			const [gradesData, courseData, studentGradesData, enrollmentsData, classesData, sessionData] =
+			const [gradesData, courseData, studentGradesData, enrollmentsData, classesData] =
 				await Promise.all([
 					getGrades(),
 					getCourses(),
 					getStudentGrades(),
 					getCourseEnrollments(),
 					getClasses(),
-					getSession(),
 				])
 
-			const user = sessionData.data.user
-			setUserSession(user)
+			if (!user) throw new Error('user is undefined')
+
 			setEnrollments(enrollmentsData)
 			setCourses(courseData)
 			setClasses(classesData)
@@ -56,17 +58,9 @@ export const useGradesData = () => {
 				)
 
 				filteredGrades = gradesData.filter((grade) => grade.id && relevantGradeIds.has(grade.id))
-			}
-
-			if (user?.role === 'student') {
-				const relevantGradeIds = new Set(
-					studentGradesData.filter((sg) => sg.student === user.id).map((sg) => sg.grade),
-				)
-
-				filteredGrades = gradesData.filter((grade) => grade.id && relevantGradeIds.has(grade.id))
-			} else if (user?.role === 'teacher') {
-				const teacherIdStr = String(user.id)
-				const teacherIdNum = typeof user.id === 'string' ? parseInt(user.id, 10) : user.id
+			} else {
+				const teacherIdStr = String(user!.id)
+				const teacherIdNum = typeof user!.id === 'string' ? parseInt(user.id, 10) : user.id
 
 				const teacherCoursesStrComp = courseData.filter((course) => {
 					if (!course.professor) return false
@@ -168,28 +162,25 @@ export const useGradesData = () => {
 	)
 
 	const getTeacherGrades = useCallback((): GradeWithUser[] => {
-		if (!userSession?.id || userSession.role !== 'teacher' || !courses.length) {
+		if (!user?.id || user.role === 'student' || !courses.length) {
 			return []
 		}
 
-		const teacherId = userSession.id
-
-		const teacherCourses = courses.filter((course) => course.professor?.id === teacherId)
+		const teacherCourses = courses.filter((course) => course.professor?.id === user.id)
 		const teacherCourseIds = new Set(teacherCourses.map((course) => course.id))
 
 		return grades.filter((grade) => teacherCourseIds.has(grade.course))
-	}, [grades, courses, userSession])
+	}, [grades, courses, user])
 
 	const getTeacherCourses = useCallback((): Course[] => {
-		if (!userSession?.id || userSession.role !== 'teacher' || !courses.length) {
+		if (!user?.id || user.role === 'student' || !courses.length) {
 			return []
 		}
 
-		const teacherId =
-			typeof userSession.id === 'string' ? parseInt(userSession.id, 10) : userSession.id
+		const teacherId = typeof user.id === 'string' ? parseInt(user.id, 10) : user.id
 
 		return courses.filter((course) => course.professor?.id === teacherId)
-	}, [courses, userSession])
+	}, [courses, user])
 
 	const teacherGrades = useMemo(() => getTeacherGrades(), [getTeacherGrades])
 	const teacherCourses = useMemo(() => getTeacherCourses(), [getTeacherCourses])
@@ -204,7 +195,6 @@ export const useGradesData = () => {
 		enrollments,
 		fetchGradesData,
 		fetchClassesAndCourses,
-		userSession,
 		studentGrades,
 		getStudentGradesForUser,
 		getTeacherGrades,
