@@ -3,6 +3,7 @@ import {
 	CloseCircleOutlined,
 	DeleteOutlined,
 	EditOutlined,
+	ExportOutlined,
 	UnorderedListOutlined,
 } from '@ant-design/icons'
 import {
@@ -24,6 +25,7 @@ import {
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { useGradeExport } from '../hooks/useGradeExport'
 import { GradeWithUser, useGrades } from '../hooks/useGrades'
 import { TeacherCardGrade } from './TeacherCardGrade'
 
@@ -51,6 +53,7 @@ export function GradesTeacher() {
 		monthOptions,
 		yearOptions,
 	} = useGrades('teacher')
+	const { handleExport } = useGradeExport()
 
 	// Définition des colonnes spécifiques pour la vue enseignant
 	const columns: TableProps<GradeWithUser>['columns'] = useMemo(
@@ -123,6 +126,13 @@ export function GradesTeacher() {
 								onClick={() => handleEdit(record)}
 							/>
 						</Tooltip>
+						<Tooltip title="Exporter l'évaluation">
+							<Button
+								type="text"
+								icon={<ExportOutlined className="action-edit" />}
+								onClick={() => handleExport(record)}
+							/>
+						</Tooltip>
 						<Tooltip title="Supprimer l'évaluation">
 							<Button
 								type="text"
@@ -134,7 +144,7 @@ export function GradesTeacher() {
 				),
 			},
 		],
-		[handleEdit, handleDelete],
+		[handleEdit, handleDelete, handleExport],
 	)
 
 	return (
