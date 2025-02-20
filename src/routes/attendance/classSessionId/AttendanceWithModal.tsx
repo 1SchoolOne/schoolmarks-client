@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { Col, Divider, Modal, QRCode, Row } from 'antd'
+import { Col, Divider, Modal, QRCode, Row, Tag, Typography } from 'antd'
 import dayjs from 'dayjs'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
-import { getClassSessionQueryOptions } from '@api/classSessions'
+import { getClassSession } from '@api/classSessions'
 
 import { IdentityContext } from '@contexts'
 
@@ -18,22 +18,32 @@ import { TOTP } from './_components/TOTP/TOTP'
 
 import './AttendanceWithModal-styles.less'
 
+// TODO: show only the table when the session goes from `opened` to `closed`
 export function AttendanceWithModal() {
 	const initialData = useLoaderData() as Awaited<ReturnType<typeof classSessionloader>>
 	const { user } = useContext(IdentityContext)
 	const navigate = useNavigate()
 	const params = useParams()
+	const [refetchInterval, setRefetchInterval] = useState<number | undefined>(2_000)
 	const canCreateCheckinSessions = hasPermission(user, 'create', 'checkin_sessions')
-	const canReadCheckinSessions = hasPermission(user, 'read', 'checkin_sessions')
-
-	const classSessionQueryOptions = getClassSessionQueryOptions(params.classSessionId)
 
 	const { data: classSession } = useQuery({
-		...classSessionQueryOptions,
+		queryKey: ['classSession', params.classSessionId],
+		queryFn: async () => {
+			const session = await getClassSession(String(params.classSessionId))
+
+			if (session.checkin_session?.status === 'closed') {
+				setRefetchInterval(undefined)
+			}
+
+			return session
+		},
 		initialData,
-		enabled: typeof params.classSessionId === 'string',
+		refetchInterval,
+		enabled: !!params.classSessionId,
 	})
 
+	const isSessionClosed = classSession.checkin_session?.status === 'closed'
 	const sessionDate = dayjs(classSession.date).format('dddd DD MMMM')
 	const checkinSessionUrl = `${import.meta.env.VITE_CLIENT_HOST}/register-attendance/${classSession.checkin_session?.id}`
 
@@ -41,42 +51,59 @@ export function AttendanceWithModal() {
 		<>
 			<Attendance />
 			<Modal
-				title={`${sessionDate.charAt(0).toUpperCase() + sessionDate.slice(1)} - ${classSession.course?.name} (${classSession.course?.code})`}
-				onCancel={() => navigate(-1)}
+				title={
+					<div className="checkin-session__modal-title-container">
+						<Typography.Title
+							level={5}
+						>{`${sessionDate.charAt(0).toUpperCase() + sessionDate.slice(1)} - ${classSession.course?.name} (${classSession.course?.code})`}</Typography.Title>
+						{isSessionClosed && <Tag color="error">Appel fermé</Tag>}
+					</div>
+				}
+				onCancel={() => navigate('/app/attendance')}
 				footer={null}
-				width={canReadCheckinSessions ? 750 : 500}
+				width={isSessionClosed ? 700 : 800}
+				styles={{
+					body: {
+						height: '450px',
+					},
+				}}
 				open
 				centered
 				destroyOnClose
 			>
-				<Row>
-					<Col span={canReadCheckinSessions ? 11 : 24}>
-						<QRCode
-							status={classSession.checkin_session ? 'active' : 'loading'}
-							statusRender={({ status }) => {
-								if (status === 'loading') {
-									return canCreateCheckinSessions
-										? "Lancez l'appel pour générer un QR code"
-										: "Le QR code sera généré après le lancement de l'appel"
-								}
-							}}
-							type="svg"
-							value={checkinSessionUrl}
-							size={200}
-						/>
-						{classSession.checkin_session && <TOTP />}
-						<CheckinSessionForm />
-					</Col>
-					{canReadCheckinSessions && (
+				<Row gutter={[8, 8]} className="checkin-modal">
+					{classSession.checkin_session?.status !== 'closed' && (
 						<>
-							<Col span={2}>
-								<Divider className="student-list-divider" type="vertical" />
+							<Col span={11} className="checkin-modal__left-panel">
+								<QRCode
+									status={classSession.checkin_session ? 'active' : 'loading'}
+									statusRender={({ status }) => {
+										if (status === 'loading') {
+											return canCreateCheckinSessions
+												? "Lancez l'appel pour générer un QR code"
+												: "Le QR code sera généré après le lancement de l'appel"
+										}
+									}}
+									type="svg"
+									value={checkinSessionUrl}
+									size={200}
+								/>
+								{classSession.checkin_session && <TOTP />}
+								<div className="checkin-session-form">
+									<CheckinSessionForm />
+								</div>
 							</Col>
-							<Col span={11}>
-								<StudentList />
+							<Col span={1}>
+								<Divider className="student-list-divider" type="vertical" />
 							</Col>
 						</>
 					)}
+					<Col span={isSessionClosed ? 24 : 12}>
+						<StudentList
+							checkinSessionId={classSession.checkin_session?.id}
+							isSessionClosed={isSessionClosed}
+						/>
+					</Col>
 				</Row>
 			</Modal>
 		</>

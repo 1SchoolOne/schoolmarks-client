@@ -1,88 +1,123 @@
-import { List as AntdList, Col, Flex, Row, Tag, Typography } from 'antd'
+import { useQuery } from '@tanstack/react-query'
+import { Space, Table, Tag, Typography } from 'antd'
+import axios from 'axios'
 import dayjs from 'dayjs'
+import { CircleCheckBigIcon, CircleOffIcon, ClockAlertIcon } from 'lucide-react'
 
-import { Student, useData } from './StudentList-data'
+import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
 
-export interface ListProps {
-	canReadCheckinSessions: boolean
-	isCheckInSessionOpened: boolean
-	students: Student[]
-	isLoading: boolean
+import { Student } from './StudentList-data'
+
+import './StudentList-styles.less'
+
+interface StudentListProps {
+	checkinSessionId: string | undefined
+	isSessionClosed: boolean
 }
 
-export function StudentList() {
-	const { canReadCheckinSessions, classSession, students, isStudentsPending } = useData()
+type Attendance = {
+	fullname: string
+	arrivedAt: string
+	presence: string
+}
+
+function renderTitle(attendances: readonly Attendance[]) {
+	const [presentCount, lateCount, absentCount] = [
+		attendances.filter((a) => a.presence === 'present').length,
+		attendances.filter((a) => a.presence === 'late').length,
+		attendances.filter((a) => a.presence === 'absent').length,
+	]
 
 	return (
-		<List
-			canReadCheckinSessions={canReadCheckinSessions}
-			isCheckInSessionOpened={!!classSession.checkin_session}
-			students={students}
-			isLoading={isStudentsPending}
-		/>
+		<Space>
+			<Typography.Text type="success">{presentCount} élèves présent</Typography.Text>/
+			<Typography.Text type="warning">{lateCount} élèves en retard</Typography.Text>/
+			<Typography.Text type="danger">{absentCount} élèves absent</Typography.Text>
+		</Space>
 	)
 }
 
-export function List(props: ListProps) {
-	const { canReadCheckinSessions, isCheckInSessionOpened, students, isLoading } = props
+export function StudentList(props: StudentListProps) {
+	const { checkinSessionId, isSessionClosed } = props
 
-	if (!canReadCheckinSessions) {
-		return <></>
-	}
+	const { data: studentAttendances, isPending } = useQuery({
+		queryKey: ['students', checkinSessionId],
+		queryFn: async () => {
+			const { data } = await axios.get<Student[]>(
+				`/attendance_records/?checkin_session_id=${checkinSessionId}`,
+				AXIOS_DEFAULT_CONFIG,
+			)
 
-	return isCheckInSessionOpened ? (
-		<AntdList
-			className="student-list"
-			itemLayout="horizontal"
-			dataSource={students}
-			loading={isLoading}
-			locale={{
-				emptyText: "Aucun élève ne s'est enregistré pour le moment",
+			const finalData: {
+				fullname: string
+				arrivedAt: string
+				presence: string
+			}[] = data.map((attendance) => ({
+				fullname: `${attendance.student.first_name} ${attendance.student.last_name}`,
+				arrivedAt: dayjs(attendance.checked_in_at).format('HH:mm'),
+				presence: attendance.status,
+			}))
+
+			return finalData
+		},
+		refetchInterval: !isSessionClosed ? 2000 : undefined,
+		enabled: checkinSessionId !== undefined,
+		initialData: [],
+	})
+
+	return (
+		<Table
+			className="student-checkin-list"
+			size="small"
+			tableLayout="fixed"
+			dataSource={studentAttendances}
+			loading={isPending}
+			bordered
+			scroll={{
+				y: 450 - 39 * 2,
 			}}
-			header={
-				<Row gutter={4} align="middle">
-					<Col span={13}>
-						<Typography.Text strong>Nom</Typography.Text>
-					</Col>
-					<Col span={5}>
-						<Typography.Text strong>Arrivée</Typography.Text>
-					</Col>
-					<Col span={6}>
-						<Typography.Text strong>Statut</Typography.Text>
-					</Col>
-				</Row>
-			}
-			renderItem={(item) => {
-				const checkedInAt = dayjs(item.checked_in_at)
-				const isAbsent = item.status === 'absent'
-				const isLate = item.status === 'late'
-
-				return (
-					<AntdList.Item className="student-list__item">
-						<Row gutter={4} align="middle">
-							<Col span={13}>
-								<Typography.Text>
-									{item.student?.first_name} {item.student?.last_name}
-								</Typography.Text>
-							</Col>
-							<Col span={5}>
-								<Typography.Text>{checkedInAt.format('HH:mm')}</Typography.Text>
-							</Col>
-							<Col span={6}>
-								<Tag bordered={false} color={isAbsent ? 'error' : isLate ? 'warning' : 'success'}>
-									{isAbsent ? 'Absent' : isLate ? 'En retard' : 'Présent'}
-								</Tag>
-							</Col>
-						</Row>
-					</AntdList.Item>
-				)
-			}}
+			rowKey={({ fullname, presence }) => `${fullname}-${presence}`}
+			title={studentAttendances?.length > 0 ? renderTitle : undefined}
+			columns={[
+				{
+					dataIndex: 'fullname',
+					title: 'Nom',
+					render: (value: string) => (value.trim() === '' ? '-' : value),
+				},
+				{
+					dataIndex: 'arrivedAt',
+					title: 'Arrivée',
+					width: 70,
+				},
+				{
+					dataIndex: 'presence',
+					title: 'Statut',
+					width: 100,
+					render: (value: string) => {
+						switch (value) {
+							case 'present':
+								return (
+									<Tag color="var(--ant-color-success)" icon={<CircleCheckBigIcon size={10} />}>
+										Présent
+									</Tag>
+								)
+							case 'late':
+								return (
+									<Tag color="var(--ant-color-warning)" icon={<ClockAlertIcon size={10} />}>
+										En retard
+									</Tag>
+								)
+							case 'absent':
+								return (
+									<Tag color="var(--ant-color-error)" icon={<CircleOffIcon size={10} />}>
+										Absent
+									</Tag>
+								)
+						}
+					},
+				},
+			]}
+			pagination={false}
 		/>
-	) : (
-		<Flex className="no-checkin-session-message" justify="center" align="center">
-			<Typography.Text type="secondary">
-				La liste s'actualisera une fois l'appel lancé
-			</Typography.Text>
-		</Flex>
 	)
 }

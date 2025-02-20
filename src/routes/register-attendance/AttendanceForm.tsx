@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Alert, Button, Flex, Form, Input, Typography } from 'antd'
+import { Alert, AlertProps, Button, Flex, Form, Input, Typography } from 'antd'
 import axios from 'axios'
 import classnames from 'classnames'
 import dayjs from 'dayjs'
@@ -49,6 +49,19 @@ interface AttendanceFormValues {
 	otp: string
 }
 
+function getPresenceStatusAlertProps(presence: string): Pick<AlertProps, 'type' | 'message'> {
+	switch (presence) {
+		case 'present':
+			return { type: 'success', message: 'Vous avez été noté présent(e).' }
+		case 'late':
+			return { type: 'warning', message: 'Vous avez été noté en retard.' }
+		case 'absent':
+			return { type: 'error', message: 'Vous avez été noté absent.' }
+		default:
+			return { type: 'info', message: "Votre présence n'a pas été enregistrée." }
+	}
+}
+
 export function AttendanceForm({ onSubmit }: { onSubmit: (values: AttendanceFormValues) => void }) {
 	const { classSession: initialClassSession, attendance: initialAttendance } =
 		useLoaderData() as Awaited<ReturnType<typeof registerAttendanceLoader>>
@@ -81,7 +94,7 @@ export function AttendanceForm({ onSubmit }: { onSubmit: (values: AttendanceForm
 	})
 
 	const sessionDate = dayjs(classSession?.date)
-	const isSessionClosed = dayjs(classSession.checkin_session?.closed_at).isBefore()
+	const isSessionClosed = classSession.status === 'closed'
 
 	return (
 		<Flex
@@ -93,21 +106,16 @@ export function AttendanceForm({ onSubmit }: { onSubmit: (values: AttendanceForm
 				{classSession?.course?.name} ({classSession?.course?.code})
 			</Typography.Title>
 
-			{attendance ? (
+			{attendance && (
 				<Alert
-					type={
-						attendance.status === 'late'
-							? 'warning'
-							: attendance.status === 'absent'
-								? 'error'
-								: 'success'
-					}
+					{...getPresenceStatusAlertProps(attendance.status)}
 					icon={<CheckIcon size={14} />}
-					message={`Vous êtes noté(e) ${attendance.status === 'late' ? 'en retard' : attendance.status === 'absent' ? 'absent' : 'présent'}`}
 					showIcon
 					banner
 				/>
-			) : isSessionClosed ? (
+			)}
+
+			{isSessionClosed && (
 				<Alert
 					type="error"
 					icon={<CircleOffIcon size={14} />}
@@ -115,7 +123,7 @@ export function AttendanceForm({ onSubmit }: { onSubmit: (values: AttendanceForm
 					showIcon
 					banner
 				/>
-			) : null}
+			)}
 
 			<Flex vertical gap={6}>
 				<Flex align="center" gap={8}>
