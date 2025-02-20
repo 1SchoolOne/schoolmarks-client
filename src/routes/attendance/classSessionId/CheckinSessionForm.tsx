@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Button, Col, Descriptions, Form, Row, Space, TimePicker } from 'antd'
+import { Button, Col, Form, Row, Space, Statistic, TimePicker } from 'antd'
 import dayjs from 'dayjs'
 import { useContext } from 'react'
 import { useLoaderData, useParams } from 'react-router-dom'
@@ -57,57 +57,45 @@ export function CheckinSessionForm() {
 	if (classSession.checkin_session) {
 		// TODO: rethink the display of these datas
 		return (
-			<Space>
-				<Descriptions
-					layout="vertical"
-					items={[
-						{
-							label: 'En retard à partir de',
-							children: dayjs(classSession.checkin_session?.started_at).format('HH:mm'),
-						},
-						{
-							label: 'Ferme à',
-							children: dayjs(classSession.checkin_session?.closed_at).format('HH:mm'),
-						},
-					]}
+			<Space size="large">
+				<Statistic
+					title="En retard à"
+					value={dayjs(classSession.checkin_session?.started_at).format('HH:mm')}
+				/>
+				<Statistic
+					title="Ferme à"
+					value={dayjs(classSession.checkin_session?.closed_at).format('HH:mm')}
 				/>
 			</Space>
 		)
 	}
 
-	if (canCreateCheckinSessions) {
-		return (
-			<Form<CheckinSessionFormValues>
-				onFinish={submitCheckinSession}
-				preserve={false}
-				validateMessages={{
-					required: 'Champ requis',
-				}}
-			>
-				<Row>
-					<Col span={24}>
-						<Form.Item
-							label="En retard à partir de :"
-							name="startedAt"
-							rules={[{ required: true }]}
-						>
-							<TimePicker placeholder="HH:mm" format="HH:mm" minuteStep={5} />
-						</Form.Item>
-					</Col>
-					<Col span={24}>
-						<Form.Item label="Absent à partir de :" name="closedAt" rules={[{ required: true }]}>
-							<TimePicker placeholder="HH:mm" format="HH:mm" minuteStep={5} />
-						</Form.Item>
-					</Col>
-					<Col span={24}>
-						<Button type="primary" htmlType="submit" block>
-							Lancer l'appel
-						</Button>
-					</Col>
-				</Row>
-			</Form>
-		)
-	}
-
-	return <></>
+	return (
+		<Form<CheckinSessionFormValues>
+			layout="vertical"
+			onFinish={submitCheckinSession}
+			preserve={false}
+			validateMessages={{
+				required: 'Champ requis',
+			}}
+		>
+			<Row gutter={[8, 8]}>
+				<Col span={12}>
+					<Form.Item label="En retard à partir de :" name="startedAt" rules={[{ required: true }]}>
+						<TimePicker placeholder="HH:mm" format="HH:mm" minuteStep={5} />
+					</Form.Item>
+				</Col>
+				<Col span={12}>
+					<Form.Item label="Absent à partir de :" name="closedAt" rules={[{ required: true }]}>
+						<TimePicker placeholder="HH:mm" format="HH:mm" minuteStep={5} />
+					</Form.Item>
+				</Col>
+				<Col span={24}>
+					<Button type="primary" htmlType="submit" block>
+						Lancer l'appel
+					</Button>
+				</Col>
+			</Row>
+		</Form>
+	)
 }
