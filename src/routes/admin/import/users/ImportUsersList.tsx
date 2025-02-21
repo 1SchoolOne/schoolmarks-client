@@ -1,8 +1,10 @@
 import { Button, Space } from 'antd'
 import dayjs from 'dayjs'
 import durationPlugin from 'dayjs/plugin/duration'
-import { FolderDownIcon } from 'lucide-react'
+import { DownloadIcon, FolderDownIcon } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+
+import { downloadFromURL } from '@utils/downloadPublicFile'
 
 import { ImportList } from '../_components/ImportList/ImportList'
 
@@ -20,14 +22,23 @@ export function ImportUsersList() {
 
 	return (
 		<Space direction="vertical" style={{ width: '100%' }}>
-			<Button
-				size="small"
-				type="primary"
-				icon={<FolderDownIcon size={16} />}
-				onClick={() => navigate('/app/admin/import/users/new')}
-			>
-				Importer des utilisateurs
-			</Button>
+			<Space>
+				<Button
+					type="primary"
+					icon={<FolderDownIcon size={16} />}
+					onClick={() => navigate('/app/admin/import/users/new')}
+				>
+					Importer des utilisateurs
+				</Button>
+				<Button
+					icon={<DownloadIcon size={16} />}
+					onClick={() =>
+						downloadFromURL('/CSV_users_SchoolMarks.xlsx', 'CSV_users_SchoolMarks.xlsx')
+					}
+				>
+					Télécharger le modèle CSV
+				</Button>
+			</Space>
 			<ImportList<UserImportResult>
 				importType="users"
 				renderItem={(item) => {

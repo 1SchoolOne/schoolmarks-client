@@ -2,8 +2,9 @@ import { PropsWithChildren } from '@1schoolone/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { App, Button, Form, Popover, Segmented, Space, Table, Tag } from 'antd'
 import axios from 'axios'
+import { PlusIcon, Trash2Icon } from 'lucide-react'
 import { useState } from 'react'
-import { useLoaderData } from 'react-router-dom'
+import { useLoaderData, useNavigate } from 'react-router-dom'
 
 import { AXIOS_DEFAULT_CONFIG } from '@api/axios'
 import { getUsers } from '@api/users'
@@ -46,16 +47,22 @@ function EditRolePopover({ user, children }: PropsWithChildren<{ user: User }>) 
 	const [formInstance] = Form.useForm()
 	const { notification } = App.useApp()
 
-	// TODO: modifier l'endpoint pour brancher le call API
 	const { mutate: updateUserRole } = useMutation({
-		mutationFn: (newRole: string) =>
-			axios.patch(`/users/${user.id}`, { role: newRole }, AXIOS_DEFAULT_CONFIG),
+		mutationFn: (values: { user_role: string }) =>
+			axios.patch(`/users/${user.id}/`, values, AXIOS_DEFAULT_CONFIG),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
 				queryKey: ['users'],
 			})
 			notification.success({
 				message: `Rôle de ${user.first_name} ${user.last_name} modifié avec succès`,
+			})
+			setIsOpen(false)
+		},
+		onError: () => {
+			notification.error({
+				message: 'Erreur',
+				description: `Impossible de mettre à jour le rôle de ${user.first_name} ${user.last_name}`,
 			})
 		},
 	})
@@ -71,12 +78,12 @@ function EditRolePopover({ user, children }: PropsWithChildren<{ user: User }>) 
 			content={
 				<Form
 					form={formInstance}
-					onFinish={console.log}
-					initialValues={{ role: user.role }}
+					onFinish={updateUserRole}
+					initialValues={{ user_role: user.role }}
 					preserve={false}
 				>
 					<Space direction="vertical">
-						<Form.Item name="role">
+						<Form.Item name="user_role">
 							<Segmented
 								options={[
 									{ value: 'student', label: 'Étudiant' },
@@ -104,6 +111,9 @@ function EditRolePopover({ user, children }: PropsWithChildren<{ user: User }>) 
 
 export function UserAdminTable() {
 	const initialData = useLoaderData() as Awaited<ReturnType<typeof userAdminTableLoader>>
+	const navigate = useNavigate()
+	const queryClient = useQueryClient()
+	const { modal } = App.useApp()
 
 	const { data } = useQuery({
 		queryKey: ['users'],
@@ -115,8 +125,39 @@ export function UserAdminTable() {
 		<Table
 			className="user-admin-table"
 			dataSource={data}
+			title={() => (
+				<Button
+					type="primary"
+					icon={<PlusIcon size={16} />}
+					onClick={() => navigate('/app/admin/users/new')}
+				>
+					Ajouter un utilisateur
+				</Button>
+			)}
 			rowKey={({ id }) => String(id)}
 			columns={[
+				{
+					title: 'Actions',
+					width: 100,
+					render: (_, user) => (
+						<Button
+							type="link"
+							icon={<Trash2Icon size={16} />}
+							onClick={() =>
+								modal.confirm({
+									icon: <Trash2Icon color="var(--ant-color-error)" />,
+									title: 'Supprimer',
+									content: `Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.first_name} ${user.last_name} ?`,
+									okText: 'Supprimer',
+									okButtonProps: { danger: true },
+									onOk: async () => await axios.delete(`/users/${user.id}/`, AXIOS_DEFAULT_CONFIG),
+									afterClose: () => queryClient.refetchQueries({ queryKey: ['users'] }),
+								})
+							}
+							danger
+						/>
+					),
+				},
 				{
 					dataIndex: 'first_name',
 					title: 'Prénom',

@@ -28,6 +28,7 @@ import { ImportCoursesList } from './import/courses/ImportCoursesList'
 import { ImportUsers } from './import/users/ImportUsers'
 import { ImportUsersDetail } from './import/users/ImportUsersDetail'
 import { ImportUsersList } from './import/users/ImportUsersList'
+import { CreateUserModal } from './users/CreateUserModal'
 import { UserAdminTable } from './users/UserAdminTable'
 
 export function getAdminRoute(queryClient: QueryClient): Route {
@@ -50,13 +51,28 @@ export function getAdminRoute(queryClient: QueryClient): Route {
 			{
 				path: 'users',
 				loader: () => userAdminTableLoader(queryClient),
-				element: <UserAdminTable />,
+				element: <Outlet />,
 				handle: {
 					crumb: {
 						label: 'Utilisateurs',
 						path: 'users',
 					},
 				},
+				children: [
+					{
+						index: true,
+						element: <UserAdminTable />,
+					},
+					{
+						path: 'new',
+						element: (
+							<>
+								<UserAdminTable />
+								<CreateUserModal />
+							</>
+						),
+					},
+				],
 			},
 			{
 				path: 'classes',

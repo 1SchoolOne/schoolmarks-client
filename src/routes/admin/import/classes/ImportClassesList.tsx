@@ -1,7 +1,9 @@
 import { Button, Space } from 'antd'
 import dayjs from 'dayjs'
-import { FolderDownIcon } from 'lucide-react'
+import { DownloadIcon, FolderDownIcon } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+
+import { downloadFromURL } from '@utils/downloadPublicFile'
 
 import { ImportList } from '../_components/ImportList/ImportList'
 
@@ -17,14 +19,23 @@ export function ImportClassesList() {
 
 	return (
 		<Space direction="vertical" style={{ width: '100%' }}>
-			<Button
-				size="small"
-				type="primary"
-				icon={<FolderDownIcon size={16} />}
-				onClick={() => navigate('/app/admin/import/classes/new')}
-			>
-				Importer des classes
-			</Button>
+			<Space>
+				<Button
+					type="primary"
+					icon={<FolderDownIcon size={16} />}
+					onClick={() => navigate('/app/admin/import/classes/new')}
+				>
+					Importer des classes
+				</Button>
+				<Button
+					icon={<DownloadIcon size={16} />}
+					onClick={() =>
+						downloadFromURL('/CSV_classes_SchoolMarks.xlsx', 'CSV_classes_SchoolMarks.xlsx')
+					}
+				>
+					Télécharger le modèle CSV
+				</Button>
+			</Space>
 			<ImportList<ClassImportResult>
 				importType="classes"
 				renderItem={(item) => {
